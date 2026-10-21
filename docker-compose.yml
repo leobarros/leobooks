@@ -27,7 +27,9 @@ services:
       LEOBOOKS_AUDIT_LOG: ${LEOBOOKS_AUDIT_LOG:-}
       SECRET_KEY: ${SECRET_KEY:-}
     ports:
-      - "${LEOBOOKS_BIND_ADDR:-127.0.0.1}:${LEOBOOKS_PUBLISH_PORT:-5059}:5057"
+      # Publicado diretamente no host, em todas as interfaces (LAN/Tailscale),
+      # no mesmo padrão do serviço todonow. Para outra porta, edite esta linha.
+      - "0.0.0.0:5059:5057"
     volumes:
       - leobooks_instance:/app/instance
     healthcheck:

@@ -55,11 +55,12 @@ Você só precisa de **Docker** e **Docker Compose** no servidor.
 
 ```bash
 # dentro da pasta do projeto
-cp .env.example .env
-
-# opcional: edite porta, endereço e outras opções no .env
+# opcional: cp .env.example .env (para ajustar fuso, OCR e outros detalhes)
 docker compose up -d --build
 ```
+
+A porta **0.0.0.0:5059** já está definida no `docker-compose.yml`; não é preciso
+criar `.env` para acessar pela LAN/Tailscale.
 
 Abra **[http://127.0.0.1:5059](http://127.0.0.1:5059)** e crie sua conta.
 
@@ -115,15 +116,8 @@ LEOBOOKS_HOST="$TAILSCALE_IP" LEOBOOKS_PORT=5057 ./run.sh
 Acesse `http://$TAILSCALE_IP:5057`. Se preferir aceitar também a LAN, use
 `LEOBOOKS_HOST=0.0.0.0` e restrinja a porta no firewall/ACL.
 
-**Com Docker** — no `.env`:
-
-```env
-LEOBOOKS_BIND_ADDR=100.x.y.z
-LEOBOOKS_PUBLISH_PORT=5059
-LEOBOOKS_HTTPS=0
-```
-
-Depois recrie o container (mudança de porta não exige só `restart`):
+**Com Docker** — a porta já está publicada diretamente no Compose como
+`0.0.0.0:5059:5057`, sem precisar de variável de ambiente:
 
 ```bash
 docker compose up -d --force-recreate
@@ -131,14 +125,16 @@ docker compose ps
 ```
 
 A saída deve mostrar algo como
-`100.x.y.z:5059->5057/tcp`. Teste do próprio servidor:
+`0.0.0.0:5059->5057/tcp`. Teste do próprio servidor:
 
 ```bash
+TAILSCALE_IP="$(tailscale ip -4)"
 curl -I "http://$TAILSCALE_IP:5059/healthz"
 ```
 
 E, de outro dispositivo no tailnet, abra
-`http://100.x.y.z:5059`.
+`http://100.x.y.z:5059`. Se precisar trocar a porta, edite a linha
+`0.0.0.0:5059:5057` em `docker-compose.yml`.
 
 > Use `http://`, não `https://`, enquanto `LEOBOOKS_HTTPS=0`. Se
 > `LEOBOOKS_HTTPS=1` for usado em HTTP puro, o navegador não envia os cookies
@@ -323,8 +319,6 @@ docker compose logs -f leobooks
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
 | `LEOBOOKS_PORT` | `5057` | Porta interna/local. |
-| `LEOBOOKS_BIND_ADDR` | `127.0.0.1` | Endereço publicado pelo Compose. |
-| `LEOBOOKS_PUBLISH_PORT` | `5059` | Porta no host. |
 | `LEOBOOKS_SAMPLE_BOOK` | `1` | Cria o livro de exemplo em cada cadastro. |
 | `LEOBOOKS_COVER_LOOKUP` | `1` | Liga/desliga a busca de capas. |
 | `LEOBOOKS_IMAGE_TAG` | `latest` | Tag da imagem `nickolback/leobooks`. |
