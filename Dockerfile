@@ -5,6 +5,12 @@ FROM python:3.13-slim-bookworm
 ARG APP_UID=1000
 ARG APP_GID=1000
 ARG INSTALL_OCR=false
+ARG LEOBOOKS_VERSION=dev
+
+LABEL org.opencontainers.image.title="LeoBooks" \
+      org.opencontainers.image.description="Caderno de leitura em Flask: livros, notas, citações e progresso de leitura." \
+      org.opencontainers.image.url="https://hub.docker.com/repository/docker/nickolback/leobooks" \
+      org.opencontainers.image.version="${LEOBOOKS_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \

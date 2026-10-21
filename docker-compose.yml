@@ -6,7 +6,8 @@ services:
         APP_UID: ${APP_UID:-1000}
         APP_GID: ${APP_GID:-1000}
         INSTALL_OCR: ${INSTALL_OCR:-false}
-    image: leobooks:latest
+        LEOBOOKS_VERSION: ${LEOBOOKS_IMAGE_TAG:-latest}
+    image: nickolback/leobooks:${LEOBOOKS_IMAGE_TAG:-latest}
     restart: unless-stopped
     init: true
     # Teto rígido: o app foi ajustado para operar confortavelmente abaixo disto.
