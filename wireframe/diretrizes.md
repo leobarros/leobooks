@@ -1,0 +1,3 @@
+# Diretrizes
+
+Diretrizes de UX (User Experience)Atalhos e Gestos:Arrasto para o lado (Swipe) em uma citação no card de revisão diária para compartilhar como imagem formatada (ideal para redes sociais/histórias).Pressionar e segurar um livro na biblioteca para atualizar a página atual rapidamente.Navegação:Barra inferior (Bottom Navigation) para alternar rapidamente entre Início, Biblioteca completa e visualização por Tags.Acessibilidade:Áreas de toque confortáveis (mínimo de $48 \times 48 \text{ px}$ para botões).Alto contraste de texto sobre fundo no modo escuro para leitura noturna prolongada.
