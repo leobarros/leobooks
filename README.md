@@ -91,6 +91,64 @@ Acesse **http://127.0.0.1:5057**.
 
 Para parar, use `Ctrl+C`. Os dados ficam em `instance/`.
 
+### Acessando pelo Tailscale
+
+O LeoBooks escuta em `127.0.0.1` por padrão. Isso é bom para segurança, mas
+significa que o IP do Tailscale (`100.x.y.z`) **não** alcança a porta. Para
+acessar pelo tailnet, faça o bind na interface correta.
+
+Descubra o IP da máquina:
+
+```bash
+tailscale ip -4
+# exemplo: 100.x.y.z
+TAILSCALE_IP="$(tailscale ip -4)"
+```
+
+**Execução local** — reinicie o serviço apontando para o IP do Tailscale:
+
+```bash
+pkill -f "waitress-serve.*5057"
+LEOBOOKS_HOST="$TAILSCALE_IP" LEOBOOKS_PORT=5057 ./run.sh
+```
+
+Acesse `http://$TAILSCALE_IP:5057`. Se preferir aceitar também a LAN, use
+`LEOBOOKS_HOST=0.0.0.0` e restrinja a porta no firewall/ACL.
+
+**Com Docker** — no `.env`:
+
+```env
+LEOBOOKS_BIND_ADDR=100.x.y.z
+LEOBOOKS_PUBLISH_PORT=5059
+LEOBOOKS_HTTPS=0
+```
+
+Depois recrie o container (mudança de porta não exige só `restart`):
+
+```bash
+docker compose up -d --force-recreate
+docker compose ps
+```
+
+A saída deve mostrar algo como
+`100.x.y.z:5059->5057/tcp`. Teste do próprio servidor:
+
+```bash
+curl -I "http://$TAILSCALE_IP:5059/healthz"
+```
+
+E, de outro dispositivo no tailnet, abra
+`http://100.x.y.z:5059`.
+
+> Use `http://`, não `https://`, enquanto `LEOBOOKS_HTTPS=0`. Se
+> `LEOBOOKS_HTTPS=1` for usado em HTTP puro, o navegador não envia os cookies
+> seguros e o login pode parecer quebrado.
+>
+> Se ainda houver timeout, confira `tailscale ping 100.x.y.z`, as ACLs do
+> tailnet e o firewall da máquina. Para publicar um serviço local em HTTPS sem
+> abrir porta, o Tailscale também oferece `tailscale serve` (consulte
+> `tailscale serve --help`).
+
 ### O primeiro acesso
 
 Ao criar a conta, você recebe um livro de exemplo — *A Arte da Guerra* — para
