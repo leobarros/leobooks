@@ -1,0 +1,240 @@
+{% extends "layout.html" %}
+{% from "partials/_macros.html" import cover, tag_chip, note_card, book_row, progress, status_badge with context %}
+{% block title %}{{ book.title }} · LeoBooks{% endblock %}
+
+{% block content %}
+{% set book_tags = book.tags() %}
+
+<div class="lb-booktop">
+  <a class="lb-back" href="{{ url_for('main.library') }}">
+    <i class="bi bi-arrow-left"></i> Biblioteca
+  </a>
+  <div class="lb-booktop__actions">
+    <button type="button" class="lb-btn lb-btn--primary lb-btn--sm" data-note-open
+            data-book-id="{{ book.id }}" data-note-type="QUOTE">
+      <i class="bi bi-plus-lg"></i> Nova nota
+    </button>
+    <div class="dropdown">
+      <button class="lb-iconbtn" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+              aria-label="Mais ações do livro">
+        <i class="bi bi-three-dots"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end lb-menu">
+        <li>
+          <a class="dropdown-item" href="{{ url_for('books.edit', book_id=book.id) }}">
+            <i class="bi bi-pencil"></i> Editar livro
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ url_for('settings.export_book', book_id=book.id) }}">
+            <i class="bi bi-markdown"></i> Exportar notas .md
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form method="post" action="{{ url_for('books.delete', book_id=book.id) }}"
+                data-confirm="Excluir “{{ book.title }}” e todas as suas notas? Não há como desfazer.">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="dropdown-item dropdown-item--danger">
+              <i class="bi bi-trash3"></i> Excluir livro
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<header class="lb-bookhero">
+  <div class="lb-bookhero__cover">
+    {{ cover(book, 'lg') }}
+    <span class="lb-bookhero__shadow" aria-hidden="true"></span>
+  </div>
+
+  <div class="lb-bookhero__body">
+    <div class="lb-bookhero__meta">
+      {{ status_badge(book) }}
+      <span class="lb-bookhero__dot" aria-hidden="true"></span>
+      <span>{{ counts.ALL }} {% if counts.ALL == 1 %}nota{% else %}notas{% endif %}</span>
+      {% if book.last_note %}
+        <span class="lb-bookhero__dot" aria-hidden="true"></span>
+        <span>última {{ book.last_note.created_at|tempo_atras }}</span>
+      {% endif %}
+    </div>
+
+    <h1 class="lb-bookhero__title">{{ book.title }}</h1>
+    <p class="lb-bookhero__byline">
+      {{ book.authors }}
+      {% if book.publisher %}<span aria-hidden="true">·</span> {{ book.publisher }}{% endif %}
+    </p>
+
+    {{ progress(book, large=true) }}
+
+    <div class="lb-bookhero__grid">
+      <form class="lb-progress-form" method="post"
+            action="{{ url_for('books.progress', book_id=book.id) }}"
+            data-progress-form data-total-pages="{{ book.total_pages }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="progress_mode" value="page" data-progress-mode-input>
+
+        <div class="lb-progress-form__head">
+          <label for="currentPage">Progresso de leitura</label>
+          <div class="lb-progress-modes" role="group" aria-label="Forma de atualizar o progresso">
+            <button type="button" class="is-active" data-progress-mode="page" aria-pressed="true">
+              Página
+            </button>
+            <button type="button" data-progress-mode="percent" aria-pressed="false">
+              % Kindle
+            </button>
+          </div>
+        </div>
+
+        <div class="lb-progress-form__row" data-progress-panel="page">
+          <label class="visually-hidden" for="currentPage">Página atual</label>
+          <input class="form-control lb-input lb-input--page" type="number" id="currentPage"
+                 name="current_page" min="0" max="{{ book.total_pages }}"
+                 value="{{ book.current_page }}" inputmode="numeric" required>
+          <span class="lb-progress-form__total">de {{ book.total_pages }}</span>
+          <button class="lb-btn lb-btn--dark lb-btn--sm" type="submit">
+            Atualizar <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+
+        <div class="lb-progress-form__row lb-progress-form__row--percent"
+             data-progress-panel="percent" hidden>
+          <label class="visually-hidden" for="currentPercent">Porcentagem lida no Kindle</label>
+          <div class="lb-percent-input">
+            <input class="form-control lb-input lb-input--percent" type="number" id="currentPercent"
+                   name="percent" min="0" max="100" step="1" inputmode="decimal"
+                   placeholder="42" disabled>
+            <span>%</span>
+          </div>
+          <span class="lb-progress-form__equiv" data-progress-equivalent>informe a porcentagem</span>
+          <button class="lb-btn lb-btn--dark lb-btn--sm" type="submit">
+            Atualizar <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+
+        <p class="lb-hint lb-progress-form__hint">
+          <i class="bi bi-tablet"></i>
+          No Kindle, use o percentual exibido no rodapé. A “localização” não equivale a páginas.
+        </p>
+      </form>
+
+      <form class="lb-status-form" method="post" action="{{ url_for('books.status', book_id=book.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="bookStatus">Status de leitura</label>
+        <div class="lb-status-form__row">
+          <select class="form-select lb-select lb-select--sm" id="bookStatus" name="status" data-auto-submit>
+            {% for key, meta in book_statuses.items() %}
+              <option value="{{ key }}" {{ 'selected' if book.status == key }}>{{ meta.label }}</option>
+            {% endfor %}
+          </select>
+          <button class="lb-btn lb-btn--quiet lb-btn--sm" type="submit">Salvar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="lb-bookhero__actions">
+      <button type="button" class="lb-btn lb-btn--primary" data-note-open
+              data-book-id="{{ book.id }}" data-note-type="QUOTE">
+        <i class="bi bi-feather"></i> Adicionar nota a este livro
+      </button>
+      <a class="lb-btn lb-btn--ghost" href="{{ url_for('settings.export_book', book_id=book.id) }}">
+        <i class="bi bi-download"></i> Exportar .md
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="lb-tabs" aria-label="Filtrar notas por tipo">
+  <a class="lb-tab {{ 'is-active' if type_filter == 'ALL' }}"
+     href="{{ url_for('books.detail', book_id=book.id) }}">
+    Todas <span>{{ counts.ALL }}</span>
+  </a>
+  {% for key, meta in note_types.items() %}
+    <a class="lb-tab lb-tab--{{ meta.tone }} {{ 'is-active' if type_filter == key }}"
+       href="{{ url_for('books.detail', book_id=book.id, type=key) }}">
+      <i class="bi {{ meta.icon }}"></i> {{ meta.plural }} <span>{{ counts[key] }}</span>
+    </a>
+  {% endfor %}
+</nav>
+
+<div class="lb-detail-grid">
+  <section class="lb-notes" aria-label="Notas do livro">
+    {% for note in notes %}
+      {{ note_card(note) }}
+    {% else %}
+      <div class="lb-empty lb-empty--wide">
+        <span class="lb-empty__mark">
+          <i class="bi {{ note_types[type_filter].icon if type_filter in note_types else 'bi-journal' }}"></i>
+        </span>
+        <h2 class="lb-empty__title">
+          {% if type_filter == 'ALL' %}
+            As margens deste livro estão em branco.
+          {% else %}
+            Nenhuma nota deste tipo ainda.
+          {% endif %}
+        </h2>
+        <p>{% if type_filter == 'ALL' %}Comece com a frase que fez você parar.{% else %}Que tal registrar uma agora?{% endif %}</p>
+        <button type="button" class="lb-btn lb-btn--primary"
+                data-note-open data-book-id="{{ book.id }}"
+                data-note-type="{{ type_filter if type_filter in note_types else 'QUOTE' }}">
+          <i class="bi bi-feather"></i> Escrever nota
+        </button>
+      </div>
+    {% endfor %}
+
+    {% if notes %}
+      <div class="lb-addnote">
+        <span class="lb-addnote__rule" aria-hidden="true"></span>
+        <button type="button" class="lb-btn lb-btn--ghost" data-note-open
+                data-book-id="{{ book.id }}" data-note-type="QUOTE">
+          <i class="bi bi-plus-lg"></i> Adicionar outra nota
+        </button>
+      </div>
+    {% endif %}
+  </section>
+
+  <aside class="lb-rail lb-rail--detail">
+    <section class="lb-panel">
+      <header class="lb-panel__head">
+        <h2 class="lb-panel__title">Ficha do livro</h2>
+        <span class="lb-panel__folio">fl. 02</span>
+      </header>
+      <dl class="lb-facts">
+        <div><dt>Autor</dt><dd>{{ book.authors }}</dd></div>
+        <div><dt>Editora</dt><dd>{{ book.publisher or '—' }}</dd></div>
+        <div><dt>ISBN</dt><dd>{{ book.isbn or '—' }}</dd></div>
+        <div><dt>Páginas</dt><dd>{{ book.total_pages }}</dd></div>
+        <div><dt>Restantes</dt><dd>{{ book.pages_remaining }}</dd></div>
+        <div><dt>Na estante desde</dt><dd>{{ book.created_at|data_curta }}</dd></div>
+      </dl>
+    </section>
+
+    {% if book_tags %}
+      <section class="lb-panel lb-panel--tags">
+        <header class="lb-panel__head">
+          <h2 class="lb-panel__title">Tags deste livro</h2>
+        </header>
+        <div class="lb-tags">
+          {% for tag in book_tags %}{{ tag_chip(tag) }}{% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="lb-panel lb-panel--quiet">
+      <p class="lb-sidequote">“{{ book.title }}” está {{ book.progress_percent }}% lido.
+        {% if book.pages_remaining %}Faltam {{ book.pages_remaining }} páginas para a última.{% else %}Você chegou à última página.{% endif %}
+      </p>
+    </section>
+  </aside>
+</div>
+
+<div class="lb-sticky-add">
+  <button type="button" class="lb-btn lb-btn--primary lb-btn--block" data-note-open
+          data-book-id="{{ book.id }}" data-note-type="QUOTE">
+    <i class="bi bi-feather"></i> Adicionar nota
+  </button>
+</div>
+{% endblock %}

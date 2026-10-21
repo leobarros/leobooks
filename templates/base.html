@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR" data-bs-theme="{{ (current_user.theme if current_user else 'light') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="{{ '#141210' if current_user and current_user.theme == 'dark' else '#F3ECDD' }}">
+  <meta name="description" content="LeoBooks — seu caderno de leitura para guardar citações, resumos e insights.">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      try {
+        var stored = localStorage.getItem('leobooks-theme');
+        if (stored === 'light' || stored === 'dark') {
+          document.documentElement.setAttribute('data-bs-theme', stored);
+        }
+        var theme = document.documentElement.getAttribute('data-bs-theme');
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', theme === 'dark' ? '#141210' : '#F3ECDD');
+      } catch (error) { /* preferência local indisponível */ }
+    })();
+  </script>
+
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}lb-body{% endblock %}"
+        data-authenticated="{{ '1' if current_user else '0' }}"
+        data-theme-url="{{ url_for('settings.theme') if current_user else '' }}">
+
+  <a class="lb-skip" href="#conteudo">Pular para o conteúdo</a>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="lb-flashes" role="status" aria-live="polite">
+        {% for category, message in messages %}
+          <div class="lb-flash lb-flash--{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }}" data-flash>
+            <span class="lb-flash__icon">
+              {% if category == 'success' %}<i class="bi bi-check2"></i>
+              {% elif category == 'danger' %}<i class="bi bi-exclamation-octagon"></i>
+              {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle"></i>
+              {% else %}<i class="bi bi-info-lg"></i>{% endif %}
+            </span>
+            <span class="lb-flash__text">{{ message }}</span>
+            <button type="button" class="lb-flash__close" data-dismiss-flash aria-label="Fechar aviso">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block body %}{% endblock %}
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="lb-toasts" aria-live="polite"></div>
+
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

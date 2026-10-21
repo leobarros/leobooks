@@ -1,0 +1,201 @@
+<div class="modal fade lb-onboarding" id="onboardingModal" tabindex="-1"
+     aria-labelledby="onboardingTitle" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <h2 class="visually-hidden" id="onboardingTitle">Tutorial de primeiros passos do LeoBooks</h2>
+
+      <header class="lb-onboarding__head">
+        <div class="lb-onboarding__brand">
+          <span class="lb-onboarding__mark" aria-hidden="true"><i class="bi bi-book"></i></span>
+          <span>
+            <strong>LeoBooks</strong>
+            <small>primeiros passos</small>
+          </span>
+        </div>
+        <button type="submit" form="onboardingCompleteForm" class="lb-onboarding__skip">
+          Pular tutorial <i class="bi bi-arrow-right"></i>
+        </button>
+      </header>
+
+      <div class="modal-body lb-onboarding__body">
+        <section class="lb-onboarding__step" data-onboarding-step>
+          <p class="lb-eyebrow">01 <span class="lb-eyebrow__dot"></span> boas-vindas</p>
+          <h2 class="lb-onboarding__title">Seu caderno de leitura<br><em>começa aqui.</em></h2>
+          <p class="lb-onboarding__lead">
+            O LeoBooks é o lugar para guardar as ideias que a leitura deixa:
+            citações, resumos e insights, sempre ligados ao livro e à página.
+          </p>
+
+          {% set sample_book = current_user.books|selectattr('title', 'equalto', 'A Arte da Guerra')|first %}
+          {% if sample_book %}
+            <div class="lb-onboarding__sample">
+              <div class="lb-onboarding__sample-cover" aria-hidden="true">
+                <span>EXEMPLO</span>
+                <strong>A Arte<br>da Guerra</strong>
+                <small>SUN TZU</small>
+              </div>
+              <div>
+                <p class="lb-eyebrow">Já está na sua estante</p>
+                <h3>A Arte da Guerra</h3>
+                <p>
+                  Deixamos um livro de exemplo para você explorar. Ele não tem notas e
+                  pode ser excluído quando quiser começar a sua própria estante.
+                </p>
+              </div>
+            </div>
+          {% else %}
+            <div class="lb-onboarding__sample lb-onboarding__sample--empty">
+              <div class="lb-onboarding__sample-cover" aria-hidden="true">
+                <span>LEOBOOKS</span>
+                <strong>Sua<br>estante</strong>
+                <small>PRIMEIRO LIVRO</small>
+              </div>
+              <div>
+                <p class="lb-eyebrow">Estante pronta</p>
+                <h3>Cadastre o primeiro livro</h3>
+                <p>
+                  Use o botão <strong>Adicionar livro</strong> na Biblioteca para começar.
+                  O caderno fica exatamente do seu tamanho.
+                </p>
+              </div>
+            </div>
+          {% endif %}
+        </section>
+
+        <section class="lb-onboarding__step" data-onboarding-step hidden>
+          <p class="lb-eyebrow">02 <span class="lb-eyebrow__dot"></span> sua estante</p>
+          <h2 class="lb-onboarding__title">Livros, tags e revisão<br><em>no mesmo lugar.</em></h2>
+          <p class="lb-onboarding__lead">
+            Tudo gira em torno dos seus livros. A navegação inferior ou lateral leva
+            às três áreas principais — inclusive no celular.
+          </p>
+
+          <div class="lb-onboarding__features">
+            <article>
+              <i class="bi bi-collection" aria-hidden="true"></i>
+              <h3>Biblioteca</h3>
+              <p>Cadastre livros, acompanhe o progresso e abra as notas de cada um.</p>
+            </article>
+            <article>
+              <i class="bi bi-tags" aria-hidden="true"></i>
+              <h3>Tags</h3>
+              <p>Una ideias de livros diferentes com fios como <em>#atenção</em> ou <em>#hábito</em>.</p>
+            </article>
+            <article>
+              <i class="bi bi-shuffle" aria-hidden="true"></i>
+              <h3>Revisão</h3>
+              <p>Reencontre citações guardadas, uma de cada vez, e compartilhe como imagem.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="lb-onboarding__step" data-onboarding-step hidden>
+          <p class="lb-eyebrow">03 <span class="lb-eyebrow__dot"></span> captura rápida</p>
+          <h2 class="lb-onboarding__title">Capture no calor<br><em>da leitura.</em></h2>
+          <p class="lb-onboarding__lead">
+            O botão <strong>Nova nota rápida</strong> está sempre à mão — na lateral no
+            desktop e no centro da barra inferior no celular.
+          </p>
+
+          <blockquote class="lb-onboarding__quote">
+            <span aria-hidden="true">“</span>
+            <p>A atenção é a forma mais rara de generosidade.</p>
+            <footer><em>#atenção</em> · <em>#leitura</em></footer>
+          </blockquote>
+
+          <ul class="lb-onboarding__list">
+            <li><i class="bi bi-quote"></i><span><strong>Citação</strong> — o trecho exato, com página.</span></li>
+            <li><i class="bi bi-journal-text"></i><span><strong>Resumo</strong> — as ideias do capítulo com suas palavras.</span></li>
+            <li><i class="bi bi-lightbulb"></i><span><strong>Insight</strong> — uma conexão ou pergunta que ficou.</span></li>
+            <li><i class="bi bi-camera"></i><span><strong>Foto / OCR</strong> — opcional, para trazer o texto da página.</span></li>
+          </ul>
+        </section>
+
+        <section class="lb-onboarding__step" data-onboarding-step hidden>
+          <p class="lb-eyebrow">04 <span class="lb-eyebrow__dot"></span> seu ritmo</p>
+          <h2 class="lb-onboarding__title">Leia no Kindle.<br><em>Anote aqui.</em></h2>
+          <p class="lb-onboarding__lead">
+            No detalhe de cada livro, atualize o progresso pela página ou pelo
+            percentual exibido no Kindle. O app calcula a página equivalente.
+          </p>
+
+          <div class="lb-onboarding__kindle">
+            <div class="lb-onboarding__kindle-screen" aria-hidden="true">
+              <span>42%</span>
+              <div class="lb-onboarding__kindle-bar"><i></i></div>
+              <small>Kindle</small>
+            </div>
+            <div>
+              <p class="lb-eyebrow">No detalhe do livro</p>
+              <h3>Página <span>ou</span> % Kindle</h3>
+              <p>
+                Ao chegar a 100%, o livro é marcado como <strong>Lido</strong>. Você
+                também pode mudar o status manualmente.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="lb-onboarding__step" data-onboarding-step hidden>
+          <p class="lb-eyebrow">05 <span class="lb-eyebrow__dot"></span> seus dados</p>
+          <h2 class="lb-onboarding__title">Seu caderno,<br><em>suas regras.</em></h2>
+          <p class="lb-onboarding__lead">
+            Cada conta vê apenas os próprios livros e notas. Você pode alternar o
+            tema, exportar tudo em Markdown/JSON e baixar um backup SQLite.
+          </p>
+
+          <div class="lb-onboarding__features lb-onboarding__features--two">
+            <article>
+              <i class="bi bi-moon-stars" aria-hidden="true"></i>
+              <h3>Claro ou madrugada</h3>
+              <p>O tema fica salvo na conta e no navegador para leitura noturna.</p>
+            </article>
+            <article>
+              <i class="bi bi-download" aria-hidden="true"></i>
+              <h3>Sem lock-in</h3>
+              <p>Exporte notas em Markdown/JSON; administradores podem fazer backup do banco.</p>
+            </article>
+          </div>
+
+          <p class="lb-hint lb-onboarding__hint">
+            <i class="bi bi-compass"></i>
+            Você pode rever este tutorial quando quiser em <strong>Ajustes → Rever tutorial</strong>.
+          </p>
+        </section>
+      </div>
+
+      <footer class="lb-onboarding__foot">
+        <div class="lb-onboarding__progress" aria-label="Progresso do tutorial">
+          <div class="lb-onboarding__dots" aria-hidden="true">
+            <span class="is-active" data-onboarding-dot></span>
+            <span data-onboarding-dot></span>
+            <span data-onboarding-dot></span>
+            <span data-onboarding-dot></span>
+            <span data-onboarding-dot></span>
+          </div>
+          <span class="lb-onboarding__count" data-onboarding-count>1 de 5</span>
+        </div>
+
+        <div class="lb-onboarding__actions">
+          <button type="button" class="lb-btn lb-btn--quiet lb-btn--sm" data-onboarding-prev disabled>
+            <i class="bi bi-arrow-left"></i> Voltar
+          </button>
+          <button type="button" class="lb-btn lb-btn--primary lb-btn--sm" data-onboarding-next>
+            Próximo <i class="bi bi-arrow-right"></i>
+          </button>
+          <button type="submit" form="onboardingCompleteForm" class="lb-btn lb-btn--primary lb-btn--sm"
+                  data-onboarding-finish hidden>
+            Começar a usar <i class="bi bi-check2"></i>
+          </button>
+        </div>
+      </footer>
+
+      <form id="onboardingCompleteForm" method="post"
+            action="{{ url_for('settings.onboarding_complete') }}" hidden>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ request.full_path }}">
+      </form>
+    </div>
+  </div>
+</div>

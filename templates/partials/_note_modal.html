@@ -1,0 +1,192 @@
+{% if quick_note_form %}
+<div class="modal fade lb-modal" id="noteModal" tabindex="-1" aria-labelledby="noteModalTitle" aria-hidden="true"
+     data-note-modal>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      {% if quick_books %}
+        <form method="post" action="{{ url_for('notes.create') }}" enctype="multipart/form-data"
+              id="noteForm" data-note-form
+              data-create-action="{{ url_for('notes.create') }}"
+              data-create-title="Nova nota"
+              data-create-eyebrow="Captura rápida">
+          {{ quick_note_form.hidden_tag() }}
+          <input type="hidden" name="next" value="{{ request.full_path }}">
+
+          <header class="lb-modal__head">
+            <div>
+              <p class="lb-modal__eyebrow" data-note-eyebrow>Captura rápida</p>
+              <h2 class="lb-modal__title" id="noteModalTitle" data-note-title>Nova nota</h2>
+            </div>
+            <div class="lb-modal__head-actions">
+              <span class="lb-kbd" aria-hidden="true">Esc</span>
+              <button type="button" class="lb-iconbtn" data-bs-dismiss="modal" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </header>
+
+          <div class="lb-modal__body">
+            <div class="lb-field">
+              <label class="lb-label" for="noteBook">Livro</label>
+              <div class="lb-select-wrap">
+                <select class="form-select lb-select" id="noteBook" name="book_id" required>
+                  {% for value, label in quick_note_form.book_id.choices %}
+                    <option value="{{ value }}"
+                      {% if quick_note_form.book_id.data == value or (not quick_note_form.book_id.data and loop.first) %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+              </div>
+            </div>
+
+            <fieldset class="lb-field lb-field--tight">
+              <legend class="lb-label">Tipo de nota</legend>
+              <div class="lb-notetypes">
+                {% for key, meta in note_types.items() %}
+                  <input class="lb-notetype__input" type="radio" name="type" id="noteType{{ key }}"
+                         value="{{ key }}" {% if key == 'QUOTE' %}checked{% endif %} required>
+                  <label class="lb-notetype lb-notetype--{{ meta.tone }}" for="noteType{{ key }}">
+                    <i class="bi {{ meta.icon }}"></i>
+                    <span class="lb-notetype__label">{{ meta.label }}</span>
+                    <span class="lb-notetype__hint">{{ meta.hint }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </fieldset>
+
+            <div class="lb-field">
+              <div class="lb-editor__head">
+                <label class="lb-label" for="noteContent">Conteúdo</label>
+                <div class="lb-editor__tabs" role="tablist" aria-label="Modo do editor">
+                  <button type="button" class="is-active" data-editor-tab="write" role="tab" aria-selected="true">
+                    Escrever
+                  </button>
+                  <button type="button" data-editor-tab="preview" role="tab" aria-selected="false">
+                    Prévia
+                  </button>
+                </div>
+              </div>
+
+              <div class="lb-editor" data-editor>
+                <div class="lb-editor__toolbar" role="toolbar" aria-label="Formatação Markdown">
+                  <button type="button" data-md="bold" title="Negrito (Ctrl+B)" aria-label="Negrito"><i class="bi bi-type-bold"></i></button>
+                  <button type="button" data-md="italic" title="Itálico (Ctrl+I)" aria-label="Itálico"><i class="bi bi-type-italic"></i></button>
+                  <span class="lb-editor__sep" aria-hidden="true"></span>
+                  <button type="button" data-md="quote" title="Citação" aria-label="Citação"><i class="bi bi-quote"></i></button>
+                  <button type="button" data-md="list" title="Lista" aria-label="Lista"><i class="bi bi-list-ul"></i></button>
+                  <button type="button" data-md="heading" title="Título" aria-label="Título"><i class="bi bi-type-h2"></i></button>
+                  <button type="button" data-md="link" title="Link" aria-label="Link"><i class="bi bi-link-45deg"></i></button>
+                  <span class="lb-editor__sep" aria-hidden="true"></span>
+                  <button type="button" data-md="clear" title="Limpar formatação" aria-label="Limpar formatação"><i class="bi bi-eraser"></i></button>
+                </div>
+
+                <textarea class="lb-editor__area" id="noteContent" name="content" rows="5"
+                          maxlength="10000" required
+                          placeholder="Escreva ou cole o trecho aqui…"
+                          data-editor-input>{{ quick_note_form.content.data or '' }}</textarea>
+                <div class="lb-editor__preview lb-markdown" data-editor-preview hidden></div>
+
+                <div class="lb-editor__foot">
+                  <span class="lb-hint"><i class="bi bi-markdown"></i> Markdown: **negrito**, *itálico*, &gt; citação, - lista</span>
+                  <span class="lb-counter"><b data-editor-counter>0</b> / 10.000</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="lb-field">
+              <span class="lb-label">Da página para o caderno</span>
+              <div class="lb-media" data-media>
+                <div class="lb-media__row">
+                  <button type="button" class="lb-btn lb-btn--ghost lb-btn--sm" data-ocr-trigger
+                          data-ocr-url="{{ url_for('notes.ocr') }}"
+                          data-ocr-available="{{ '1' if ocr_available else '0' }}">
+                    <i class="bi bi-camera"></i> Capturar foto / OCR
+                  </button>
+                  <span class="lb-media__status" data-ocr-status
+                        data-default-text="{% if ocr_available %}Fotografe a página e o texto é extraído.{% else %}OCR indisponível neste servidor — a foto será anexada.{% endif %}">
+                    {% if ocr_available %}Fotografe a página e o texto é extraído.{% else %}OCR indisponível neste servidor — a foto será anexada.{% endif %}
+                  </span>
+                </div>
+                <input type="file" id="notePhoto" name="photo" accept="image/jpeg,image/png,image/webp"
+                       class="visually-hidden" data-ocr-input>
+                <div class="lb-photo-preview" data-photo-preview hidden>
+                  <img alt="Prévia da foto da página" data-photo-image>
+                  <div>
+                    <strong data-photo-name>foto.jpg</strong>
+                    <button type="button" class="lb-linkbtn" data-photo-remove>Remover foto</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="lb-fieldrow">
+              <div class="lb-field">
+                <label class="lb-label" for="noteChapter">Capítulo</label>
+                <input class="form-control lb-input" type="text" id="noteChapter" name="chapter"
+                       maxlength="100" placeholder="ex.: 3">
+              </div>
+              <div class="lb-field">
+                <label class="lb-label" for="notePage">Página</label>
+                <input class="form-control lb-input" type="number" id="notePage" name="page_number"
+                       min="0" max="100000" inputmode="numeric" placeholder="ex.: 82">
+              </div>
+            </div>
+
+            <div class="lb-field lb-tag-editor" data-tag-editor>
+              <label class="lb-label" for="noteTagInput">Tags</label>
+              <div class="lb-tag-editor__box" data-tag-box>
+                <div class="lb-tag-editor__chips" data-tag-chips></div>
+                <input type="text" id="noteTagInput" class="lb-tag-editor__input"
+                       placeholder="Adicionar tag e pressionar Enter" autocomplete="off"
+                       maxlength="40" data-tag-input>
+              </div>
+              <input type="hidden" name="tags" value="" data-tag-hidden>
+              {% if tag_suggestions %}
+                <div class="lb-suggestions" data-tag-suggestions>
+                  {% for name in tag_suggestions[:6] %}
+                    <button type="button" class="lb-suggestion" data-suggestion="{{ name }}">#{{ name }}</button>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <footer class="lb-modal__foot">
+            <span class="lb-hint lb-hint--kbd">
+              <span class="lb-kbd">Ctrl</span> + <span class="lb-kbd">Enter</span> para guardar
+            </span>
+            <div class="lb-modal__foot-actions">
+              <button type="button" class="lb-btn lb-btn--quiet" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="lb-btn lb-btn--primary" data-note-submit>
+                <i class="bi bi-feather"></i> <span>Guardar nota</span>
+              </button>
+            </div>
+          </footer>
+        </form>
+      {% else %}
+        <div class="lb-modal__head">
+          <div>
+            <p class="lb-modal__eyebrow">Captura rápida</p>
+            <h2 class="lb-modal__title" id="noteModalTitle">Nova nota</h2>
+          </div>
+          <button type="button" class="lb-iconbtn" data-bs-dismiss="modal" aria-label="Fechar">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="lb-modal__body">
+          <div class="lb-empty lb-empty--modal">
+            <span class="lb-empty__mark"><i class="bi bi-book"></i></span>
+            <h3>Primeiro, um livro.</h3>
+            <p>As notas vivem dentro de um livro. Cadastre o que está lendo para começar o caderno.</p>
+            <a class="lb-btn lb-btn--primary" href="{{ url_for('books.new') }}">
+              <i class="bi bi-plus-lg"></i> Adicionar livro
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}

@@ -1,0 +1,25 @@
+<nav class="lb-bottomnav" aria-label="Navegação inferior">
+  <a class="lb-bottomnav__item {{ 'is-active' if request.endpoint == 'main.dashboard' }}"
+     {% if request.endpoint == 'main.dashboard' %}aria-current="page"{% endif %} href="{{ url_for('main.dashboard') }}">
+    <i class="bi bi-house-door"></i><span>Início</span>
+  </a>
+  <a class="lb-bottomnav__item {{ 'is-active' if request.endpoint and (request.endpoint.startswith('books.') or request.endpoint == 'main.library') }}"
+     {% if request.endpoint and (request.endpoint.startswith('books.') or request.endpoint == 'main.library') %}aria-current="page"{% endif %} href="{{ url_for('main.library') }}">
+    <i class="bi bi-collection"></i><span>Biblioteca</span>
+  </a>
+
+  <button type="button" class="lb-bottomnav__fab" data-note-open data-note-type="QUOTE" aria-label="Nova nota rápida">
+    <span class="lb-bottomnav__fab-ring"></span>
+    <i class="bi bi-plus-lg"></i>
+    <span class="lb-bottomnav__fab-label">nota</span>
+  </button>
+
+  <a class="lb-bottomnav__item {{ 'is-active' if request.endpoint in ['main.tags', 'main.tag_detail'] }}"
+     {% if request.endpoint in ['main.tags', 'main.tag_detail'] %}aria-current="page"{% endif %} href="{{ url_for('main.tags') }}">
+    <i class="bi bi-tags"></i><span>Tags</span>
+  </a>
+  <a class="lb-bottomnav__item {{ 'is-active' if request.endpoint and request.endpoint.startswith('settings.') }}"
+     {% if request.endpoint and request.endpoint.startswith('settings.') %}aria-current="page"{% endif %} href="{{ url_for('settings.index') }}">
+    <i class="bi bi-sliders2"></i><span>Ajustes</span>
+  </a>
+</nav>

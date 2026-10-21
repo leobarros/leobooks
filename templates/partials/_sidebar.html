@@ -1,0 +1,129 @@
+<aside class="lb-sidebar" aria-label="Navegação principal">
+  <a class="lb-brand" href="{{ url_for('main.dashboard') }}">
+    <svg class="lb-seal" viewBox="0 0 96 96" aria-hidden="true">
+      <defs>
+        <path id="sealPathSidebar" d="M48,48 m-34,0 a34,34 0 1,1 68,0 a34,34 0 1,1 -68,0"></path>
+      </defs>
+      <circle cx="48" cy="48" r="45" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"></circle>
+      <circle cx="48" cy="48" r="30" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"></circle>
+      <text font-size="7.4" letter-spacing="2.7" fill="currentColor" font-family="Inter, sans-serif" opacity=".85">
+        <textPath href="#sealPathSidebar" startOffset="2%">LEOBOOKS · CADERNO DE LEITURA ·</textPath>
+      </text>
+      <path d="M39 55V44l9-5 9 5v11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path>
+      <path d="M48 39v16" stroke="currentColor" stroke-width="1" opacity=".7"></path>
+      <circle cx="48" cy="63.5" r="1.4" fill="currentColor"></circle>
+    </svg>
+    <span class="lb-brand__text">
+      <span class="lb-brand__word">Leo<span>Books</span></span>
+      <span class="lb-brand__sub">caderno de leitura</span>
+    </span>
+  </a>
+
+  <div class="lb-sidebar__rule" aria-hidden="true">
+    <span></span><em>ex libris</em><span></span>
+  </div>
+
+  <nav class="lb-nav">
+    <p class="lb-sidebar__label">Navegar</p>
+
+    <a class="lb-nav__link {{ 'is-active' if request.endpoint == 'main.dashboard' }}"
+       {% if request.endpoint == 'main.dashboard' %}aria-current="page"{% endif %} href="{{ url_for('main.dashboard') }}">
+      <span class="lb-nav__num">01</span>
+      <i class="bi bi-house-door"></i>
+      <span class="lb-nav__text">Início</span>
+    </a>
+
+    <a class="lb-nav__link {{ 'is-active' if request.endpoint and request.endpoint.startswith('books.') or request.endpoint == 'main.library' }}"
+       {% if request.endpoint and request.endpoint.startswith('books.') or request.endpoint == 'main.library' %}aria-current="page"{% endif %} href="{{ url_for('main.library') }}">
+      <span class="lb-nav__num">02</span>
+      <i class="bi bi-collection"></i>
+      <span class="lb-nav__text">Biblioteca</span>
+    </a>
+
+    <a class="lb-nav__link {{ 'is-active' if request.endpoint in ['main.tags', 'main.tag_detail'] }}"
+       {% if request.endpoint in ['main.tags', 'main.tag_detail'] %}aria-current="page"{% endif %} href="{{ url_for('main.tags') }}">
+      <span class="lb-nav__num">03</span>
+      <i class="bi bi-tags"></i>
+      <span class="lb-nav__text">Tags</span>
+    </a>
+
+    <a class="lb-nav__link {{ 'is-active' if request.endpoint == 'main.review' }}"
+       {% if request.endpoint == 'main.review' %}aria-current="page"{% endif %} href="{{ url_for('main.review') }}">
+      <span class="lb-nav__num">04</span>
+      <i class="bi bi-shuffle"></i>
+      <span class="lb-nav__text">Revisão</span>
+    </a>
+
+    <a class="lb-nav__link {{ 'is-active' if request.endpoint and request.endpoint.startswith('settings.') }}"
+       {% if request.endpoint and request.endpoint.startswith('settings.') %}aria-current="page"{% endif %} href="{{ url_for('settings.index') }}">
+      <span class="lb-nav__num">05</span>
+      <i class="bi bi-sliders2"></i>
+      <span class="lb-nav__text">Ajustes</span>
+    </a>
+  </nav>
+
+  <button type="button" class="lb-capture" data-note-open data-note-type="QUOTE">
+    <span class="lb-capture__key" aria-hidden="true">N</span>
+    <i class="bi bi-pencil-square"></i>
+    <span class="lb-capture__label">Nova nota rápida</span>
+  </button>
+
+  <div class="lb-sidebar__spacer"></div>
+
+  <blockquote class="lb-sidebar__quote">
+    <p>“Um leitor vive mil vidas antes de morrer.”</p>
+    <cite>George R. R. Martin</cite>
+  </blockquote>
+
+  <div class="lb-sidebar__tools">
+    <button type="button" class="lb-theme-toggle" data-theme-toggle aria-label="Alternar entre tema claro e escuro" aria-pressed="false">
+      <i class="bi bi-moon-stars"></i>
+      <i class="bi bi-brightness-high"></i>
+      <span class="lb-theme-toggle__label">Tema</span>
+    </button>
+
+    <div class="dropdown">
+      <button type="button" class="lb-userchip" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="lb-avatar">{{ current_user.initials }}</span>
+        <span class="lb-userchip__text">
+          <strong>{{ current_user.first_name }}</strong>
+          <small>ver conta</small>
+        </span>
+        <i class="bi bi-chevron-up lb-userchip__caret"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end lb-menu lb-menu--user">
+        <li class="lb-menu__head">
+          <strong>{{ current_user.name }}</strong>
+          <span>{{ current_user.email }}</span>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item" href="{{ url_for('settings.index') }}">
+            <i class="bi bi-sliders2"></i> Ajustes da conta
+          </a>
+        </li>
+        {% if current_user.is_admin %}
+          <li>
+            <a class="dropdown-item" href="{{ url_for('settings.users') }}">
+              <i class="bi bi-person-plus"></i> Criar usuário
+            </a>
+          </li>
+        {% endif %}
+        <li>
+          <a class="dropdown-item" href="{{ url_for('settings.index') }}#dados">
+            <i class="bi bi-download"></i> Backup e exportação
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="dropdown-item">
+              <i class="bi bi-box-arrow-left"></i> Sair
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</aside>

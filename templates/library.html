@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% from "partials/_macros.html" import cover, tag_chip, note_card, book_row, progress, status_badge with context %}
+{% block title %}Biblioteca · LeoBooks{% endblock %}
+
+{% block content %}
+<header class="lb-pagehead">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">Biblioteca <span class="lb-eyebrow__dot" aria-hidden="true"></span> {{ counts.ALL }} {% if counts.ALL == 1 %}livro{% else %}livros{% endif %}</p>
+    <h1 class="lb-pagehead__title">Sua estante, <em>viva</em>.</h1>
+    <p class="lb-pagehead__deck">Tudo o que você leu, está lendo ou pretende ler — com as margens já anotadas.</p>
+  </div>
+  <a class="lb-btn lb-btn--primary" href="{{ url_for('books.new') }}">
+    <i class="bi bi-plus-lg"></i> Adicionar livro
+  </a>
+</header>
+
+<div class="lb-toolbar">
+  <nav class="lb-chips" aria-label="Filtrar por status">
+    <a class="lb-chip {{ 'is-active' if not status_filter }}"
+       href="{{ url_for('main.library', q=query_text or None, sort=sort) }}">
+      Todas <span>{{ counts.ALL }}</span>
+    </a>
+    {% for key, meta in book_statuses.items() %}
+      <a class="lb-chip lb-chip--{{ meta.tone }} {{ 'is-active' if status_filter == key }}"
+         href="{{ url_for('main.library', status=key, q=query_text or None, sort=sort) }}">
+        {{ meta.label }} <span>{{ counts[key] }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+
+  <form class="lb-filter" method="get" action="{{ url_for('main.library') }}" role="search">
+    {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+    <label class="visually-hidden" for="librarySearch">Buscar na estante</label>
+    <div class="lb-input-icon">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <input class="form-control lb-input" id="librarySearch" type="search" name="q"
+             value="{{ query_text }}" placeholder="Buscar título ou autor…">
+    </div>
+    <label class="visually-hidden" for="librarySort">Ordenar</label>
+    <select class="form-select lb-select lb-select--sm" id="librarySort" name="sort" data-auto-submit>
+      <option value="recent" {{ 'selected' if sort == 'recent' }}>Recentes</option>
+      <option value="title" {{ 'selected' if sort == 'title' }}>Título A–Z</option>
+      <option value="progress" {{ 'selected' if sort == 'progress' }}>Mais avançados</option>
+    </select>
+    <button class="lb-btn lb-btn--ghost lb-btn--sm" type="submit">Filtrar</button>
+  </form>
+</div>
+
+{% if books %}
+  <div class="lb-shelf">
+    {% for book in books %}
+      <article class="lb-bookcard">
+        <a class="lb-bookcard__cover" href="{{ url_for('books.detail', book_id=book.id) }}"
+           aria-label="Abrir {{ book.title }}">
+          {{ cover(book, 'md') }}
+          <span class="lb-bookcard__badge">{{ status_badge(book, small=true) }}</span>
+          {% if book.note_count %}
+            <span class="lb-bookcard__count"><i class="bi bi-pencil"></i> {{ book.note_count }}</span>
+          {% endif %}
+          <span class="lb-bookcard__stripe" style="--progress: {{ book.progress_percent }}%"></span>
+        </a>
+        <div class="lb-bookcard__info">
+          <h2 class="lb-bookcard__title">
+            <a href="{{ url_for('books.detail', book_id=book.id) }}">{{ book.title }}</a>
+          </h2>
+          <p class="lb-bookcard__author">{{ book.authors }}</p>
+          <p class="lb-bookcard__meta">
+            {% if book.status == 'WANT_TO_READ' and not book.current_page %}
+              ainda não iniciado
+            {% else %}
+              {{ book.progress_percent }}% · {{ book.current_page }}/{{ book.total_pages }} pág.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+    {% endfor %}
+    <div class="lb-shelf__base" aria-hidden="true"></div>
+  </div>
+{% elif query_text or status_filter %}
+  <div class="lb-empty lb-empty--wide">
+    <span class="lb-empty__mark"><i class="bi bi-search"></i></span>
+    <h2 class="lb-empty__title">Nada encontrado nesta prateleira.</h2>
+    <p>{% if query_text %}Não há livros correspondentes a “{{ query_text }}”.{% else %}Nenhum livro com este status.{% endif %}</p>
+    <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.library') }}">Limpar filtros</a>
+  </div>
+{% else %}
+  <div class="lb-empty lb-empty--wide">
+    <span class="lb-empty__mark"><i class="bi bi-collection"></i></span>
+    <h2 class="lb-empty__title">Sua estante está esperando o primeiro livro.</h2>
+    <p>Título, autor e páginas são suficientes. A capa, se você não tiver uma, o LeoBooks desenha.</p>
+    <a class="lb-btn lb-btn--primary" href="{{ url_for('books.new') }}">
+      <i class="bi bi-plus-lg"></i> Adicionar primeiro livro
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

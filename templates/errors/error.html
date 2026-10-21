@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · LeoBooks{% endblock %}
+{% block body_class %}lb-error-body{% endblock %}
+
+{% block body %}
+<div class="lb-errorpage">
+  <div class="lb-errorpage__card">
+    <a class="lb-brand lb-brand--compact" href="{{ url_for('main.dashboard') if current_user else url_for('auth.login') }}">
+      <span class="lb-brand__word">Leo<span>Books</span></span>
+    </a>
+
+    <p class="lb-errorpage__code" aria-hidden="true">{{ code }}</p>
+    <p class="lb-eyebrow">Um desvio na leitura</p>
+    <h1 class="lb-errorpage__title">{{ title }}</h1>
+    <p class="lb-errorpage__message">{{ message }}</p>
+
+    <div class="lb-errorpage__actions">
+      <a class="lb-btn lb-btn--primary" href="{{ url_for('main.dashboard') if current_user else url_for('auth.login') }}">
+        <i class="bi bi-arrow-left"></i> {{ 'Voltar ao início' if current_user else 'Ir para o login' }}
+      </a>
+      <button type="button" class="lb-btn lb-btn--ghost" data-go-back>Voltar à página anterior</button>
+    </div>
+
+    <p class="lb-errorpage__foot">LeoBooks · cada livro, uma margem.</p>
+  </div>
+</div>
+{% endblock %}

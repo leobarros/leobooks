@@ -1,0 +1,108 @@
+# =============================================================================
+# LeoBooks — Flask / Python / SQLite
+# =============================================================================
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+pip-log.txt
+MANIFEST
+
+# --- Ambientes virtuais -------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+.venv*/
+virtualenv/
+pyvenv.cfg
+
+# --- Caches de ferramentas ----------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyright/
+.tox/
+.nox/
+.hypothesis/
+.cache/
+.sass-cache/
+.ipynb_checkpoints/
+*.pyo
+
+# --- Testes / cobertura -------------------------------------------------------
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+test-results/
+playwright-report/
+.playwright-browsers/
+
+# --- Flask / aplicação --------------------------------------------------------
+# Banco, uploads, capas, backups, logs e chave gerada em runtime.
+instance/
+flask_session/
+sessions/
+uploads/
+covers/
+backups/
+logs/
+
+# SQLite e arquivos auxiliares do WAL (importante: *.db não pega .db-wal).
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-journal
+
+# Segredos e configuração local.
+.env
+.env.*
+!.env.example
+.flaskenv
+*.secret
+.secret_key
+*.pem
+*.key
+*.pid
+
+# Logs e artefatos de execução.
+*.log
+*.bak
+*.orig
+*.rej
+~$*
+
+# --- Docker / execução local --------------------------------------------------
+docker-compose.override.yml
+.tmp/
+data/
+node_modules/
+
+# --- Editores e sistema operacional ------------------------------------------
+.DS_Store
+.Trashes
+._*
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+.fleet/
+*.iml
+*.swp
+*.swo
+*.code-workspace

@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+{% block title %}Usuários · LeoBooks{% endblock %}
+
+{% block content %}
+<div class="lb-booktop">
+  <a class="lb-back" href="{{ url_for('settings.index') }}">
+    <i class="bi bi-arrow-left"></i> Ajustes
+  </a>
+  <a class="lb-btn lb-btn--quiet lb-btn--sm" href="{{ url_for('main.dashboard') }}">
+    Ir ao início <i class="bi bi-arrow-right"></i>
+  </a>
+</div>
+
+<header class="lb-pagehead">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">
+      Administração <span class="lb-eyebrow__dot" aria-hidden="true"></span>
+      {{ people|length }} {% if people|length == 1 %}pessoa com acesso{% else %}pessoas com acesso{% endif %}
+    </p>
+    <h1 class="lb-pagehead__title">Quem divide a <em>estante</em>.</h1>
+    <p class="lb-pagehead__deck">
+      Crie uma conta para cada leitor. Livros, notas, tags, fotos e preferências são isolados por conta —
+      ninguém vê o caderno do outro.
+    </p>
+  </div>
+</header>
+
+<div class="lb-users">
+  <section class="lb-userlist" aria-label="Pessoas com acesso">
+    <header class="lb-section__head">
+      <div>
+        <p class="lb-eyebrow">Contas neste servidor</p>
+        <h2 class="lb-section__title">Pessoas</h2>
+      </div>
+      <span class="lb-section__count">{{ people|length }} no total</span>
+    </header>
+
+    {% for person in people %}
+      <article class="lb-userrow">
+        <span class="lb-avatar">{{ person.initials }}</span>
+        <div class="lb-userrow__body">
+          <div class="lb-userrow__name">
+            <strong>{{ person.name }}</strong>
+            {% if person.is_admin %}<span class="lb-adminbadge">admin</span>{% endif %}
+            {% if person.id == current_user.id %}<span class="lb-userrow__you">você</span>{% endif %}
+          </div>
+          <span class="lb-userrow__email">{{ person.email }}</span>
+          <span class="lb-userrow__meta">
+            {{ person.books|length }} {% if person.books|length == 1 %}livro{% else %}livros{% endif %}
+            · {{ person.note_count }} {% if person.notes|length == 1 %}nota{% else %}notas{% endif %}
+            · desde {{ person.created_at|data_curta }}
+          </span>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+
+  <aside class="lb-newuser">
+    <div class="lb-formcard">
+      <header class="lb-newuser__head">
+        <span class="lb-newuser__mark" aria-hidden="true"><i class="bi bi-person-plus"></i></span>
+        <div>
+          <p class="lb-eyebrow">Novo acesso</p>
+          <h2 class="lb-newuser__title">Criar usuário</h2>
+        </div>
+      </header>
+
+      <p class="lb-newuser__intro">
+        A pessoa entra com o e-mail e a senha definidos aqui. O caderno dela começa vazio.
+      </p>
+
+      {% if form.errors %}
+        <div class="lb-formerrors" role="alert">
+          <span class="lb-formerrors__icon"><i class="bi bi-exclamation-triangle"></i></span>
+          <div>
+            <strong>Confira os dados:</strong>
+            <ul>
+              {% for field_errors in form.errors.values() %}
+                {% for error in field_errors %}<li>{{ error }}</li>{% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('settings.users') }}" class="lb-form" id="newUserForm">
+        {{ form.hidden_tag() }}
+
+        <div class="lb-field">
+          <label class="lb-label" for="newUserName">Nome</label>
+          {{ form.name(class="form-control lb-input", id="newUserName", placeholder="Como a pessoa se chama?", autocomplete="off") }}
+          {% for error in form.name.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="lb-field">
+          <label class="lb-label" for="newUserEmail">E-mail</label>
+          {{ form.email(class="form-control lb-input", id="newUserEmail", placeholder="pessoa@exemplo.com", autocomplete="off", inputmode="email") }}
+          {% for error in form.email.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="lb-fieldrow">
+          <div class="lb-field">
+            <label class="lb-label" for="newUserPassword">Senha inicial</label>
+            <div class="lb-password">
+              {{ form.password(class="form-control lb-input", id="newUserPassword", placeholder="4 a 10", autocomplete="new-password", maxlength="10") }}
+              <button type="button" class="lb-password__toggle" data-password-toggle aria-label="Mostrar senha">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            {% for error in form.password.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+          </div>
+          <div class="lb-field">
+            <label class="lb-label" for="newUserConfirm">Repita a senha</label>
+            <div class="lb-password">
+              {{ form.confirm(class="form-control lb-input", id="newUserConfirm", placeholder="mesma senha", autocomplete="new-password", maxlength="10") }}
+              <button type="button" class="lb-password__toggle" data-password-toggle aria-label="Mostrar senha">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            {% for error in form.confirm.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <label class="lb-check lb-check--admin">
+          {{ form.is_admin(class="form-check-input") }}
+          <span>
+            <strong>Conceder acesso de administrador</strong>
+            <small>Pode criar usuários, baixar/restaurar backups e ver a ficha do servidor.</small>
+          </span>
+        </label>
+
+        <p class="lb-hint lb-newuser__hint">
+          <i class="bi bi-info-circle"></i>
+          A senha deve ter entre 4 e 10 caracteres. A pessoa pode trocá-la depois em Ajustes → Segurança.
+        </p>
+
+        <button type="submit" class="lb-btn lb-btn--primary lb-btn--block">
+          <i class="bi bi-person-plus"></i> Criar usuário
+        </button>
+      </form>
+    </div>
+
+    <div class="lb-panel lb-panel--quiet lb-newuser__note">
+      <span class="lb-newuser__notemark" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+      <p>Cada conta tem o seu próprio caderno. O administrador não vê as notas dos outros usuários pela interface.</p>
+      <small>O backup completo do banco é restrito a administradores.</small>
+    </div>
+  </aside>
+</div>
+{% endblock %}

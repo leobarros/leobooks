@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "partials/_macros.html" import cover, tag_chip, note_card, book_row, progress, status_badge with context %}
+
+{% block body %}
+<div class="lb-shell">
+  {% include "partials/_sidebar.html" %}
+
+  <div class="lb-stage">
+    {% include "partials/_mobilebar.html" %}
+
+    <main id="conteudo" class="lb-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="lb-footer">
+      <span class="lb-footer__mark">LeoBooks</span>
+      <span>leia devagar · anote com intenção</span>
+      <span class="lb-footer__folio">fl. {{ '%02d'|format(current_user.created_at.year % 100) if current_user else '26' }}</span>
+    </footer>
+  </div>
+</div>
+
+{% include "partials/_bottomnav.html" %}
+{% include "partials/_note_modal.html" %}
+{% include "partials/_search_modal.html" %}
+{% include "partials/_confirm_modal.html" %}
+{% if current_user and not current_user.onboarding_completed %}
+  {% include "partials/_onboarding.html" %}
+{% endif %}
+{% endblock %}

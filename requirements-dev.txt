@@ -1,0 +1,4 @@
+-r requirements.txt
+
+# Desenvolvimento e testes
+pytest>=8,<9

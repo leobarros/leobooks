@@ -1,0 +1,162 @@
+{% macro cover(book, size='md', extra='') %}
+  <figure class="lb-cover lb-cover--{{ size }} {{ extra }}">
+    {% if book.cover_filename %}
+      <img src="{{ url_for('books.cover_image', filename=book.cover_filename) }}"
+           alt="Capa de {{ book.title }}" loading="lazy" decoding="async">
+    {% elif book.cover_url %}
+      <img src="{{ book.cover_url }}" alt="Capa de {{ book.title }}"
+           loading="lazy" decoding="async" referrerpolicy="no-referrer">
+    {% else %}
+      <img src="{{ url_for('books.cover', book_id=book.id) }}"
+           alt="Capa desenhada para {{ book.title }}" loading="lazy" decoding="async">
+    {% endif %}
+  </figure>
+{% endmacro %}
+
+{% macro status_badge(book, small=false) %}
+  <span class="lb-status lb-status--{{ book.status_meta.tone }}{% if small %} lb-status--sm{% endif %}">
+    <i class="bi {{ book.status_icon }}"></i>{{ book.status_label }}
+  </span>
+{% endmacro %}
+
+{% macro progress(book, large=false) %}
+  <div class="lb-progress{% if large %} lb-progress--lg{% endif %}"
+       style="--progress: {{ book.progress_percent }}%"
+       role="progressbar" aria-valuenow="{{ book.progress_percent }}"
+       aria-valuemin="0" aria-valuemax="100"
+       aria-label="Progresso de leitura de {{ book.title }}">
+    <div class="lb-progress__bar"><span></span></div>
+    <div class="lb-progress__meta">
+      <strong>{{ book.progress_percent }}%</strong>
+      <span>{{ book.current_page }} de {{ book.total_pages }} páginas</span>
+      {% if not large and book.pages_remaining %}
+        <span class="lb-progress__left">faltam {{ book.pages_remaining }}</span>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro tag_chip(tag, link=true) %}
+  {% if link %}
+    <a class="lb-tag" style="--tag: {{ tag.color_hex }}" href="{{ url_for('main.tag_detail', tag_id=tag.id) }}">
+      <span class="lb-tag__hash">#</span>{{ tag.name }}
+    </a>
+  {% else %}
+    <span class="lb-tag" style="--tag: {{ tag.color_hex }}">
+      <span class="lb-tag__hash">#</span>{{ tag.name }}
+    </span>
+  {% endif %}
+{% endmacro %}
+
+{% macro note_card(note, show_book=false, editable=true) %}
+  <article class="lb-note lb-note--{{ note.type|lower }}" id="note-{{ note.id }}" data-note-card>
+    <header class="lb-note__head">
+      <span class="lb-note__type">
+        <i class="bi {{ note.type_icon }}"></i>{{ note.type_label }}
+      </span>
+      {% if note.location_label %}
+        <span class="lb-note__loc">{{ note.location_label }}</span>
+      {% endif %}
+      {% if editable %}
+        <div class="dropdown lb-note__menu">
+          <button class="lb-iconbtn lb-iconbtn--sm" type="button" data-bs-toggle="dropdown"
+                  aria-expanded="false" aria-label="Ações desta nota">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end lb-menu">
+            <li>
+              <button type="button" class="dropdown-item js-edit-note"
+                      data-note-action="{{ url_for('notes.edit', note_id=note.id) }}"
+                      data-note-id="{{ note.id }}"
+                      data-note-type="{{ note.type }}"
+                      data-note-book="{{ note.book_id }}"
+                      data-note-chapter="{{ note.chapter|default('', true)|e }}"
+                      data-note-page="{{ note.page_number if note.page_number is not none else '' }}"
+                      data-note-tags="{{ note.tags|map(attribute='name')|join(', ')|e }}"
+                      data-note-content="{{ note.content|e }}">
+                <i class="bi bi-pencil"></i> Editar nota
+              </button>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="{{ url_for('notes.delete', note_id=note.id) }}"
+                    data-confirm="Remover esta nota? Essa ação não pode ser desfeita.">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button type="submit" class="dropdown-item dropdown-item--danger">
+                  <i class="bi bi-trash3"></i> Excluir nota
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      {% endif %}
+    </header>
+
+    <div class="lb-note__body">
+      {% if note.type == 'QUOTE' %}
+        <blockquote class="lb-quote">{{ note.html }}</blockquote>
+      {% else %}
+        <div class="lb-markdown">{{ note.html }}</div>
+      {% endif %}
+    </div>
+
+    {% if note.image_filename %}
+      <a class="lb-note__photo" href="{{ url_for('notes.note_image', filename=note.image_filename) }}"
+         target="_blank" rel="noopener" aria-label="Abrir foto anexada à nota">
+        <img src="{{ url_for('notes.note_image', filename=note.image_filename) }}"
+             alt="Página fotografada durante a leitura" loading="lazy">
+        <span><i class="bi bi-arrows-fullscreen"></i> foto da página</span>
+      </a>
+    {% endif %}
+
+    <footer class="lb-note__foot">
+      <div class="lb-tags">
+        {% for tag in note.tags %}{{ tag_chip(tag) }}{% endfor %}
+      </div>
+      <div class="lb-note__meta">
+        {% if show_book and note.book %}
+          <a class="lb-note__booklink" href="{{ url_for('books.detail', book_id=note.book.id) }}">
+            <i class="bi bi-book"></i>{{ note.book.title }}
+          </a>
+        {% endif %}
+        <time datetime="{{ note.created_at.isoformat() if note.created_at }}">{{ note.created_at|tempo_atras }}</time>
+        <button type="button" class="lb-share" data-share-quote="{{ note.plain_text|e }}"
+                data-share-source="{{ (note.book.authors ~ ' — ' ~ note.book.title) if note.book else '' }}"
+                data-share-type="{{ note.type_label }}"
+                data-share-tags="{{ note.tags|map(attribute='name')|join(' · ')|e }}"
+                aria-label="Compartilhar esta nota como imagem" title="Compartilhar como imagem">
+          <i class="bi bi-box-arrow-up"></i>
+        </button>
+      </div>
+    </footer>
+  </article>
+{% endmacro %}
+
+{% macro book_row(book) %}
+  <article class="lb-bookrow">
+    <a class="lb-bookrow__cover" href="{{ url_for('books.detail', book_id=book.id) }}" tabindex="-1" aria-hidden="true">
+      {{ cover(book, 'sm') }}
+    </a>
+    <div class="lb-bookrow__body">
+      <div class="lb-bookrow__top">
+        {{ status_badge(book, small=true) }}
+        <a class="lb-iconbtn lb-iconbtn--sm" href="{{ url_for('books.detail', book_id=book.id) }}"
+           aria-label="Abrir {{ book.title }}">
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </div>
+      <h3 class="lb-bookrow__title">
+        <a href="{{ url_for('books.detail', book_id=book.id) }}">{{ book.title }}</a>
+      </h3>
+      <p class="lb-bookrow__byline">{{ book.authors }}</p>
+      {{ progress(book) }}
+      {% if book.last_note %}
+        <p class="lb-lastnote">
+          <i class="bi {{ book.last_note.type_icon }}"></i>
+          <span>{{ book.last_note.excerpt|truncate(88) }}</span>
+        </p>
+      {% endif %}
+    </div>
+  </article>
+{% endmacro %}

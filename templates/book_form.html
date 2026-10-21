@@ -1,0 +1,202 @@
+{% extends "layout.html" %}
+{% from "partials/_macros.html" import cover, tag_chip, note_card, book_row, progress, status_badge with context %}
+{% block title %}{{ 'Editar ' ~ book.title if book else 'Novo livro' }} · LeoBooks{% endblock %}
+
+{% block content %}
+<div class="lb-booktop">
+  <a class="lb-back" href="{{ url_for('books.detail', book_id=book.id) if book else url_for('main.library') }}">
+    <i class="bi bi-arrow-left"></i> {{ 'Voltar ao livro' if book else 'Biblioteca' }}
+  </a>
+</div>
+
+<header class="lb-pagehead lb-pagehead--form">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">{{ 'Editar livro' if book else 'Novo livro' }}</p>
+    <h1 class="lb-pagehead__title">
+      {% if book %}Ajuste a ficha, <em>sem pressa</em>.{% else %}Coloque um livro <em>na estante</em>.{% endif %}
+    </h1>
+    <p class="lb-pagehead__deck">
+      {% if book %}
+        Corrija metadados, atualize o progresso ou troque a capa.
+      {% else %}
+        Só título, autor e páginas são obrigatórios. O resto pode esperar a leitura.
+      {% endif %}
+    </p>
+  </div>
+</header>
+
+{% if form.errors %}
+  <div class="lb-formerrors" role="alert">
+    <span class="lb-formerrors__icon"><i class="bi bi-exclamation-triangle"></i></span>
+    <div>
+      <strong>Quase lá — confira estes pontos:</strong>
+      <ul>
+        {% for field_errors in form.errors.values() %}
+          {% for error in field_errors %}<li>{{ error }}</li>{% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}
+
+<div class="lb-formgrid">
+  <form class="lb-formcard" method="post" enctype="multipart/form-data" action="">
+    {{ form.hidden_tag() }}
+
+    <section class="lb-formsection">
+      <header class="lb-formsection__head">
+        <span class="lb-formsection__num">01</span>
+        <div>
+          <h2>Identidade</h2>
+          <p>O que está impresso na capa e na folha de rosto.</p>
+        </div>
+      </header>
+
+      <div class="lb-field">
+        <label class="lb-label" for="title">Título <span class="lb-req">*</span></label>
+        {{ form.title(class="form-control lb-input lb-input--title", id="title", placeholder="ex.: O Poder do Hábito", autofocus=true) }}
+        {% for error in form.title.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="lb-fieldrow">
+        <div class="lb-field">
+          <label class="lb-label" for="authors">Autor(es) <span class="lb-req">*</span></label>
+          {{ form.authors(class="form-control lb-input", id="authors", placeholder="ex.: Charles Duhigg") }}
+          {% for error in form.authors.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="lb-field">
+          <label class="lb-label" for="publisher">Editora</label>
+          {{ form.publisher(class="form-control lb-input", id="publisher", placeholder="ex.: Objetiva") }}
+          {% for error in form.publisher.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+      </div>
+
+      <div class="lb-field">
+        <label class="lb-label" for="isbn">ISBN</label>
+        {{ form.isbn(class="form-control lb-input", id="isbn", placeholder="ex.: 978-85-390-0251-1", inputmode="numeric") }}
+        <p class="lb-hint">Opcional. Aceita 10 ou 13 dígitos.</p>
+        {% for error in form.isbn.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+      </div>
+    </section>
+
+    <section class="lb-formsection">
+      <header class="lb-formsection__head">
+        <span class="lb-formsection__num">02</span>
+        <div>
+          <h2>Progresso</h2>
+          <p>Onde você está e como quer tratar este livro.</p>
+        </div>
+      </header>
+
+      <div class="lb-fieldrow lb-fieldrow--3">
+        <div class="lb-field">
+          <label class="lb-label" for="total_pages">Páginas totais <span class="lb-req">*</span></label>
+          {{ form.total_pages(class="form-control lb-input", id="total_pages", inputmode="numeric", placeholder="288") }}
+          {% for error in form.total_pages.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="lb-field">
+          <label class="lb-label" for="current_page">Página atual</label>
+          {{ form.current_page(class="form-control lb-input", id="current_page", inputmode="numeric", placeholder="0") }}
+          {% for error in form.current_page.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="lb-field">
+          <label class="lb-label" for="status">Status</label>
+          {{ form.status(class="form-select lb-select", id="status") }}
+          {% for error in form.status.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="lb-formsection">
+      <header class="lb-formsection__head">
+        <span class="lb-formsection__num">03</span>
+        <div>
+          <h2>Capa</h2>
+          <p>Uma imagem sua ou uma capa desenhada pelo LeoBooks.</p>
+        </div>
+      </header>
+
+      <div class="lb-coverlookup" data-cover-lookup-widget data-url="{{ url_for('books.cover_lookup') }}">
+        <div class="lb-coverlookup__head">
+          <div>
+            <span class="lb-label">Buscar em bases públicas</span>
+            <p class="lb-hint">Open Library, Google Books e Goodreads · usa o ISBN, o título ou o autor já preenchidos.</p>
+          </div>
+          <button type="button" class="lb-btn lb-btn--ghost lb-btn--sm" data-cover-lookup>
+            <i class="bi bi-images"></i> <span data-cover-lookup-label>Buscar capas</span>
+          </button>
+        </div>
+
+        <div class="lb-coverlookup__results" data-cover-results hidden></div>
+        <p class="lb-coverlookup__status" data-cover-status role="status"></p>
+
+        <div class="lb-coverlookup__selected" data-cover-selected hidden>
+          <span><i class="bi bi-check2-circle"></i> <span data-cover-selected-text></span></span>
+          <button type="button" class="lb-linkbtn" data-cover-clear>Remover seleção</button>
+        </div>
+
+        <input type="hidden" name="cover_candidate" value="" data-cover-candidate>
+        <p class="lb-hint lb-coverlookup__privacy">
+          <i class="bi bi-shield-check"></i>
+          Apenas ISBN, título e autor são enviados às APIs. A capa escolhida é baixada e guardada no seu servidor.
+        </p>
+      </div>
+
+      <div class="lb-field">
+        <label class="lb-label" for="cover">Enviar imagem</label>
+        <label class="lb-filelabel lb-filelabel--cover" for="cover">
+          <i class="bi bi-image"></i>
+          <span class="lb-filelabel__name is-empty" data-file-name>Nenhuma imagem escolhida</span>
+          <small>Escolher JPG, PNG ou WebP</small>
+          {{ form.cover(class="lb-filelabel__input", id="cover", accept="image/jpeg,image/png,image/webp", data_file_input="") }}
+        </label>
+        <p class="lb-hint">JPG, PNG ou WebP, até 8 MB. A imagem é otimizada automaticamente.</p>
+        {% for error in form.cover.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="lb-field">
+        <label class="lb-label" for="cover_url">…ou usar uma URL</label>
+        {{ form.cover_url(class="form-control lb-input", id="cover_url", placeholder="https://…", inputmode="url") }}
+        {% for error in form.cover_url.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+      </div>
+
+      {% if book and book.has_custom_cover %}
+        <label class="lb-check">
+          {{ form.remove_cover() }}
+          <span>Remover a capa atual e voltar à capa desenhada</span>
+        </label>
+      {% endif %}
+    </section>
+
+    <footer class="lb-formcard__foot">
+      <a class="lb-btn lb-btn--quiet" href="{{ url_for('books.detail', book_id=book.id) if book else url_for('main.library') }}">Cancelar</a>
+      <button class="lb-btn lb-btn--primary" type="submit">
+        <i class="bi bi-check2"></i> {{ 'Salvar alterações' if book else 'Colocar na estante' }}
+      </button>
+    </footer>
+  </form>
+
+  <aside class="lb-formaside">
+    <div class="lb-formaside__preview">
+      <p class="lb-eyebrow">Prévia da capa</p>
+      <div class="lb-cover-preview" data-cover-preview>
+        {% if book %}
+          {{ cover(book, 'md') }}
+        {% else %}
+          <div class="lb-cover-preview__empty">
+            <i class="bi bi-book"></i>
+            <span>Sem capa?<br>O LeoBooks desenha uma.</span>
+          </div>
+        {% endif %}
+        <img data-cover-preview-image alt="Prévia da capa" hidden>
+      </div>
+    </div>
+
+    <div class="lb-panel lb-panel--quiet lb-formaside__tip">
+      <span class="lb-formaside__tipmark" aria-hidden="true"><i class="bi bi-lightbulb"></i></span>
+      <p>Uma capa não faz a leitura — mas ajuda a reconhecer o livro de relance na estante.</p>
+      <small>As capas geradas usam o título e o autor para criar uma composição única.</small>
+    </div>
+  </aside>
+</div>
+{% endblock %}

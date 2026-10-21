@@ -1,0 +1,287 @@
+{% extends "layout.html" %}
+{% block title %}Ajustes · LeoBooks{% endblock %}
+
+{% block content %}
+<header class="lb-pagehead">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">
+      Ajustes <span class="lb-eyebrow__dot" aria-hidden="true"></span> {{ current_user.name }}
+      {% if current_user.is_admin %}<span class="lb-adminbadge">administrador</span>{% endif %}
+    </p>
+    <h1 class="lb-pagehead__title">Sua conta, <em>suas regras</em>.</h1>
+    <p class="lb-pagehead__deck">Aparência, segurança, backups e a porta de saída. Tudo no mesmo lugar.</p>
+  </div>
+  {% if current_user.is_admin %}
+    <a class="lb-btn lb-btn--ghost" href="{{ url_for('settings.users') }}">
+      <i class="bi bi-person-plus"></i> Criar novo usuário
+    </a>
+  {% endif %}
+</header>
+
+<div class="lb-settings">
+  <nav class="lb-settings__nav" aria-label="Seções dos ajustes">
+    <span class="lb-sidebar__label">Nesta página</span>
+    <a href="#aparencia">Aparência</a>
+    <a href="#perfil">Perfil</a>
+    <a href="#seguranca">Segurança</a>
+    <a href="#dados">Dados e backup</a>
+    <a href="#estatisticas">Estatísticas</a>
+    <a href="#zona-perigo" class="is-danger">Zona de perigo</a>
+    {% if current_user.is_admin %}
+      <span class="lb-sidebar__label lb-settings__label--admin">Administração</span>
+      <a href="{{ url_for('settings.users') }}" class="is-admin-link">
+        <i class="bi bi-people"></i> Usuários
+      </a>
+    {% endif %}
+    <form method="post" action="{{ url_for('settings.tutorial_reset') }}" class="lb-settings__tourform">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit">
+        <i class="bi bi-compass"></i> Rever tutorial
+      </button>
+    </form>
+    <div class="lb-settings__navfoot">
+      <span>Membro desde</span>
+      <strong>{{ current_user.created_at|data_longa }}</strong>
+    </div>
+  </nav>
+
+  <div class="lb-settings__content">
+
+    <section class="lb-setting-card" id="aparencia">
+      <header class="lb-setting-card__head">
+        <span class="lb-setting-card__num">01</span>
+        <div>
+          <h2>Aparência</h2>
+          <p>O caderno se adapta à luz do seu ambiente. A preferência fica salva na conta e no navegador.</p>
+        </div>
+      </header>
+
+      <form method="post" action="{{ url_for('settings.theme') }}" id="themeForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="lb-themecards">
+          <button type="submit" name="theme" value="light"
+                  class="lb-themecard lb-themecard--light {{ 'is-active' if current_user.theme != 'dark' }}"
+                  data-theme-choice="light" aria-pressed="{{ 'true' if current_user.theme != 'dark' else 'false' }}">
+            <span class="lb-themecard__preview" aria-hidden="true">
+              <span class="lb-themecard__bar"></span>
+              <span class="lb-themecard__line lb-themecard__line--short"></span>
+              <span class="lb-themecard__line"></span>
+              <span class="lb-themecard__line lb-themecard__line--tiny"></span>
+            </span>
+            <span class="lb-themecard__label">
+              <i class="bi bi-brightness-high"></i>
+              <span><strong>Papel</strong><small>claro, para o dia</small></span>
+              <i class="bi bi-check-circle-fill lb-themecard__check"></i>
+            </span>
+          </button>
+
+          <button type="submit" name="theme" value="dark"
+                  class="lb-themecard lb-themecard--dark {{ 'is-active' if current_user.theme == 'dark' }}"
+                  data-theme-choice="dark" aria-pressed="{{ 'true' if current_user.theme == 'dark' else 'false' }}">
+            <span class="lb-themecard__preview" aria-hidden="true">
+              <span class="lb-themecard__bar"></span>
+              <span class="lb-themecard__line lb-themecard__line--short"></span>
+              <span class="lb-themecard__line"></span>
+              <span class="lb-themecard__line lb-themecard__line--tiny"></span>
+            </span>
+            <span class="lb-themecard__label">
+              <i class="bi bi-moon-stars"></i>
+              <span><strong>Madrugada</strong><small>escuro, para ler à noite</small></span>
+              <i class="bi bi-check-circle-fill lb-themecard__check"></i>
+            </span>
+          </button>
+        </div>
+        <p class="lb-hint lb-hint--theme">A troca é imediata. Sem recarregar a página.</p>
+      </form>
+    </section>
+
+    <section class="lb-setting-card" id="perfil">
+      <header class="lb-setting-card__head">
+        <span class="lb-setting-card__num">02</span>
+        <div>
+          <h2>Perfil</h2>
+          <p>O nome aparece na saudação; o e-mail é o seu acesso.</p>
+        </div>
+      </header>
+
+      <form method="post" action="{{ url_for('settings.profile') }}" class="lb-form">
+        {{ profile_form.hidden_tag() }}
+        <div class="lb-fieldrow">
+          <div class="lb-field">
+            <label class="lb-label" for="profileName">Nome</label>
+            {{ profile_form.name(class="form-control lb-input", id="profileName") }}
+            {% for error in profile_form.name.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+          </div>
+          <div class="lb-field">
+            <label class="lb-label" for="profileEmail">E-mail</label>
+            {{ profile_form.email(class="form-control lb-input", id="profileEmail", inputmode="email") }}
+            {% for error in profile_form.email.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+        <div class="lb-form-actions">
+          <button type="submit" class="lb-btn lb-btn--dark lb-btn--sm">Salvar perfil</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="lb-setting-card" id="seguranca">
+      <header class="lb-setting-card__head">
+        <span class="lb-setting-card__num">03</span>
+        <div>
+          <h2>Segurança</h2>
+          <p>A senha deve ter entre 4 e 10 caracteres. Armazenamos apenas o hash.</p>
+        </div>
+      </header>
+
+      <form method="post" action="{{ url_for('settings.password') }}" class="lb-form">
+        {{ password_form.hidden_tag() }}
+        <div class="lb-field">
+          <label class="lb-label" for="currentPassword">Senha atual</label>
+          {{ password_form.current_password(class="form-control lb-input", id="currentPassword", autocomplete="current-password") }}
+          {% for error in password_form.current_password.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="lb-fieldrow">
+          <div class="lb-field">
+            <label class="lb-label" for="newPassword">Nova senha</label>
+            {{ password_form.new_password(class="form-control lb-input", id="newPassword", autocomplete="new-password", maxlength="10") }}
+            {% for error in password_form.new_password.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+          </div>
+          <div class="lb-field">
+            <label class="lb-label" for="confirmPassword">Repita a nova senha</label>
+            {{ password_form.confirm(class="form-control lb-input", id="confirmPassword", autocomplete="new-password", maxlength="10") }}
+            {% for error in password_form.confirm.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+        <div class="lb-form-actions">
+          <button type="submit" class="lb-btn lb-btn--dark lb-btn--sm">Alterar senha</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="lb-setting-card" id="dados">
+      <header class="lb-setting-card__head">
+        <span class="lb-setting-card__num">04</span>
+        <div>
+          <h2>Dados e backup</h2>
+          <p>Seu caderno é livre: leve tudo em Markdown, JSON ou no arquivo SQLite completo.</p>
+        </div>
+      </header>
+
+      <div class="lb-datalinks">
+        <a class="lb-datalink" href="{{ url_for('settings.export_markdown') }}">
+          <i class="bi bi-markdown"></i>
+          <span><strong>Exportar notas</strong><small>Markdown por livro</small></span>
+          <i class="bi bi-download lb-datalink__arrow"></i>
+        </a>
+        <a class="lb-datalink" href="{{ url_for('settings.export_json') }}">
+          <i class="bi bi-braces"></i>
+          <span><strong>Exportar dados</strong><small>JSON estruturado</small></span>
+          <i class="bi bi-download lb-datalink__arrow"></i>
+        </a>
+        {% if current_user.is_admin %}
+          <a class="lb-datalink" href="{{ url_for('settings.backup') }}">
+            <i class="bi bi-database"></i>
+            <span><strong>Baixar backup</strong><small>Banco SQLite .db</small></span>
+            <i class="bi bi-download lb-datalink__arrow"></i>
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="lb-datagrid">
+        {% if current_user.is_admin %}
+          <div class="lb-datapanel">
+            <h3>Restaurar backup <span class="lb-adminbadge">admin</span></h3>
+            <p>Envie um arquivo <code>.db</code> exportado pelo LeoBooks. A integridade é verificada antes da troca e um backup de segurança é guardado.</p>
+            <form method="post" action="{{ url_for('settings.restore') }}" enctype="multipart/form-data"
+                  data-confirm="Restaurar este backup? Sua sessão será encerrada e o banco atual será substituído.">
+              {{ restore_form.hidden_tag() }}
+              <label class="lb-filelabel" for="backupFile">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <span class="lb-filelabel__name is-empty" data-file-name>Nenhum arquivo escolhido</span>
+                <small>Escolher arquivo .db</small>
+                {{ restore_form.backup(class="lb-filelabel__input", id="backupFile", accept=".db,.sqlite,.sqlite3", data_file_input="") }}
+              </label>
+              <button type="submit" class="lb-btn lb-btn--ghost lb-btn--sm">Restaurar banco</button>
+            </form>
+          </div>
+        {% else %}
+          <div class="lb-datapanel">
+            <h3>Backup do servidor</h3>
+            <p>O backup completo do banco é uma operação administrativa e inclui os dados de todas as contas. Use a exportação em Markdown ou JSON para levar apenas o seu caderno.</p>
+            <p class="lb-hint">Se você administra este servidor, entre com a conta de administrador para baixar/restaurar o arquivo SQLite.</p>
+          </div>
+        {% endif %}
+
+        <div class="lb-datapanel lb-datapanel--meta">
+          <h3>Ficha técnica</h3>
+          <dl class="lb-facts lb-facts--compact">
+            {% if current_user.is_admin %}
+              <div><dt>Banco</dt><dd><code>{{ db_path }}</code></dd></div>
+            {% endif %}
+            <div><dt>Notas</dt><dd>{{ stats.notes }}</dd></div>
+            <div><dt>Livros</dt><dd>{{ stats.books }}</dd></div>
+            <div><dt>OCR</dt><dd>{{ 'disponível' if ocr_ready else 'não instalado' }}</dd></div>
+          </dl>
+          {% if not ocr_ready %}
+            <p class="lb-hint">Para OCR local, instale <code>tesseract</code> e <code>pytesseract</code>. Sem isso, a foto ainda pode ser anexada à nota.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section class="lb-setting-card" id="estatisticas">
+      <header class="lb-setting-card__head">
+        <span class="lb-setting-card__num">05</span>
+        <div>
+          <h2>Seu caderno em números</h2>
+          <p>Um retrato discreto do que a leitura já deixou.</p>
+        </div>
+      </header>
+      <div class="lb-stats__grid lb-stats__grid--wide">
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.books }}</span><span class="lb-stat__label">livros</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.notes }}</span><span class="lb-stat__label">notas</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.quotes }}</span><span class="lb-stat__label">citações</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.summaries }}</span><span class="lb-stat__label">resumos</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.insights }}</span><span class="lb-stat__label">insights</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.pages }}</span><span class="lb-stat__label">páginas lidas</span></div>
+      </div>
+    </section>
+
+    <section class="lb-setting-card lb-setting-card--danger" id="zona-perigo">
+      <header class="lb-setting-card__head">
+        <span class="lb-setting-card__num">06</span>
+        <div>
+          <h2>Zona de perigo</h2>
+          <p>Excluir a conta apaga livros, notas, tags e imagens de forma definitiva.</p>
+        </div>
+      </header>
+
+      <details class="lb-danger">
+        <summary>
+          <span><i class="bi bi-trash3"></i> Quero excluir minha conta</span>
+          <i class="bi bi-chevron-down"></i>
+        </summary>
+        <form method="post" action="{{ url_for('settings.delete_account') }}" class="lb-form"
+              data-confirm="Excluir definitivamente sua conta e todos os dados vinculados?">
+          {{ delete_form.hidden_tag() }}
+          <div class="lb-fieldrow">
+            <div class="lb-field">
+              <label class="lb-label" for="deletePassword">Confirme sua senha</label>
+              {{ delete_form.password(class="form-control lb-input", id="deletePassword", autocomplete="current-password") }}
+              {% for error in delete_form.password.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="lb-field">
+              <label class="lb-label" for="deleteConfirm">Digite <strong>EXCLUIR</strong> para confirmar</label>
+              {{ delete_form.confirmation(class="form-control lb-input", id="deleteConfirm", autocomplete="off") }}
+              {% for error in delete_form.confirmation.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+          <button type="submit" class="lb-btn lb-btn--danger lb-btn--sm">
+            <i class="bi bi-trash3"></i> Excluir conta definitivamente
+          </button>
+        </form>
+      </details>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+<header class="lb-mobilebar">
+  <a class="lb-brand lb-brand--compact" href="{{ url_for('main.dashboard') }}" aria-label="LeoBooks, início">
+    <span class="lb-brand__word">Leo<span>Books</span></span>
+  </a>
+
+  <div class="lb-mobilebar__actions">
+    <button type="button" class="lb-iconbtn" data-search-open aria-label="Buscar">
+      <i class="bi bi-search"></i>
+    </button>
+    <button type="button" class="lb-iconbtn" data-theme-toggle aria-label="Alternar tema" aria-pressed="false">
+      <i class="bi bi-moon-stars"></i>
+      <i class="bi bi-brightness-high"></i>
+    </button>
+    <a class="lb-avatar lb-avatar--link" href="{{ url_for('settings.index') }}" aria-label="Sua conta">
+      {{ current_user.initials }}
+    </a>
+  </div>
+</header>

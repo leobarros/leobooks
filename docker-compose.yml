@@ -1,0 +1,54 @@
+services:
+  leobooks:
+    build:
+      context: .
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+        INSTALL_OCR: ${INSTALL_OCR:-false}
+    image: leobooks:latest
+    restart: unless-stopped
+    init: true
+    # Teto rígido: o app foi ajustado para operar confortavelmente abaixo disto.
+    mem_limit: 512m
+    memswap_limit: 512m
+    pids_limit: 256
+    environment:
+      MALLOC_ARENA_MAX: "2"
+      TZ: ${TZ:-America/Sao_Paulo}
+      LEOBOOKS_HOST: 0.0.0.0
+      LEOBOOKS_PORT: "5057"
+      LEOBOOKS_HTTPS: ${LEOBOOKS_HTTPS:-0}
+      LEOBOOKS_COVER_LOOKUP: ${LEOBOOKS_COVER_LOOKUP:-1}
+      LEOBOOKS_LOOKUP_TIMEOUT: ${LEOBOOKS_LOOKUP_TIMEOUT:-8}
+      LEOBOOKS_SAMPLE_BOOK: ${LEOBOOKS_SAMPLE_BOOK:-1}
+      LEOBOOKS_LOG_LEVEL: ${LEOBOOKS_LOG_LEVEL:-INFO}
+      LEOBOOKS_AUDIT_LOG: ${LEOBOOKS_AUDIT_LOG:-}
+      SECRET_KEY: ${SECRET_KEY:-}
+    ports:
+      - "${LEOBOOKS_BIND_ADDR:-127.0.0.1}:${LEOBOOKS_PUBLISH_PORT:-5059}:5057"
+    volumes:
+      - leobooks_instance:/app/instance
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5057/healthz', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  leobooks_instance:

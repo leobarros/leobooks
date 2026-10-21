@@ -1,0 +1,42 @@
+<div class="modal fade lb-modal lb-searchmodal" id="searchModal" tabindex="-1" aria-labelledby="searchModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="get" action="{{ url_for('main.search') }}" role="search">
+        <header class="lb-modal__head lb-searchmodal__head">
+          <div>
+            <p class="lb-modal__eyebrow">Busca global</p>
+            <h2 class="lb-modal__title" id="searchModalTitle">O que você procura?</h2>
+          </div>
+          <button type="button" class="lb-iconbtn" data-bs-dismiss="modal" aria-label="Fechar">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </header>
+        <div class="lb-modal__body">
+          <div class="lb-searchfield">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" name="q" class="lb-searchfield__input" placeholder="Título, autor, trecho, tag…"
+                   aria-label="Buscar no caderno" autocomplete="off" data-search-input required>
+            <button type="submit" class="lb-btn lb-btn--primary lb-btn--sm">Buscar</button>
+          </div>
+          <p class="lb-hint lb-searchmodal__hint">
+            Procura em títulos, autores, ISBN, conteúdo das notas, capítulos e tags.
+          </p>
+          {% if quick_books %}
+            <div class="lb-searchmodal__quick">
+              <span class="lb-sidebar__label">Atalhos</span>
+              {% for book in quick_books[:3] %}
+                <a href="{{ url_for('books.detail', book_id=book.id) }}" class="lb-searchmodal__book">
+                  <i class="bi bi-book"></i> {{ book.title }}
+                </a>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <footer class="lb-modal__foot lb-searchmodal__foot">
+          <span class="lb-hint"><span class="lb-kbd">Enter</span> buscar · <span class="lb-kbd">Esc</span> fechar</span>
+          <a class="lb-link-arrow" href="{{ url_for('main.search') }}">Busca avançada <i class="bi bi-arrow-right"></i></a>
+        </footer>
+      </form>
+    </div>
+  </div>
+</div>

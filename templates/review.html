@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}Revisão · LeoBooks{% endblock %}
+
+{% block content %}
+<header class="lb-pagehead lb-pagehead--review">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">Revisão <span class="lb-eyebrow__dot" aria-hidden="true"></span> uma ideia por vez</p>
+    <h1 class="lb-pagehead__title">Releia o que você <em>pensou</em>.</h1>
+    <p class="lb-pagehead__deck">Citações que você guardou, sorteadas para voltar no momento certo. Sem pressa, sem fila.</p>
+  </div>
+  {% if total %}
+    <span class="lb-review-count">
+      <b>{{ index + 1 }}</b><span>/ {{ total }}</span>
+    </span>
+  {% endif %}
+</header>
+
+{% if note %}
+  <section class="lb-review" aria-label="Citação em revisão">
+    <div class="lb-review__card">
+      <span class="lb-review__mark" aria-hidden="true">“</span>
+      <div class="lb-review__meta">
+        <span class="lb-review__type"><i class="bi {{ note.type_icon }}"></i> {{ note.type_label }}</span>
+        {% if note.location_label %}<span class="lb-review__loc">{{ note.location_label }}</span>{% endif %}
+      </div>
+
+      <blockquote class="lb-review__quote">
+        {{ note.html }}
+      </blockquote>
+
+      <footer class="lb-review__foot">
+        <a class="lb-review__book" href="{{ url_for('books.detail', book_id=note.book.id) }}">
+          <i class="bi bi-book"></i>
+          <span>
+            <strong>{{ note.book.title }}</strong>
+            <small>{{ note.book.authors }}</small>
+          </span>
+        </a>
+        <div class="lb-tags lb-tags--light">
+          {% for tag in note.tags %}<span class="lb-tag lb-tag--static">#{{ tag.name }}</span>{% endfor %}
+        </div>
+      </footer>
+    </div>
+
+    <div class="lb-review__actions">
+      <a class="lb-btn lb-btn--primary" href="{{ url_for('main.review', seed=next_seed) }}">
+        Próxima citação <i class="bi bi-arrow-right"></i>
+      </a>
+      <button type="button" class="lb-btn lb-btn--ghost"
+              data-share-quote="{{ note.plain_text|e }}"
+              data-share-source="{{ note.book.authors }} — {{ note.book.title }}"
+              data-share-type="{{ note.type_label }}"
+              data-share-tags="{{ note.tags|map(attribute='name')|join(' · ')|e }}">
+        <i class="bi bi-image"></i> Compartilhar como imagem
+      </button>
+      <button type="button" class="lb-btn lb-btn--quiet" data-copy-quote="{{ note.content|e }}">
+        <i class="bi bi-clipboard"></i> Copiar Markdown
+      </button>
+    </div>
+
+    <nav class="lb-review__nav" aria-label="Navegar pela revisão">
+      <a class="lb-review__navlink" href="{{ url_for('main.review') }}"><i class="bi bi-arrow-counterclockwise"></i> do dia</a>
+      <span class="lb-review__navdot" aria-hidden="true"></span>
+      <a class="lb-review__navlink" href="{{ url_for('main.review', seed=(index - 1) % total) }}"><i class="bi bi-arrow-left"></i> anterior</a>
+      <span class="lb-review__navdot" aria-hidden="true"></span>
+      <a class="lb-review__navlink" href="{{ url_for('books.detail', book_id=note.book.id) }}">abrir livro <i class="bi bi-arrow-up-right"></i></a>
+    </nav>
+  </section>
+{% else %}
+  <div class="lb-empty lb-empty--wide lb-empty--review">
+    <span class="lb-empty__mark"><i class="bi bi-quote"></i></span>
+    <h2 class="lb-empty__title">Ainda não há citações para revisar.</h2>
+    <p>Registre a primeira frase que fez você parar a leitura. Ela volta aqui.</p>
+    <button type="button" class="lb-btn lb-btn--primary" data-note-open data-note-type="QUOTE">
+      <i class="bi bi-feather"></i> Guardar uma citação
+    </button>
+    <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.dashboard') }}">Voltar ao início</a>
+  </div>
+{% endif %}
+{% endblock %}

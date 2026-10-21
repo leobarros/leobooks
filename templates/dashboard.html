@@ -1,0 +1,216 @@
+{% extends "layout.html" %}
+{% from "partials/_macros.html" import cover, tag_chip, note_card, book_row, progress, status_badge with context %}
+{% block title %}Início · LeoBooks{% endblock %}
+
+{% block content %}
+<section class="lb-hero">
+  <div class="lb-hero__main">
+    <p class="lb-eyebrow">
+      <span>{{ weekday }}</span>
+      <span class="lb-eyebrow__dot" aria-hidden="true"></span>
+      <span>{{ today|data_longa }}</span>
+    </p>
+    <h1 class="lb-display">{{ greeting }}, <em>{{ current_user.first_name }}</em><span class="lb-display__stop">.</span></h1>
+    <p class="lb-deck">
+      {% if stats.notes %}
+        Seu caderno guarda <strong>{{ stats.notes }} notas</strong> em {{ stats.books }} livros.
+        {% if stats.quotes %}Há {{ stats.quotes }} citações esperando ser revisitadas.{% endif %}
+      {% else %}
+        O caderno está aberto em branco. Cadastre o livro que está lendo e guarde a primeira ideia
+        antes que ela se perca entre as páginas.
+      {% endif %}
+    </p>
+    <div class="lb-hero__links">
+      {% if reading %}
+        <a class="lb-link-arrow" href="#continuar">Continuar lendo <i class="bi bi-arrow-down-right"></i></a>
+      {% endif %}
+      <a class="lb-link-arrow" href="{{ url_for('main.review') }}">Revisar citações <i class="bi bi-arrow-right"></i></a>
+    </div>
+  </div>
+
+  <aside class="lb-streak-card" aria-label="Ritmo de leitura da semana">
+    <div class="lb-streak-card__top">
+      <span class="lb-eyebrow">Ritmo</span>
+      <i class="bi bi-fire" aria-hidden="true"></i>
+    </div>
+    <p class="lb-streak-card__num">
+      {{ stats.streak }}<span>{% if stats.streak == 1 %}dia{% else %}dias{% endif %}</span>
+    </p>
+    <p class="lb-streak-card__label">anotando sem interromper</p>
+    <div class="lb-week">
+      {% for day in activity %}
+        <div class="lb-week__day {% if day.is_today %}is-today{% endif %} {% if day.count %}has-note{% endif %} {% if day.is_future %}is-future{% endif %}"
+             title="{{ day.date.strftime('%d/%m') }} · {{ day.count }} nota{% if day.count != 1 %}s{% endif %}">
+          <span class="lb-week__dot">{% if day.count %}{{ day.count }}{% endif %}</span>
+          <span class="lb-week__label">{{ day.label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </aside>
+</section>
+
+{% if quick_books %}
+<section class="lb-quick">
+  <div class="lb-quick__intro">
+    <span class="lb-quick__mark" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
+    <div>
+      <h2 class="lb-quick__title">Capture antes que a ideia fuja.</h2>
+      <p class="lb-quick__sub">Uma citação, um resumo ou um insight — a partir de qualquer página.</p>
+    </div>
+  </div>
+  <div class="lb-quick__actions">
+    <button type="button" class="lb-quick__type lb-quick__type--gold" data-note-open data-note-type="QUOTE">
+      <i class="bi bi-quote"></i><span>Citação</span><small>trecho exato</small>
+    </button>
+    <button type="button" class="lb-quick__type lb-quick__type--forest" data-note-open data-note-type="SUMMARY">
+      <i class="bi bi-journal-text"></i><span>Resumo</span><small>com suas palavras</small>
+    </button>
+    <button type="button" class="lb-quick__type lb-quick__type--clay" data-note-open data-note-type="INSIGHT">
+      <i class="bi bi-lightbulb"></i><span>Insight</span><small>uma conexão</small>
+    </button>
+    <button type="button" class="lb-quick__ocr" data-note-open data-note-type="QUOTE" data-note-focus="photo">
+      <i class="bi bi-camera"></i><span>Foto / OCR</span>
+    </button>
+  </div>
+</section>
+{% else %}
+<section class="lb-empty lb-empty--hero">
+  <div class="lb-empty__art" aria-hidden="true">
+    <svg viewBox="0 0 200 160">
+      <path d="M28 124V52l46-18 46 18v72" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M74 34v90M28 124h92" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".4"/>
+      <path d="M124 124V70l34-13 22 9v58" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M124 124h56M124 70l34 9 22-4" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".4"/>
+      <circle cx="164" cy="34" r="10" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M14 138h172" stroke="currentColor" stroke-width="1.4" opacity=".35"/>
+    </svg>
+  </div>
+  <div class="lb-empty__content">
+    <p class="lb-eyebrow">Comece aqui</p>
+    <h2 class="lb-empty__title">Sua primeira página em branco.</h2>
+    <p>Cadastre o livro que está lendo. A capa pode ser desenhada pelo LeoBooks — só o título e o autor bastam.</p>
+    <a class="lb-btn lb-btn--primary" href="{{ url_for('books.new') }}">
+      <i class="bi bi-plus-lg"></i> Cadastrar meu primeiro livro
+    </a>
+  </div>
+</section>
+{% endif %}
+
+<div class="lb-dash-grid">
+  <div class="lb-dash-main">
+    {% if books %}
+      <section class="lb-section" id="continuar">
+        <header class="lb-section__head">
+          <div>
+            <p class="lb-eyebrow">Aberto agora</p>
+            <h2 class="lb-section__title">{% if reading %}Continuar lendo{% else %}Na sua estante{% endif %}</h2>
+          </div>
+          <a class="lb-section__link" href="{{ url_for('main.library') }}">Estante inteira <i class="bi bi-arrow-right"></i></a>
+        </header>
+
+        <div class="lb-reading-list">
+          {% for book in reading %}
+            {{ book_row(book) }}
+          {% else %}
+            {% for book in books[:3] %}
+              {{ book_row(book) }}
+            {% endfor %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="lb-section">
+        <header class="lb-section__head">
+          <div>
+            <p class="lb-eyebrow">Margens recentes</p>
+            <h2 class="lb-section__title">Últimas notas</h2>
+          </div>
+          <a class="lb-section__link" href="{{ url_for('main.tags') }}">Ver por tags <i class="bi bi-arrow-right"></i></a>
+        </header>
+
+        <div class="lb-notes lb-notes--compact">
+          {% for note in notes %}
+            {{ note_card(note, show_book=true) }}
+          {% else %}
+            <div class="lb-empty lb-empty--inline">
+              <i class="bi bi-pencil"></i>
+              <p>Nenhuma nota ainda. A primeira pode nascer agora.</p>
+              <button class="lb-btn lb-btn--ghost lb-btn--sm" type="button" data-note-open>
+                <i class="bi bi-feather"></i> Escrever nota
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </div>
+
+  <aside class="lb-rail">
+    <section class="lb-daily" id="revisao">
+      <header class="lb-daily__head">
+        <span class="lb-eyebrow">Revisão diária</span>
+        <a href="{{ url_for('main.review') }}" aria-label="Abrir modo de revisão">
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </header>
+
+      <blockquote class="lb-daily__quote">
+        <span class="lb-daily__mark" aria-hidden="true">“</span>
+        {% if daily_quote.note %}
+          {{ daily_quote.note.html }}
+        {% else %}
+          <p>{{ daily_quote.share_text }}</p>
+        {% endif %}
+      </blockquote>
+
+      <footer class="lb-daily__foot">
+        <p class="lb-daily__source">
+          <span>{{ daily_quote.share_source }}</span>
+          {% if daily_quote.location %}<small>{{ daily_quote.location }}</small>{% endif %}
+        </p>
+        <div class="lb-daily__actions">
+          <div class="lb-tags lb-tags--light">
+            {% for name in daily_quote.share_tags %}<span class="lb-tag lb-tag--static">#{{ name }}</span>{% endfor %}
+          </div>
+          <button type="button" class="lb-daily__share"
+                  data-share-quote="{{ daily_quote.share_text|e }}"
+                  data-share-source="{{ daily_quote.share_source|e }}"
+                  data-share-tags="{{ daily_quote.share_tags|join(' · ')|e }}"
+                  data-share-type="Citação">
+            <i class="bi bi-box-arrow-up"></i><span>compartilhar</span>
+          </button>
+        </div>
+      </footer>
+    </section>
+
+    <section class="lb-panel lb-stats">
+      <header class="lb-panel__head">
+        <h2 class="lb-panel__title">Seu placar</h2>
+        <span class="lb-panel__folio">fl. 01</span>
+      </header>
+      <div class="lb-stats__grid">
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.notes }}</span><span class="lb-stat__label">notas</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.pages }}</span><span class="lb-stat__label">páginas lidas</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.read }}</span><span class="lb-stat__label">livros lidos</span></div>
+        <div class="lb-stat"><span class="lb-stat__num">{{ stats.tags }}</span><span class="lb-stat__label">tags</span></div>
+      </div>
+      <p class="lb-stats__aside">
+        <i class="bi bi-bookmark-star"></i>
+        {{ stats.quotes }} citações · {{ stats.summaries }} resumos · {{ stats.insights }} insights
+      </p>
+    </section>
+
+    {% if top_tags %}
+      <section class="lb-panel lb-panel--tags">
+        <header class="lb-panel__head">
+          <h2 class="lb-panel__title">Fios do caderno</h2>
+          <a class="lb-panel__link" href="{{ url_for('main.tags') }}">todas</a>
+        </header>
+        <div class="lb-tags">
+          {% for tag in top_tags %}{{ tag_chip(tag) }}{% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

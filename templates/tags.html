@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% from "partials/_macros.html" import cover, tag_chip, note_card, book_row, progress, status_badge with context %}
+{% block title %}Tags · LeoBooks{% endblock %}
+
+{% block content %}
+<header class="lb-pagehead">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">Tags <span class="lb-eyebrow__dot" aria-hidden="true"></span> {{ tags|length }} {% if tags|length == 1 %}fio{% else %}fios{% endif %}</p>
+    <h1 class="lb-pagehead__title">Os fios que <em>costuram</em> suas leituras.</h1>
+    <p class="lb-pagehead__deck">Uma tag atravessa livros e encontra ideias irmãs. Toque em uma para ver as notas que ela reúne.</p>
+  </div>
+  <button type="button" class="lb-btn lb-btn--primary" data-note-open>
+    <i class="bi bi-feather"></i> Nova nota
+  </button>
+</header>
+
+{% if tags %}
+  <div class="lb-tagcloud">
+    {% for tag in tags %}
+      <a class="lb-tagcloud__item {{ 'is-active' if selected_tag and selected_tag.id == tag.id }}"
+         style="--tag: {{ tag.color_hex }}; --weight: {{ tag.count }}"
+         href="{{ url_for('main.tag_detail', tag_id=tag.id) }}">
+        <span class="lb-tagcloud__hash">#</span>
+        <span class="lb-tagcloud__name">{{ tag.name }}</span>
+        <span class="lb-tagcloud__count">{{ tag.count }}</span>
+      </a>
+    {% endfor %}
+    {% if selected_tag %}
+      <a class="lb-tagcloud__clear" href="{{ url_for('main.tags') }}">
+        <i class="bi bi-x-lg"></i> limpar seleção
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+
+<section class="lb-section lb-section--tags">
+  <header class="lb-section__head">
+    <div>
+      <p class="lb-eyebrow">{% if selected_tag %}Filtrando por{% else %}Sem filtro{% endif %}</p>
+      <h2 class="lb-section__title">
+        {% if selected_tag %}
+          <span class="lb-section__hashtag" style="--tag: {{ selected_tag.color_hex }}">#</span>{{ selected_tag.name }}
+        {% else %}
+          Notas recentes
+        {% endif %}
+      </h2>
+    </div>
+    {% if selected_tag %}
+      <span class="lb-section__count">{{ notes|length }} {% if notes|length == 1 %}nota{% else %}notas{% endif %}</span>
+    {% endif %}
+  </header>
+
+  {% if notes %}
+    <div class="lb-notes">
+      {% for note in notes %}
+        {{ note_card(note, show_book=true) }}
+      {% endfor %}
+    </div>
+  {% elif selected_tag %}
+    <div class="lb-empty lb-empty--wide">
+      <span class="lb-empty__mark"><i class="bi bi-tag"></i></span>
+      <h2 class="lb-empty__title">Nenhuma nota com esta tag.</h2>
+      <p>As notas podem ter sido removidas. Experimente outra tag.</p>
+      <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.tags') }}">Ver todas as tags</a>
+    </div>
+  {% else %}
+    <div class="lb-empty lb-empty--wide">
+      <span class="lb-empty__mark"><i class="bi bi-tags"></i></span>
+      <h2 class="lb-empty__title">Ainda não há fios no caderno.</h2>
+      <p>Adicione tags às notas — como <em>filosofia</em>, <em>hábito</em> ou <em>atenção</em> — para cruzar ideias entre livros.</p>
+      <button type="button" class="lb-btn lb-btn--primary" data-note-open>
+        <i class="bi bi-feather"></i> Escrever a primeira nota com tags
+      </button>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+{% from "partials/_macros.html" import cover, tag_chip, note_card, book_row, progress, status_badge with context %}
+{% block title %}{{ 'Busca por ' ~ query_text if query_text else 'Busca' }} · LeoBooks{% endblock %}
+
+{% block content %}
+<header class="lb-pagehead lb-pagehead--search">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">Busca global</p>
+    <h1 class="lb-pagehead__title">Encontre o que ficou <em>na margem</em>.</h1>
+    <p class="lb-pagehead__deck">Títulos, autores, ISBN, notas, capítulos e tags — tudo em um só lugar.</p>
+  </div>
+</header>
+
+<form class="lb-searchpage" method="get" action="{{ url_for('main.search') }}" role="search">
+  <div class="lb-searchfield lb-searchfield--large">
+    <i class="bi bi-search" aria-hidden="true"></i>
+    <input type="search" name="q" class="lb-searchfield__input" value="{{ query_text }}"
+           placeholder="O que você lembra? Uma frase, um autor, uma tag…"
+           aria-label="Buscar no caderno" autofocus required>
+    <button type="submit" class="lb-btn lb-btn--primary">Buscar</button>
+  </div>
+</form>
+
+{% if query_text %}
+  <p class="lb-searchmeta">
+    {% if total %}
+      <strong>{{ total }}</strong> {% if total == 1 %}resultado{% else %}resultados{% endif %} para
+      <em>“{{ query_text }}”</em>
+    {% else %}
+      Nenhum resultado para <em>“{{ query_text }}”</em>
+    {% endif %}
+  </p>
+
+  {% if books %}
+    <section class="lb-section lb-section--search">
+      <header class="lb-section__head">
+        <div>
+          <p class="lb-eyebrow">Livros</p>
+          <h2 class="lb-section__title">{{ books|length }} na estante</h2>
+        </div>
+      </header>
+      <div class="lb-shelf lb-shelf--search">
+        {% for book in books %}
+          <article class="lb-bookcard lb-bookcard--sm">
+            <a class="lb-bookcard__cover" href="{{ url_for('books.detail', book_id=book.id) }}">
+              {{ cover(book, 'sm') }}
+            </a>
+            <div class="lb-bookcard__info">
+              <h3 class="lb-bookcard__title">
+                <a href="{{ url_for('books.detail', book_id=book.id) }}">{{ book.title }}</a>
+              </h3>
+              <p class="lb-bookcard__author">{{ book.authors }}</p>
+              <p class="lb-bookcard__meta">{{ book.note_count }} notas · {{ book.progress_percent }}%</p>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if tags %}
+    <section class="lb-section lb-section--search">
+      <header class="lb-section__head">
+        <div>
+          <p class="lb-eyebrow">Tags</p>
+          <h2 class="lb-section__title">Fios encontrados</h2>
+        </div>
+      </header>
+      <div class="lb-tags lb-tags--search">
+        {% for tag in tags %}{{ tag_chip(tag) }}{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if notes %}
+    <section class="lb-section lb-section--search">
+      <header class="lb-section__head">
+        <div>
+          <p class="lb-eyebrow">Notas</p>
+          <h2 class="lb-section__title">{{ notes|length }} {% if notes|length == 1 %}trecho{% else %}trechos{% endif %}</h2>
+        </div>
+      </header>
+      <div class="lb-notes">
+        {% for note in notes %}{{ note_card(note, show_book=true) }}{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if not total %}
+    <div class="lb-empty lb-empty--wide">
+      <span class="lb-empty__mark"><i class="bi bi-search"></i></span>
+      <h2 class="lb-empty__title">Nada por aqui — ainda.</h2>
+      <p>Tente uma palavra mais curta, o nome do autor ou uma tag. A busca também percorre o conteúdo dos resumos.</p>
+      <div class="lb-empty__actions">
+        <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.library') }}">Abrir biblioteca</a>
+        <a class="lb-btn lb-btn--quiet" href="{{ url_for('main.tags') }}">Ver tags</a>
+      </div>
+    </div>
+  {% endif %}
+{% else %}
+  <div class="lb-searchstart">
+    <div class="lb-searchstart__item">
+      <i class="bi bi-book"></i>
+      <div><strong>Um livro</strong><p>Busque pelo título ou autor e abra as notas dele.</p></div>
+    </div>
+    <div class="lb-searchstart__item">
+      <i class="bi bi-quote"></i>
+      <div><strong>Um trecho</strong><p>Qualquer palavra dentro de uma citação, resumo ou insight.</p></div>
+    </div>
+    <div class="lb-searchstart__item">
+      <i class="bi bi-tag"></i>
+      <div><strong>Uma tag</strong><p>Encontre ideias que atravessam livros diferentes.</p></div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
