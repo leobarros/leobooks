@@ -8,6 +8,6 @@ TryExec=leobooks
 Icon=leobooks
 Terminal=false
 StartupNotify=true
-StartupWMClass=io.github.leobarros.LeoBooks
+StartupWMClass=leobooks
 Categories=Office;
 Keywords=leitura;livros;notas;citações;

@@ -112,6 +112,8 @@ fi
 %doc /usr/share/doc/leobooks/README.md
 
 %changelog
+* Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.6-1
+- Janela GTK padrão compatível com o Debian/GNOME.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.5-1
 - Corrigido diretório de dados nativo.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.4-1

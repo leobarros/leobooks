@@ -2,8 +2,8 @@
 """LeoBooks — janela GTK/WebKit para o servidor local.
 
 Não abre um navegador externo: a interface web existente é exibida dentro de
-uma janela nativa GTK. O banco continua sendo o SQLite local atendido pelo
-serviço systemd `leobooks`.
+uma janela GTK. O banco continua sendo o SQLite local atendido pelo serviço
+systemd `leobooks`.
 """
 
 from __future__ import annotations
@@ -14,19 +14,18 @@ import sys
 import urllib.request
 from pathlib import Path
 
-# Em Debian/GNOME com Wayland, GPU virtual ou drivers NVIDIA, o renderizador
-# DMA-BUF do WebKitGTK pode entregar uma superfície preta. Estes dois
-# interruptores forçam o caminho de software e são lidos antes de importar a
-# biblioteca. O usuário ainda pode sobrescrever com "0" no ambiente.
-os.environ.setdefault("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
-os.environ.setdefault("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
+# O caminho padrão é o que funciona no Debian/GNOME. Em GPUs problemáticas,
+# LEOBOOKS_GTK_SAFE=1 ativa o renderizador de software do WebKitGTK.
+if os.environ.get("LEOBOOKS_GTK_SAFE") == "1":
+    os.environ.setdefault("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
+    os.environ.setdefault("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
 
 try:
     import gi
 
     gi.require_version("Gtk", "3.0")
     gi.require_version("WebKit2", "4.1")
-    from gi.repository import Gio, Gtk, WebKit2
+    from gi.repository import Gtk, WebKit2
 except (ImportError, ValueError) as exc:  # pragma: no cover - depende do sistema
     sys.stderr.write(
         "LeoBooks precisa de GTK 3 e WebKitGTK 4.1.\n"
@@ -37,7 +36,6 @@ except (ImportError, ValueError) as exc:  # pragma: no cover - depende do sistem
     )
     raise SystemExit(1)
 
-APP_ID = "io.github.leobarros.LeoBooks"
 DEFAULT_PORT = "5057"
 ENV_FILE = Path("/etc/leobooks/leobooks.env")
 
@@ -101,32 +99,14 @@ def error_page(url: str) -> str:
 </main></body></html>"""
 
 
-class LeoWindow(Gtk.ApplicationWindow):
-    def __init__(self, application: Gtk.Application, url: str) -> None:
-        super().__init__(application=application, title="LeoBooks")
+class LeoWindow(Gtk.Window):
+    def __init__(self, url: str) -> None:
+        super().__init__(title="LeoBooks")
         self.set_default_icon_name("leobooks")
+        self.set_wmclass("leobooks", "LeoBooks")
         self.set_default_size(1220, 820)
         self.set_size_request(900, 600)
         self.url = url
-
-        header = Gtk.HeaderBar()
-        # O botão padrão da decoração some em alguns temas GTK; usamos um
-        # controle explícito e visível para fechar a janela.
-        header.set_show_close_button(False)
-        header.set_title("LeoBooks")
-
-        reload_button = Gtk.Button.new_from_icon_name(
-            "view-refresh-symbolic", Gtk.IconSize.BUTTON
-        )
-        reload_button.set_tooltip_text("Recarregar a interface")
-        reload_button.connect("clicked", lambda _button: self.webview.reload())
-        header.pack_start(reload_button)
-
-        close_button = Gtk.Button(label="Fechar")
-        close_button.set_tooltip_text("Fechar o LeoBooks")
-        close_button.connect("clicked", lambda _button: self.close())
-        header.pack_end(close_button)
-        self.set_titlebar(header)
 
         self.webview = WebKit2.WebView()
         settings = self.webview.get_settings()
@@ -134,7 +114,29 @@ class LeoWindow(Gtk.ApplicationWindow):
         settings.set_enable_write_console_messages_to_stdout(False)
         self.webview.connect("load-failed", self._on_load_failed)
         self.webview.connect("web-process-crashed", self._on_web_process_crashed)
-        self.add(self.webview)
+
+        toolbar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        toolbar.set_margin_top(6)
+        toolbar.set_margin_bottom(6)
+        toolbar.set_margin_start(6)
+        toolbar.set_margin_end(6)
+
+        reload_button = Gtk.Button.new_from_icon_name(
+            "view-refresh-symbolic", Gtk.IconSize.BUTTON
+        )
+        reload_button.set_tooltip_text("Recarregar a interface")
+        reload_button.connect("clicked", lambda _button: self.webview.reload())
+        toolbar.pack_start(reload_button, False, False, 0)
+
+        close_button = Gtk.Button(label="Fechar")
+        close_button.set_tooltip_text("Fechar o LeoBooks")
+        close_button.connect("clicked", lambda _button: self.destroy())
+        toolbar.pack_end(close_button, False, False, 0)
+
+        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        container.pack_start(toolbar, False, False, 0)
+        container.pack_start(self.webview, True, True, 0)
+        self.add(container)
 
         if service_available(url):
             self.webview.load_uri(url)
@@ -154,27 +156,12 @@ class LeoWindow(Gtk.ApplicationWindow):
         return True
 
 
-class LeoApplication(Gtk.Application):
-    def __init__(self) -> None:
-        super().__init__(
-            application_id=APP_ID,
-            flags=Gio.ApplicationFlags.FLAGS_NONE,
-        )
-        self.window: LeoWindow | None = None
-
-    def do_activate(self) -> None:
-        if self.window is None:
-            self.window = LeoWindow(self, service_url())
-            self.window.connect("destroy", self._on_destroy)
-        self.window.present()
-
-    def _on_destroy(self, _window) -> None:
-        self.window = None
-
-
 def main() -> int:
-    application = LeoApplication()
-    return application.run(sys.argv)
+    window = LeoWindow(service_url())
+    window.connect("destroy", Gtk.main_quit)
+    window.show_all()
+    Gtk.main()
+    return 0
 
 
 if __name__ == "__main__":

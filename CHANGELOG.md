@@ -5,6 +5,14 @@
 - README reescrito como um percurso da leitora fictícia Mariana, cobrindo
   estante, citação no celular, livro digital, busca, compartilhamento e backup.
 
+## 1.0.6 — 2026-10-24
+
+- O aplicativo GTK voltou a usar a janela e o renderizador WebKit padrão, que
+  funcionam no Debian/GNOME; o modo de software agora é opcional via
+  `LEOBOOKS_GTK_SAFE=1`.
+- Removido o `Gtk.ApplicationWindow`/headerbar que diferia do teste mínimo.
+- Mantidos os botões Recarregar e Fechar em uma barra interna.
+
 ## 1.0.5 — 2026-10-24
 
 - Corrigido o app nativo para criar os dados em `LEOBOOKS_INSTANCE`
