@@ -52,10 +52,11 @@ USER leobooks
 
 EXPOSE 5057
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=25s --retries=3 \
+HEALTHCHECK --interval=5m --timeout=5s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5057/healthz', timeout=3)" || exit 1
 
 CMD ["gunicorn", \
+     "--config", "gunicorn.conf.py", \
      "--bind", "0.0.0.0:5057", \
      "--workers", "1", \
      "--worker-class", "gthread", \

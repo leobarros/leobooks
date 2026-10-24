@@ -345,6 +345,10 @@ As ações principais geram linhas JSON de auditoria no `stdout`, com
 `request_id`, usuário, IP e resultado. Senhas, tokens e conteúdo das notas não
 são registrados.
 
+O endpoint `/healthz` é chamado pelo Docker a cada **5 minutos** e é filtrado do
+access log para não poluir o histórico. O resultado continua validando banco e
+HTTP; erros de health aparecem no log de erro do container.
+
 ```bash
 docker compose logs -f leobooks
 ```
