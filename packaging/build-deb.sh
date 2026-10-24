@@ -26,6 +26,13 @@ find "$PKG/opt/leobooks/app" -type f -name '*.pyc' -delete
 PYTHONDONTWRITEBYTECODE=1 python3 -m venv "$PKG/opt/leobooks/venv"
 "$PKG/opt/leobooks/venv/bin/pip" install --no-cache-dir -r "$ROOT/requirements.txt"
 
+# O venv foi criado no diretório de staging; seus scripts (gunicorn, pip)
+# precisam apontar para o caminho final /opt/leobooks/venv no pacote.
+VENV="$PKG/opt/leobooks/venv"
+grep -RIl --exclude-dir=__pycache__ -- "$PKG" "$VENV" 2>/dev/null | while IFS= read -r file; do
+    sed -i "s|$PKG||g" "$file"
+done
+
 install -m 0644 "$ROOT/packaging/common/leobooks.service" "$PKG/usr/lib/systemd/system/leobooks.service"
 install -m 0640 "$ROOT/packaging/common/leobooks.env" "$PKG/etc/leobooks/leobooks.env"
 install -m 0755 "$ROOT/packaging/common/leobooks" "$PKG/usr/bin/leobooks"

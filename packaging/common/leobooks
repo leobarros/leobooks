@@ -131,18 +131,18 @@ class LeoWindow(Gtk.ApplicationWindow):
         if service_available(url):
             self.webview.load_uri(url)
         else:
-            self.webview.load_html(error_page(url), f"{url}/")
+            self.webview.load_html(error_page(url), "about:blank")
 
     def _on_web_process_crashed(self, _view, _terminated):
         sys.stderr.write("LeoBooks: o processo web do WebKitGTK encerrou.\n")
-        self.webview.load_html(error_page(self.url), f"{self.url}/")
+        self.webview.load_html(error_page(self.url), "about:blank")
         return True
 
     def _on_load_failed(self, _view, _event, uri, _error):
         # Não substitui a página por causa de um favicon ou imagem ausente.
         if uri.rstrip("/") != self.url.rstrip("/"):
             return False
-        self.webview.load_html(error_page(self.url), f"{self.url}/")
+        self.webview.load_html(error_page(self.url), "about:blank")
         return True
 
 

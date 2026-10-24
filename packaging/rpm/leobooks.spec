@@ -112,6 +112,8 @@ fi
 %doc /usr/share/doc/leobooks/README.md
 
 %changelog
+* Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.3-1
+- Corrigido shebang do venv no pacote Debian.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.2-1
 - Renderização por software para evitar tela preta no WebKitGTK.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.1-1

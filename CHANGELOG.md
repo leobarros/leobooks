@@ -5,6 +5,13 @@
 - README reescrito como um percurso da leitora fictícia Mariana, cobrindo
   estante, citação no celular, livro digital, busca, compartilhamento e backup.
 
+## 1.0.3 — 2026-10-24
+
+- Corrigido o `.deb` que empacotava scripts do venv com shebang do diretório
+  temporário de build. O serviço caía com `203/EXEC` e o app GTK ficava sem a
+  API local.
+- Corrigida a página de erro para não depender de uma URL indisponível.
+
 ## 1.0.2 — 2026-10-24
 
 - Corrigida a tela preta do aplicativo GTK no Debian/GNOME com Wayland, GPU
