@@ -51,6 +51,20 @@ capítulo e às tags que você escolher.
 
 ![LeoBooks no tema escuro](docs/screenshots/tema-escuro.webp)
 
+## Aplicativo para GNOME
+
+Nas instalações nativas, o LeoBooks é um **aplicativo GTK**, não um atalho que
+abre o navegador. O menu do GNOME inicia `leobooks`, que abre a interface em uma
+janela GTK/WebKit e conversa com o serviço local em `127.0.0.1:5057`. O banco
+continua sendo o SQLite em `/var/lib/leobooks`.
+
+O pacote também instala metadados **AppStream** e capturas de tela, para que o
+aplicativo apareça com nome, descrição e imagens no GNOME Software e na loja
+da distribuição.
+
+O servidor systemd continua existindo para que a janela tenha uma API local e
+para permitir acesso pela LAN/Tailscale pelo navegador de outro dispositivo.
+
 ## Comece a usar
 
 ### Com Docker (recomendado)
@@ -400,31 +414,37 @@ também pode ser instalado como serviço systemd, sem container.
 **Debian 13 / Ubuntu (amd64):**
 
 ```bash
-sudo apt install ./dist/leobooks_1.0.0_amd64.deb
+sudo apt install ./dist/leobooks_1.0.1_amd64.deb
 sudo systemctl status leobooks
 ```
 
-O pacote instala o serviço, o atalho **LeoBooks** no GNOME, a configuração em
-`/etc/leobooks/leobooks.env` e os dados persistentes em `/var/lib/leobooks`.
+O pacote instala o serviço, o **aplicativo GTK LeoBooks** no menu do GNOME, a
+configuração em `/etc/leobooks/leobooks.env` e os dados persistentes em
+`/var/lib/leobooks`. O atalho abre uma janela GTK/WebKit; não abre um navegador
+externo.
 
 **Fedora 42 (x86_64):**
 
 ```bash
-sudo dnf install ./dist/leobooks-1.0.0-1.fc42.x86_64.rpm
-# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.0-1.fc42.x86_64.rpm
+sudo dnf install ./dist/leobooks-1.0.1-1.fc42.x86_64.rpm
+# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.1-1.fc42.x86_64.rpm
 sudo systemctl status leobooks
 ```
 
 **Arch e outras distros com Python 3 e systemd:**
 
 ```bash
-tar -xzf dist/leobooks-1.0.0-linux-x86_64.tar.gz
-cd leobooks-1.0.0
+tar -xzf dist/leobooks-1.0.1-linux-x86_64.tar.gz
+cd leobooks-1.0.1
 sudo ./install.sh
 ```
 
 O instalador do tarball cria o venv no destino, então o alvo precisa de Python
-3.10+ e acesso ao PyPI durante a instalação.
+3.10+, GTK 3/WebKitGTK 4.1 e acesso ao PyPI durante a instalação. Em Arch:
+
+```bash
+sudo pacman -S python-gobject gtk3 webkit2gtk-4.1
+```
 
 Em qualquer formato:
 
@@ -469,8 +489,8 @@ docker compose push
 Para uma release versionada:
 
 ```bash
-LEOBOOKS_IMAGE_TAG=1.0.0 docker compose build
-LEOBOOKS_IMAGE_TAG=1.0.0 docker compose push
+LEOBOOKS_IMAGE_TAG=1.0.1 docker compose build
+LEOBOOKS_IMAGE_TAG=1.0.1 docker compose push
 ```
 
 O repositório é

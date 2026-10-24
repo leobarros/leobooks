@@ -20,13 +20,16 @@ Requires:       python3
 Requires:       python3-libs
 Requires:       sqlite-libs
 Requires:       ca-certificates
-Requires:       xdg-utils
+Requires:       python3-gobject
+Requires:       gtk3
+Requires:       webkit2gtk4.1
 Requires:       libjpeg-turbo
 Requires:       zlib
 
 %description
 LeoBooks é um caderno de leitura: livros, citações, resumos, insights,
-tags e progresso. Inclui serviço systemd, atalho no GNOME e dados
+tags e progresso em um aplicativo GTK/WebKit local. Inclui serviço
+systemd, atalho no GNOME e dados
 persistentes em /var/lib/leobooks.
 
 %prep
@@ -57,12 +60,16 @@ find "$VENV" -type f -name '*.pyc' -delete
 
 install -d %{buildroot}/etc/leobooks
 install -d %{buildroot}/usr/lib/systemd/system
+install -d %{buildroot}/usr/bin
 install -d %{buildroot}/usr/share/applications
+install -d %{buildroot}/usr/share/metainfo
 install -d %{buildroot}/usr/share/icons/hicolor/scalable/apps
 install -d %{buildroot}/usr/share/doc/leobooks
 install -m 0644 packaging/common/leobooks.service %{buildroot}/usr/lib/systemd/system/leobooks.service
 install -m 0640 packaging/common/leobooks.env %{buildroot}/etc/leobooks/leobooks.env
-install -m 0644 packaging/common/leobooks.desktop %{buildroot}/usr/share/applications/leobooks.desktop
+install -m 0755 packaging/common/leobooks %{buildroot}/usr/bin/leobooks
+install -m 0644 packaging/common/io.github.leobarros.LeoBooks.desktop %{buildroot}/usr/share/applications/io.github.leobarros.LeoBooks.desktop
+install -m 0644 packaging/appstream/io.github.leobarros.LeoBooks.metainfo.xml %{buildroot}/usr/share/metainfo/io.github.leobarros.LeoBooks.metainfo.xml
 install -m 0644 packaging/common/leobooks.svg %{buildroot}/usr/share/icons/hicolor/scalable/apps/leobooks.svg
 install -m 0644 packaging/common/README.txt %{buildroot}/usr/share/doc/leobooks/README.txt
 install -m 0644 README.md %{buildroot}/usr/share/doc/leobooks/README.md
@@ -96,12 +103,16 @@ fi
 %files
 /opt/leobooks
 %config(noreplace) /etc/leobooks/leobooks.env
+/usr/bin/leobooks
 /usr/lib/systemd/system/leobooks.service
-/usr/share/applications/leobooks.desktop
+/usr/share/applications/io.github.leobarros.LeoBooks.desktop
+/usr/share/metainfo/io.github.leobarros.LeoBooks.metainfo.xml
 /usr/share/icons/hicolor/scalable/apps/leobooks.svg
 %doc /usr/share/doc/leobooks/README.txt
 %doc /usr/share/doc/leobooks/README.md
 
 %changelog
+* Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.1-1
+- Aplicativo GTK/WebKit, metadados AppStream e capturas para a loja.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.0-1
 - Pacote nativo inicial com systemd, atalho GNOME e dados persistentes.

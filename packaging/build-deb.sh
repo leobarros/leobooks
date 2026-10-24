@@ -11,7 +11,9 @@ DIST="$ROOT/dist"
 rm -rf "$PKG"
 mkdir -p "$PKG/DEBIAN" "$PKG/opt/leobooks/app" "$PKG/opt/leobooks/venv" \
          "$PKG/etc/leobooks" "$PKG/usr/lib/systemd/system" \
-         "$PKG/usr/share/applications" "$PKG/usr/share/icons/hicolor/scalable/apps" \
+         "$PKG/usr/bin" "$PKG/usr/share/applications" \
+         "$PKG/usr/share/metainfo" \
+         "$PKG/usr/share/icons/hicolor/scalable/apps" \
          "$PKG/usr/share/doc/leobooks" "$DIST"
 
 cp "$ROOT/app.py" "$ROOT/config.py" "$ROOT/models.py" "$ROOT/routes.py" \
@@ -26,7 +28,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m venv "$PKG/opt/leobooks/venv"
 
 install -m 0644 "$ROOT/packaging/common/leobooks.service" "$PKG/usr/lib/systemd/system/leobooks.service"
 install -m 0640 "$ROOT/packaging/common/leobooks.env" "$PKG/etc/leobooks/leobooks.env"
-install -m 0644 "$ROOT/packaging/common/leobooks.desktop" "$PKG/usr/share/applications/leobooks.desktop"
+install -m 0755 "$ROOT/packaging/common/leobooks" "$PKG/usr/bin/leobooks"
+install -m 0644 "$ROOT/packaging/common/io.github.leobarros.LeoBooks.desktop" "$PKG/usr/share/applications/io.github.leobarros.LeoBooks.desktop"
+install -m 0644 "$ROOT/packaging/appstream/io.github.leobarros.LeoBooks.metainfo.xml" "$PKG/usr/share/metainfo/io.github.leobarros.LeoBooks.metainfo.xml"
 install -m 0644 "$ROOT/packaging/common/leobooks.svg" "$PKG/usr/share/icons/hicolor/scalable/apps/leobooks.svg"
 install -m 0644 "$ROOT/packaging/common/README.txt" "$PKG/usr/share/doc/leobooks/README.txt"
 install -m 0644 "$ROOT/README.md" "$PKG/usr/share/doc/leobooks/README.md"
@@ -39,13 +43,13 @@ Priority: optional
 Architecture: ${ARCH}
 Maintainer: LeoBooks <nickolback@users.noreply.github.com>
 Homepage: https://hub.docker.com/repository/docker/nickolback/leobooks
-Depends: python3 (>= 3.13), python3-venv, ca-certificates, libsqlite3-0, libjpeg62-turbo, zlib1g, xdg-utils
+Depends: python3 (>= 3.13), python3-venv, ca-certificates, libsqlite3-0, libjpeg62-turbo, zlib1g, python3-gi, gir1.2-gtk-3.0, gir1.2-webkit2-4.1
 Recommends: tesseract-ocr, tesseract-ocr-por
 Installed-Size: $(du -sk "$PKG" | cut -f1)
-Description: Caderno de leitura em Flask
+Description: Caderno de leitura com janela GTK
  LeoBooks guarda livros, citações, resumos, insights, tags e progresso
- de leitura. Inclui serviço systemd, atalho no GNOME e dados persistentes
- em /var/lib/leobooks.
+ de leitura em um aplicativo GTK/WebKit local. Inclui serviço systemd,
+ atalho no GNOME e dados persistentes em /var/lib/leobooks.
 CONTROL
 
 cat > "$PKG/DEBIAN/conffiles" <<'CONFFILES'

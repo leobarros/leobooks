@@ -5,12 +5,13 @@ VERSION="${VERSION:-$(tr -d '[:space:]' < "$ROOT/VERSION")}"
 STAGE="$ROOT/build/tarball/leobooks-${VERSION}"
 OUT="$ROOT/dist/leobooks-${VERSION}-linux-x86_64.tar.gz"
 rm -rf "$STAGE"
-mkdir -p "$STAGE/packaging/common" "$ROOT/dist"
+mkdir -p "$STAGE/packaging/common" "$STAGE/packaging/appstream" "$ROOT/dist"
 for item in app.py config.py models.py routes.py helpers.py forms.py wsgi.py \
             gunicorn.conf.py requirements.txt VERSION README.md static templates utils; do
     cp -a "$ROOT/$item" "$STAGE/"
 done
 cp -a "$ROOT/packaging/common/." "$STAGE/packaging/common/"
+cp -a "$ROOT/packaging/appstream/." "$STAGE/packaging/appstream/"
 cp "$ROOT/packaging/tarball/install.sh" "$ROOT/packaging/tarball/uninstall.sh" "$STAGE/"
 chmod +x "$STAGE/install.sh" "$STAGE/uninstall.sh"
 find "$STAGE" -type d -name __pycache__ -prune -exec rm -rf {} +

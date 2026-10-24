@@ -12,7 +12,9 @@ if [ -d /run/systemd/system ]; then
 fi
 
 rm -f /usr/lib/systemd/system/leobooks.service
-rm -f /usr/share/applications/leobooks.desktop
+rm -f /usr/bin/leobooks
+rm -f /usr/share/applications/io.github.leobarros.LeoBooks.desktop
+rm -f /usr/share/metainfo/io.github.leobarros.LeoBooks.metainfo.xml
 rm -f /usr/share/icons/hicolor/scalable/apps/leobooks.svg
 rm -rf /opt/leobooks
 

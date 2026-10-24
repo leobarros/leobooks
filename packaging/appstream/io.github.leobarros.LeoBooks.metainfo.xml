@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.leobarros.LeoBooks</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <name>LeoBooks</name>
+  <summary>Caderno de leitura para guardar citações, resumos e insights</summary>
+  <description>
+    <p>
+      LeoBooks é um caderno de leitura para acompanhar livros, guardar
+      citações, resumos e insights, organizar tags e rever o que ficou de cada
+      leitura.
+    </p>
+    <ul>
+      <li>Estante visual com capas, status e progresso.</li>
+      <li>Livros físicos e digitais, cada um com sua forma de progresso.</li>
+      <li>Notas em Markdown com fotos opcionais das páginas.</li>
+      <li>Busca sem acentos, tags e revisão de citações.</li>
+      <li>Backup completo em um único arquivo ZIP.</li>
+      <li>Dados no servidor local, sem telemetria.</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.leobarros.LeoBooks.desktop</launchable>
+  <provides>
+    <binary>leobooks</binary>
+  </provides>
+  <url type="homepage">https://github.com/leobarros/leobooks</url>
+  <url type="bugtracker">https://github.com/leobarros/leobooks/issues</url>
+  <developer id="io.github.leobarros">
+    <name>Leonardo Barros</name>
+  </developer>
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">https://raw.githubusercontent.com/leobarros/leobooks/main/docs/screenshots/inicio.png</image>
+      <caption>O início reúne a leitura atual, a citação do dia e o ritmo da semana</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://raw.githubusercontent.com/leobarros/leobooks/main/docs/screenshots/biblioteca.png</image>
+      <caption>Uma estante visual com capas, filtros e progresso</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://raw.githubusercontent.com/leobarros/leobooks/main/docs/screenshots/livro.png</image>
+      <caption>Cada livro guarda suas notas, páginas e andamento</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://raw.githubusercontent.com/leobarros/leobooks/main/docs/screenshots/tema-escuro.png</image>
+      <caption>Leitura confortável no tema madrugada</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="1.0.1" date="2026-10-24"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+  <categories>
+    <category>Office</category>
+  </categories>
+</component>

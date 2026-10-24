@@ -9,5 +9,5 @@ tar -czf "dist/leobooks-${VERSION}.tar.gz" \
   --exclude='__pycache__' --exclude='*.pyc' \
   app.py config.py models.py routes.py helpers.py forms.py wsgi.py \
   gunicorn.conf.py requirements.txt VERSION README.md \
-  static templates utils packaging/common
+  static templates utils packaging/common packaging/appstream
 echo "Gerado: $ROOT/dist/leobooks-${VERSION}.tar.gz"

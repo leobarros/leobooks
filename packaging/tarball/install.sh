@@ -46,14 +46,19 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m venv "$VENV_DIR"
 "$VENV_DIR/bin/pip" install --no-cache-dir -r "$APP_DIR/requirements.txt"
 
 install -m 0644 "$SRC_DIR/packaging/common/leobooks.service" "$UNIT"
+install -m 0755 "$SRC_DIR/packaging/common/leobooks" /usr/bin/leobooks
 if [ ! -f "$CONF_DIR/leobooks.env" ]; then
     install -m 0640 "$SRC_DIR/packaging/common/leobooks.env" "$CONF_DIR/leobooks.env"
 fi
 chown root:leobooks "$CONF_DIR/leobooks.env"
 chmod 0640 "$CONF_DIR/leobooks.env"
 
-install -d /usr/share/applications /usr/share/icons/hicolor/scalable/apps
-install -m 0644 "$SRC_DIR/packaging/common/leobooks.desktop" /usr/share/applications/leobooks.desktop
+install -d /usr/share/applications /usr/share/metainfo \
+           /usr/share/icons/hicolor/scalable/apps
+install -m 0644 "$SRC_DIR/packaging/common/io.github.leobarros.LeoBooks.desktop" \
+    /usr/share/applications/io.github.leobarros.LeoBooks.desktop
+install -m 0644 "$SRC_DIR/packaging/appstream/io.github.leobarros.LeoBooks.metainfo.xml" \
+    /usr/share/metainfo/io.github.leobarros.LeoBooks.metainfo.xml
 install -m 0644 "$SRC_DIR/packaging/common/leobooks.svg" /usr/share/icons/hicolor/scalable/apps/leobooks.svg
 
 if [ -d /run/systemd/system ]; then
@@ -62,8 +67,16 @@ if [ -d /run/systemd/system ]; then
     systemctl restart leobooks.service
 fi
 
+if ! python3 -c 'import gi; gi.require_version("Gtk", "3.0"); gi.require_version("WebKit2", "4.1")' 2>/dev/null; then
+    printf '\nAtenção: instale GTK 3 + WebKitGTK 4.1 para abrir a janela do LeoBooks.\n' >&2
+    printf 'Debian/Ubuntu: sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1\n' >&2
+    printf 'Fedora: sudo dnf install python3-gobject gtk3 webkit2gtk4.1\n' >&2
+    printf 'Arch: sudo pacman -S python-gobject gtk3 webkit2gtk-4.1\n' >&2
+fi
+
 printf '\nLeoBooks instalado.\n'
-printf 'Acesse: http://127.0.0.1:5057\n'
+printf 'Abra pelo menu LeoBooks ou execute: leobooks\n'
+printf 'Interface web local: http://127.0.0.1:5057\n'
 printf 'Config: %s/leobooks.env\n' "$CONF_DIR"
 printf 'Dados:  %s\n' "$DATA_DIR"
 printf 'Logs:   journalctl -u leobooks -f\n'

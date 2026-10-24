@@ -5,6 +5,16 @@
 - README reescrito como um percurso da leitora fictícia Mariana, cobrindo
   estante, citação no celular, livro digital, busca, compartilhamento e backup.
 
+## 1.0.1 — 2026-10-24
+
+- Pacotes nativos agora instalam um aplicativo GTK/WebKit em vez de abrir o
+  navegador externo.
+- Adicionados `leobooks`, atalho GNOME e metadados AppStream.
+- Adicionadas capturas PNG para GNOME Software/loja Debian.
+- Dependências GTK 3 e WebKitGTK 4.1 adicionadas ao Debian e Fedora; documentadas
+  no tarball para Arch.
+- O serviço systemd e o banco SQLite local continuam iguais.
+
 ## 1.0.0 — 2026-10-24
 
 - Empacotamento Debian 13 (`amd64`) com serviço systemd, atalho GNOME e dados em

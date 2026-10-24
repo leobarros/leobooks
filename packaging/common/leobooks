@@ -1,0 +1,149 @@
+#!/usr/bin/python3
+"""LeoBooks — janela GTK/WebKit para o servidor local.
+
+Não abre um navegador externo: a interface web existente é exibida dentro de
+uma janela nativa GTK. O banco continua sendo o SQLite local atendido pelo
+serviço systemd `leobooks`.
+"""
+
+from __future__ import annotations
+
+import html
+import os
+import sys
+import urllib.request
+from pathlib import Path
+
+try:
+    import gi
+
+    gi.require_version("Gtk", "3.0")
+    gi.require_version("WebKit2", "4.1")
+    from gi.repository import Gio, Gtk, WebKit2
+except (ImportError, ValueError) as exc:  # pragma: no cover - depende do sistema
+    sys.stderr.write(
+        "LeoBooks precisa de GTK 3 e WebKitGTK 4.1.\n"
+        "Debian/Ubuntu: sudo apt install python3-gi gir1.2-gtk-3.0 "
+        "gir1.2-webkit2-4.1\n"
+        "Fedora: sudo dnf install python3-gobject gtk3 webkit2gtk4.1\n"
+        f"Detalhe: {exc}\n"
+    )
+    raise SystemExit(1)
+
+APP_ID = "io.github.leobarros.LeoBooks"
+DEFAULT_PORT = "5057"
+ENV_FILE = Path("/etc/leobooks/leobooks.env")
+
+
+def _read_env_file() -> dict[str, str]:
+    values: dict[str, str] = {}
+    try:
+        for raw in ENV_FILE.read_text("utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            values[key.strip()] = value.strip().strip('"').strip("'")
+    except OSError:
+        pass
+    return values
+
+
+def service_url() -> str:
+    explicit = os.environ.get("LEOBOOKS_URL", "").strip()
+    if explicit:
+        return explicit.rstrip("/")
+    values = _read_env_file()
+    port = values.get("LEOBOOKS_PORT", DEFAULT_PORT)
+    host = values.get("LEOBOOKS_BIND", "127.0.0.1")
+    if host in {"0.0.0.0", "::"}:
+        host = "127.0.0.1"
+    if host == "::1":
+        host = "[::1]"
+    return f"http://{host}:{port}"
+
+
+def service_available(url: str) -> bool:
+    try:
+        with urllib.request.urlopen(f"{url}/healthz", timeout=2) as response:
+            return response.status == 200
+    except Exception:
+        return False
+
+
+def error_page(url: str) -> str:
+    safe_url = html.escape(url)
+    return f"""<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>LeoBooks</title>
+<style>
+  body {{ margin: 0; min-height: 100vh; display: grid; place-items: center;
+         background: #f3ecdd; color: #24211d;
+         font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }}
+  main {{ max-width: 540px; padding: 48px; }}
+  h1 {{ font: 600 2rem/1.1 Georgia, serif; margin: 0 0 16px; }}
+  p {{ line-height: 1.6; }}
+  code {{ background: #e7dfcf; padding: 2px 6px; border-radius: 4px; }}
+</style></head>
+<body><main>
+  <h1>O serviço local não está disponível.</h1>
+  <p>O LeoBooks precisa do serviço systemd para abrir o banco local. Inicie-o
+     e abra o aplicativo novamente:</p>
+  <p><code>sudo systemctl start leobooks</code></p>
+  <p>Endereço esperado: <code>{safe_url}</code></p>
+</main></body></html>"""
+
+
+class LeoWindow(Gtk.ApplicationWindow):
+    def __init__(self, application: Gtk.Application, url: str) -> None:
+        super().__init__(application=application, title="LeoBooks")
+        self.set_default_icon_name("leobooks")
+        self.set_default_size(1220, 820)
+        self.set_size_request(900, 600)
+        self.url = url
+
+        self.webview = WebKit2.WebView()
+        settings = self.webview.get_settings()
+        settings.set_enable_developer_extras(False)
+        settings.set_enable_write_console_messages_to_stdout(False)
+        self.webview.connect("load-failed", self._on_load_failed)
+        self.add(self.webview)
+
+        if service_available(url):
+            self.webview.load_uri(url)
+        else:
+            self.webview.load_html(error_page(url), f"{url}/")
+
+    def _on_load_failed(self, _view, _event, uri, _error):
+        # Não substitui a página por causa de um favicon ou imagem ausente.
+        if uri.rstrip("/") != self.url.rstrip("/"):
+            return False
+        self.webview.load_html(error_page(self.url), f"{self.url}/")
+        return True
+
+
+class LeoApplication(Gtk.Application):
+    def __init__(self) -> None:
+        super().__init__(
+            application_id=APP_ID,
+            flags=Gio.ApplicationFlags.FLAGS_NONE,
+        )
+        self.window: LeoWindow | None = None
+
+    def do_activate(self) -> None:
+        if self.window is None:
+            self.window = LeoWindow(self, service_url())
+            self.window.connect("destroy", self._on_destroy)
+        self.window.present()
+
+    def _on_destroy(self, _window) -> None:
+        self.window = None
+
+
+def main() -> int:
+    application = LeoApplication()
+    return application.run(sys.argv)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
