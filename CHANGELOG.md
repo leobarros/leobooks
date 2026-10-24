@@ -5,6 +5,11 @@
 - README reescrito como um percurso da leitora fictícia Mariana, cobrindo
   estante, citação no celular, livro digital, busca, compartilhamento e backup.
 
+## 1.0.4 — 2026-10-24
+
+- Adicionado botão explícito **Fechar** na barra da janela GTK.
+- Mantido o botão de recarregar à esquerda.
+
 ## 1.0.3 — 2026-10-24
 
 - Corrigido o `.deb` que empacotava scripts do venv com shebang do diretório

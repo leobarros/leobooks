@@ -110,14 +110,22 @@ class LeoWindow(Gtk.ApplicationWindow):
         self.url = url
 
         header = Gtk.HeaderBar()
-        header.set_show_close_button(True)
+        # O botão padrão da decoração some em alguns temas GTK; usamos um
+        # controle explícito e visível para fechar a janela.
+        header.set_show_close_button(False)
         header.set_title("LeoBooks")
+
         reload_button = Gtk.Button.new_from_icon_name(
             "view-refresh-symbolic", Gtk.IconSize.BUTTON
         )
         reload_button.set_tooltip_text("Recarregar a interface")
         reload_button.connect("clicked", lambda _button: self.webview.reload())
-        header.pack_end(reload_button)
+        header.pack_start(reload_button)
+
+        close_button = Gtk.Button(label="Fechar")
+        close_button.set_tooltip_text("Fechar o LeoBooks")
+        close_button.connect("clicked", lambda _button: self.close())
+        header.pack_end(close_button)
         self.set_titlebar(header)
 
         self.webview = WebKit2.WebView()
