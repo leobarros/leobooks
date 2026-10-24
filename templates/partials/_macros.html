@@ -28,9 +28,17 @@
     <div class="lb-progress__bar"><span></span></div>
     <div class="lb-progress__meta">
       <strong>{{ book.progress_percent }}%</strong>
-      <span>{{ book.current_page }} de {{ book.total_pages }} páginas</span>
-      {% if not large and book.pages_remaining %}
-        <span class="lb-progress__left">faltam {{ book.pages_remaining }}</span>
+      {% if book.is_digital %}
+        {% if book.total_pages %}
+          <span>≈ {{ book.current_page }} de {{ book.total_pages }} páginas</span>
+        {% else %}
+          <span>no leitor digital</span>
+        {% endif %}
+      {% else %}
+        <span>{{ book.current_page }} de {{ book.total_pages }} páginas</span>
+        {% if not large and book.pages_remaining %}
+          <span class="lb-progress__left">faltam {{ book.pages_remaining }}</span>
+        {% endif %}
       {% endif %}
     </div>
   </div>
@@ -123,6 +131,9 @@
         <time datetime="{{ note.created_at.isoformat() if note.created_at }}">{{ note.created_at|tempo_atras }}</time>
         <button type="button" class="lb-share" data-share-quote="{{ note.plain_text|e }}"
                 data-share-source="{{ (note.book.authors ~ ' — ' ~ note.book.title) if note.book else '' }}"
+                data-share-book="{{ note.book.title|e if note.book else '' }}"
+                data-share-chapter="{{ note.chapter|default('', true)|e }}"
+                data-share-page="{{ note.page_number if note.page_number is not none else '' }}"
                 data-share-type="{{ note.type_label }}"
                 data-share-tags="{{ note.tags|map(attribute='name')|join(' · ')|e }}"
                 aria-label="Compartilhar esta nota como imagem" title="Compartilhar como imagem">
@@ -141,6 +152,9 @@
     <div class="lb-bookrow__body">
       <div class="lb-bookrow__top">
         {{ status_badge(book, small=true) }}
+        <span class="lb-format lb-format--{{ book.media_type|lower }}">
+          <i class="bi {{ book.media_icon }}"></i> {{ book.media_short }}
+        </span>
         <a class="lb-iconbtn lb-iconbtn--sm" href="{{ url_for('books.detail', book_id=book.id) }}"
            aria-label="Abrir {{ book.title }}">
           <i class="bi bi-arrow-up-right"></i>

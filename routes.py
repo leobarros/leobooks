@@ -63,6 +63,7 @@ from helpers import (
     week_activity_dates,
 )
 from models import (
+    BOOK_MEDIA,
     BOOK_STATUSES,
     NOTE_TYPES,
     Book,
@@ -73,6 +74,7 @@ from models import (
     utcnow,
 )
 from utils.audit import audit
+from utils.text import strip_accents
 from utils.book_lookup import (
     CoverLookupError,
     save_cover_from_url,
@@ -458,12 +460,12 @@ def library():
     if status_filter in BOOK_STATUSES:
         query = query.filter(Book.status == status_filter)
     if query_text:
-        like = f"%{query_text}%"
+        like = f"%{strip_accents(query_text)}%"
         query = query.filter(
             or_(
-                Book.title.ilike(like),
-                Book.authors.ilike(like),
-                Book.publisher.ilike(like),
+                func.unaccent(Book.title).ilike(like),
+                func.unaccent(Book.authors).ilike(like),
+                func.unaccent(Book.publisher).ilike(like),
             )
         )
 
@@ -561,14 +563,14 @@ def search():
     tags: list[Tag] = []
 
     if query_text:
-        like = f"%{query_text}%"
+        like = f"%{strip_accents(query_text)}%"
         books = (
             Book.query.filter(
                 Book.user_id == user.id,
                 or_(
-                    Book.title.ilike(like),
-                    Book.authors.ilike(like),
-                    Book.publisher.ilike(like),
+                    func.unaccent(Book.title).ilike(like),
+                    func.unaccent(Book.authors).ilike(like),
+                    func.unaccent(Book.publisher).ilike(like),
                     Book.isbn.ilike(like),
                 ),
             )
@@ -579,14 +581,20 @@ def search():
         notes = (
             Note.query.filter(
                 Note.user_id == user.id,
-                or_(Note.content.ilike(like), Note.chapter.ilike(like)),
+                or_(
+                    func.unaccent(Note.content).ilike(like),
+                    func.unaccent(Note.chapter).ilike(like),
+                ),
             )
             .order_by(Note.created_at.desc())
             .limit(60)
             .all()
         )
         tags = (
-            Tag.query.filter(Tag.user_id == user.id, Tag.name.ilike(like))
+            Tag.query.filter(
+                Tag.user_id == user.id,
+                func.unaccent(Tag.name).ilike(like),
+            )
             .order_by(Tag.name.asc())
             .limit(24)
             .all()
@@ -628,14 +636,34 @@ def new():
 
     form = BookForm()
     if form.validate_on_submit():
+        media_type = (
+            form.media_type.data
+            if form.media_type.data in BOOK_MEDIA
+            else "PHYSICAL"
+        )
+        total_pages = form.total_pages.data or 0
+        current_page = form.current_page.data or 0
+        percent_complete = 0.0
+        if media_type == "DIGITAL":
+            percent_complete = max(
+                0.0, min(100.0, float(form.current_percent.data or 0))
+            )
+            current_page = (
+                round(total_pages * percent_complete / 100) if total_pages else 0
+            )
+        else:
+            current_page = min(max(current_page, 0), total_pages or current_page)
+
         book = Book(
             user_id=user.id,
             title=(form.title.data or "").strip(),
             authors=(form.authors.data or "").strip(),
             publisher=(form.publisher.data or "").strip() or None,
             isbn=form.isbn.data,
-            total_pages=form.total_pages.data or 0,
-            current_page=form.current_page.data or 0,
+            total_pages=total_pages,
+            current_page=current_page,
+            media_type=media_type,
+            percent_complete=percent_complete,
             status=form.status.data,
             cover_url=(form.cover_url.data or "").strip() or None,
         )
@@ -652,7 +680,10 @@ def new():
         if not book.cover_filename:
             book.cover_filename = _cover_from_candidate()
 
-        if book.total_pages and book.current_page >= book.total_pages:
+        if book.is_digital:
+            if percent_complete >= 100:
+                book.status = "READ"
+        elif book.total_pages and book.current_page >= book.total_pages:
             book.status = "READ"
         db.session.add(book)
         db.session.commit()
@@ -660,9 +691,11 @@ def new():
             "book.create",
             book_id=book.id,
             title=book.title,
+            media_type=book.media_type,
             status=book.status,
             total_pages=book.total_pages,
             current_page=book.current_page,
+            percent_complete=book.percent_complete if book.is_digital else None,
             has_cover=bool(book.cover_filename or book.cover_url),
         )
         flash(f"“{book.title}” entrou para a sua estante.", "success")
@@ -677,16 +710,55 @@ def edit(book_id: str):
     book = _owned_book(book_id)
     form = BookForm(obj=book)
     if request.method == "GET":
+        form.media_type.data = book.media_type or "PHYSICAL"
         form.current_page.data = book.current_page
+        form.current_percent.data = (
+            round(book.percent_complete or 0) if book.is_digital else 0
+        )
         form.status.data = book.status
 
     if form.validate_on_submit():
+        old_media = book.media_type or "PHYSICAL"
+        old_percent = (
+            float(book.percent_complete or 0)
+            if old_media == "DIGITAL"
+            else float(book.progress_percent)
+        )
+        media_type = (
+            form.media_type.data
+            if form.media_type.data in BOOK_MEDIA
+            else "PHYSICAL"
+        )
+        total_pages = form.total_pages.data or 0
+
+        if media_type == "DIGITAL":
+            if old_media == "DIGITAL":
+                percent_complete = max(
+                    0.0, min(100.0, float(form.current_percent.data or 0))
+                )
+            else:
+                percent_complete = max(0.0, min(100.0, old_percent))
+            current_page = (
+                round(total_pages * percent_complete / 100) if total_pages else 0
+            )
+        else:
+            if old_media == "DIGITAL":
+                current_page = (
+                    round(total_pages * old_percent / 100) if total_pages else 0
+                )
+            else:
+                current_page = form.current_page.data or 0
+            current_page = min(max(current_page, 0), total_pages or current_page)
+            percent_complete = 0.0
+
         book.title = (form.title.data or "").strip()
         book.authors = (form.authors.data or "").strip()
         book.publisher = (form.publisher.data or "").strip() or None
         book.isbn = form.isbn.data
-        book.total_pages = form.total_pages.data or 0
-        book.current_page = min(form.current_page.data or 0, book.total_pages or 0)
+        book.total_pages = total_pages
+        book.current_page = current_page
+        book.media_type = media_type
+        book.percent_complete = percent_complete
         book.status = form.status.data
         book.cover_url = (form.cover_url.data or "").strip() or None
 
@@ -712,7 +784,10 @@ def edit(book_id: str):
             book.cover_filename = None
             book.cover_url = None
 
-        if book.total_pages and book.current_page >= book.total_pages:
+        if book.is_digital:
+            if book.percent_complete >= 100:
+                book.status = "READ"
+        elif book.total_pages and book.current_page >= book.total_pages:
             book.status = "READ"
         book.updated_at = utcnow()
         db.session.commit()
@@ -720,9 +795,11 @@ def edit(book_id: str):
             "book.update",
             book_id=book.id,
             title=book.title,
+            media_type=book.media_type,
             status=book.status,
             total_pages=book.total_pages,
             current_page=book.current_page,
+            percent_complete=book.percent_complete if book.is_digital else None,
             has_cover=bool(book.cover_filename or book.cover_url),
         )
         flash("Livro atualizado.", "success")
@@ -840,11 +917,17 @@ def detail(book_id: str):
 @login_required
 def progress(book_id: str):
     book = _owned_book(book_id)
-    mode = (request.form.get("progress_mode") or "page").strip().lower()
+    mode = (request.form.get("progress_mode") or "").strip().lower()
     percent: float | None = None
+    page: int | None = None
 
-    if mode == "percent":
+    if book.is_digital:
         percent = request.form.get("percent", type=float)
+        if percent is None:
+            # Compatibilidade com formulários antigos que enviavam página.
+            legacy_page = request.form.get("current_page", type=int)
+            if legacy_page is not None and book.total_pages:
+                percent = legacy_page * 100 / book.total_pages
         if percent is None or percent < 0 or percent > 100:
             audit(
                 "book.progress_failed",
@@ -853,53 +936,75 @@ def progress(book_id: str):
                 reason="invalid_percent",
                 book_id=book.id,
                 mode="percent",
+                media_type=book.media_type,
             )
-            flash("Informe uma porcentagem entre 0 e 100.", "danger")
+            flash("Informe um percentual entre 0 e 100.", "danger")
             return redirect_back("books.detail", fallback_kwargs={"book_id": book.id})
-        page = round((book.total_pages or 0) * percent / 100)
+
+        percent = max(0.0, min(100.0, percent))
+        page = round((book.total_pages or 0) * percent / 100) if book.total_pages else 0
+        book.percent_complete = percent
+        book.current_page = page
+        progress_label = f"{percent:g}% no livro digital"
+        if book.total_pages:
+            progress_label += f" (≈ página {page} de {book.total_pages})"
+        completed = percent >= 100
+        mode = "percent"
     else:
         page = request.form.get("current_page", type=int)
+        if page is None:
+            # Compatibilidade com formulários antigos que enviavam percentual.
+            legacy_percent = request.form.get("percent", type=float)
+            if legacy_percent is not None and book.total_pages:
+                percent = max(0.0, min(100.0, legacy_percent))
+                page = round(book.total_pages * percent / 100)
+        if page is None or page < 0 or (book.total_pages and page > book.total_pages):
+            audit(
+                "book.progress_failed",
+                outcome="failure",
+                severity="warning",
+                reason="invalid_page",
+                book_id=book.id,
+                mode="page",
+                media_type=book.media_type,
+            )
+            flash("Página inválida para este livro.", "danger")
+            return redirect_back("books.detail", fallback_kwargs={"book_id": book.id})
 
-    if page is None or page < 0 or (book.total_pages and page > book.total_pages):
-        audit(
-            "book.progress_failed",
-            outcome="failure",
-            severity="warning",
-            reason="invalid_page",
-            book_id=book.id,
-            mode=mode,
-        )
-        flash("Página inválida para este livro.", "danger")
-        return redirect_back("books.detail", fallback_kwargs={"book_id": book.id})
+        book.current_page = page
+        book.percent_complete = 0.0
+        progress_label = f"página {page}"
+        if book.total_pages:
+            progress_label += f" de {book.total_pages}"
+        completed = bool(book.total_pages and page >= book.total_pages)
+        mode = "page"
 
-    book.current_page = page
     book.updated_at = utcnow()
 
-    progress_label = (
-        f"{percent:g}% (página {page} de {book.total_pages})"
-        if percent is not None
-        else f"página {page}"
-    )
-
-    if book.total_pages and page >= book.total_pages:
+    if completed:
         book.status = "READ"
         flash("Você concluiu o livro. Que tal registrar a última impressão?", "success")
-    elif page > 0 and book.status == "WANT_TO_READ":
-        book.status = "READING"
+    elif (book.is_digital and percent and percent > 0) or (
+        not book.is_digital and page and page > 0
+    ):
+        if book.status == "WANT_TO_READ":
+            book.status = "READING"
         flash(
             f"Progresso atualizado para {progress_label}. "
-            "Status alterado para “Lendo”.",
+            "Bom ritmo de leitura.",
             "success",
         )
     else:
         flash(f"Progresso atualizado: {progress_label}.", "success")
+
     db.session.commit()
     audit(
         "book.progress",
         book_id=book.id,
-        mode=mode if percent is not None else "page",
-        page=page,
-        percent=percent,
+        mode=mode,
+        media_type=book.media_type,
+        page=book.current_page,
+        percent=percent if book.is_digital else None,
         status=book.status,
     )
     return redirect(url_for("books.detail", book_id=book.id))
@@ -923,8 +1028,12 @@ def status(book_id: str):
 
     previous_status = book.status
     book.status = new_status
-    if new_status == "READ" and book.total_pages:
-        book.current_page = book.total_pages
+    if new_status == "READ":
+        if book.is_digital:
+            book.percent_complete = 100.0
+            book.current_page = book.total_pages or 0
+        elif book.total_pages:
+            book.current_page = book.total_pages
     book.updated_at = utcnow()
     db.session.commit()
     audit(
@@ -932,7 +1041,9 @@ def status(book_id: str):
         book_id=book.id,
         from_status=previous_status,
         to_status=book.status,
+        media_type=book.media_type,
         current_page=book.current_page,
+        percent=book.percent_complete if book.is_digital else None,
     )
     flash(f"Status alterado para “{book.status_label}”.", "success")
     return redirect(url_for("books.detail", book_id=book.id))
@@ -1508,12 +1619,17 @@ def _notes_markdown(user: User, books: list[Book]) -> str:
         "",
     ]
     for book in sorted(books, key=lambda item: item.title.lower()):
+        if book.is_digital:
+            progress_text = f"{book.progress_percent}% no livro digital"
+            if book.total_pages:
+                progress_text += f" (≈ {book.current_page}/{book.total_pages} páginas)"
+        else:
+            progress_text = f"{book.current_page}/{book.total_pages} páginas"
         lines.extend(
             [
                 f"## {book.title}",
                 "",
-                f"**{book.authors}** · {book.status_label} · "
-                f"{book.current_page}/{book.total_pages} páginas",
+                f"**{book.authors}** · {book.status_label} · {progress_text}",
                 "",
             ]
         )
@@ -1569,8 +1685,10 @@ def export_json():
                 "authors": book.authors,
                 "publisher": book.publisher,
                 "isbn": book.isbn,
+                "media_type": book.media_type,
                 "total_pages": book.total_pages,
                 "current_page": book.current_page,
+                "percent_complete": book.percent_complete if book.is_digital else None,
                 "status": book.status,
                 "notes": [note.to_dict() for note in book.notes],
             }

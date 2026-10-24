@@ -17,8 +17,8 @@ capítulo e às tags que você escolher.
 
 - **Estante visual** com capas, andamento e status de cada leitura.
 - **Três tipos de nota:** citação, resumo e insight.
-- **Progresso pela página ou pelo percentual do Kindle.**
-- **Tags que atravessam livros**, busca e uma revisão diária de citações.
+- **Formato físico ou digital**, cada um com sua própria forma de progresso.
+- **Tags que atravessam livros**, busca sem acentos e revisão diária de citações.
 - **Tema claro ou madrugada**, para ler e anotar em qualquer hora.
 - **Seus dados no seu servidor**, com exportação e backup.
 
@@ -161,13 +161,20 @@ opções de dados. Ele pode ser **pulado** e revisto depois em
 
 ### 1. Coloque um livro na estante
 
-Vá em **Biblioteca → Adicionar livro**. Informe título, autor e, se quiser,
-editora, ISBN e total de páginas.
+Vá em **Biblioteca → Adicionar livro**. Informe título, autor e escolha o
+formato:
+
+- **Livro físico:** o progresso é marcado pela página impressa.
+- **Livro digital:** o progresso é marcado pelo percentual exibido no
+  aparelho. O total de páginas é opcional e serve apenas para estimar a página
+  equivalente.
 
 - A busca de capas consulta bases públicas por ISBN, título ou autor.
 - Se nenhuma capa for encontrada, o LeoBooks desenha uma capa editorial para o
   livro — o caderno continua bonito e funcionando offline.
 - Você também pode enviar uma foto da capa.
+
+![Escolha entre livro físico e digital](docs/screenshots/formato.webp)
 
 ### 2. Registre o que ficou
 
@@ -188,22 +195,29 @@ a imagem continua anexada normalmente.
 
 ### 3. Acompanhe seu ritmo
 
-No detalhe do livro, atualize o progresso de duas formas:
+Cada formato tem sua mecânica:
 
-- **Página:** informe a página atual.
-- **% Kindle:** informe o percentual que aparece no rodapé do Kindle. O app
-  calcula a página equivalente e mostra a estimativa.
+- **Livro físico:** informe a página atual. O app calcula o percentual e quanto
+  falta para o fim.
+- **Livro digital:** informe o percentual que aparece no rodapé do aparelho.
+  Se você preencheu o total de páginas, o app mostra também a página
+  equivalente aproximada. A “localização” no leitor digital não é uma página.
 
 Ao chegar a 100%, o livro é marcado como **Lido**. Você também pode mudar o
 status manualmente para *Quero ler*, *Lendo*, *Lido* ou *Abandonado*.
 
+Se começou a ler em um formato e mudou para outro, edite o livro e troque o
+formato: o LeoBooks converte o progresso existente.
+
 ### 4. Reencontre ideias
 
 - **Busca** procura em títulos, autores, ISBN, conteúdo das notas, capítulos e
-  tags.
+  tags — e ignora acentos (por exemplo, `principe` encontra “O Príncipe”).
 - **Tags** mostram os fios que atravessam livros diferentes.
 - **Revisão** traz uma citação para reler, com opção de compartilhar como
-  imagem.
+  imagem. O arquivo é salvo com livro, capítulo e página no nome, terminando em
+  `-leobooks.png` — por exemplo,
+  `o-principe-capitulo-xxi-pagina-74-leobooks.png`.
 - O **início** reúne o que está aberto agora, a citação do dia e seu ritmo de
   leitura.
 
@@ -248,9 +262,8 @@ O LeoBooks não envia e-mail de recuperação. Peça à conta administradora par
 criar uma nova conta, ou remova o volume e comece de novo se for um ambiente de
 testes.
 
-**Funciona no Kindle?**
-Use o navegador do celular ou computador; o app não é um aplicativo nativo do
-Kindle. O progresso pode ser informado pela porcentagem exibida no aparelho.
+**Funciona em leitores digitais?**
+Use o navegador do celular ou computador; o app não é um aplicativo nativo de leitor digital. O progresso pode ser informado pela porcentagem exibida no aparelho.
 
 **Preciso estar sempre conectado à internet?**
 Não. O LeoBooks roda no seu servidor. A internet só é usada quando você pede
@@ -355,7 +368,7 @@ https://hub.docker.com/repository/docker/nickolback/leobooks.
 .venv/bin/pytest -q
 ```
 
-Estado atual: **96 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **103 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial e exclusão de
 conta.
 

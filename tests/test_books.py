@@ -187,8 +187,13 @@ def test_book_isolation_for_mutations(app, auth_client):
     assert other.get(f"/books/{book_id}/edit").status_code == 404
 
 
-def test_progress_uses_kindle_percentage(app, auth_client):
-    create_book(auth_client, total_pages="300", current_page="0")
+def test_progress_uses_digital_percentage(app, auth_client):
+    create_book(
+        auth_client,
+        media_type="DIGITAL",
+        total_pages="300",
+        current_percent="0",
+    )
     with app.app_context():
         book_id = Book.query.one().id
 
@@ -198,7 +203,7 @@ def test_progress_uses_kindle_percentage(app, auth_client):
         follow_redirects=True,
     )
     html = response.get_data(as_text=True)
-    assert "42% (página 126 de 300)" in html
+    assert "42% no livro digital (≈ página 126 de 300)" in html
     with app.app_context():
         book = db.session.get(Book, book_id)
         assert book.current_page == 126
@@ -217,8 +222,13 @@ def test_progress_uses_kindle_percentage(app, auth_client):
         assert book.status == "READ"
 
 
-def test_progress_rejects_invalid_kindle_percentage(app, auth_client):
-    create_book(auth_client, total_pages="300", current_page="10")
+def test_progress_rejects_invalid_digital_percentage(app, auth_client):
+    create_book(
+        auth_client,
+        media_type="DIGITAL",
+        total_pages="300",
+        current_percent="42",
+    )
     with app.app_context():
         book_id = Book.query.one().id
 
@@ -227,6 +237,7 @@ def test_progress_rejects_invalid_kindle_percentage(app, auth_client):
         data={"progress_mode": "percent", "percent": "101"},
         follow_redirects=True,
     )
-    assert "porcentagem entre 0 e 100" in response.get_data(as_text=True)
+    assert "percentual entre 0 e 100" in response.get_data(as_text=True)
     with app.app_context():
-        assert db.session.get(Book, book_id).current_page == 10
+        assert db.session.get(Book, book_id).current_page == 126
+        assert db.session.get(Book, book_id).percent_complete == 42.0

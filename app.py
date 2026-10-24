@@ -217,6 +217,7 @@ def create_app(overrides: dict | None = None) -> Flask:
         db.create_all()
         _ensure_admin_column()
         _ensure_onboarding_column()
+        _ensure_book_media_columns()
         _ensure_an_admin_exists()
 
     return app
@@ -267,6 +268,31 @@ def _ensure_onboarding_column() -> None:
             )
         )
         db.session.commit()
+
+
+def _ensure_book_media_columns() -> None:
+    """Migração leve para bancos criados antes do formato físico/Digital."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "books" not in inspector.get_table_names():
+        return
+    columns = {column["name"] for column in inspector.get_columns("books")}
+    if "media_type" not in columns:
+        db.session.execute(
+            text(
+                "ALTER TABLE books ADD COLUMN media_type "
+                "VARCHAR(20) NOT NULL DEFAULT 'PHYSICAL'"
+            )
+        )
+    if "percent_complete" not in columns:
+        db.session.execute(
+            text(
+                "ALTER TABLE books ADD COLUMN percent_complete "
+                "FLOAT NOT NULL DEFAULT 0"
+            )
+        )
+    db.session.commit()
 
 
 def _ensure_an_admin_exists() -> None:

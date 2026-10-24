@@ -19,6 +19,7 @@ def create_book(client, **overrides):
         "authors": "Charles Duhigg",
         "publisher": "Objetiva",
         "isbn": "9788539002545",
+        "media_type": "PHYSICAL",
         "total_pages": "408",
         "current_page": "0",
         "status": "READING",

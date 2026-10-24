@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="t">
+<title id="t">Leão de óculos — emblema escuro</title>
+<rect x="16" y="16" width="224" height="224" rx="48" fill="#1E4A3C"/>
+<rect x="28" y="28" width="200" height="200" rx="38" fill="none" stroke="#D6A24A" stroke-width="1.2" opacity=".8"/>
+<path d="M128.0 19.0 L147.5 29.9 L169.3 28.2 L183.6 44.9 L204.4 51.6 L213.6 70.8 L227.8 86.7 L224.1 108.9 L236.0 128.0 L226.1 147.5 L230.6 170.5 L211.1 183.6 L204.4 204.4 L183.6 211.1 L168.6 225.9 L148.1 229.0 L128.0 236.0 L108.5 226.1 L86.7 227.8 L72.4 211.1 L49.5 206.5 L46.5 182.4 L28.2 169.3 L29.9 147.5 L20.0 128.0 L27.0 107.9 L28.2 86.7 L44.9 72.4 L53.0 53.0 L72.4 44.9 L85.5 25.4 L108.5 29.9 Z" fill="#D6A24A" stroke="#14352B" stroke-width="1.8" stroke-linejoin="round"/>
+<path d="M128.0 30.0 L145.4 40.7 L165.1 38.4 L177.4 54.0 L196.6 59.4 L204.5 76.9 L217.6 90.9 L213.3 111.0 L225.0 128.0 L215.3 145.4 L220.4 166.3 L202.0 177.4 L196.6 196.6 L177.4 202.0 L164.4 215.8 L145.9 218.2 L128.0 225.0 L110.6 215.3 L90.9 217.6 L78.6 202.0 L57.3 198.7 L55.7 176.3 L38.4 165.1 L40.7 145.4 L31.0 128.0 L37.8 110.1 L38.4 90.9 L54.0 78.6 L60.8 60.8 L78.6 54.0 L89.7 35.6 L110.6 40.7 Z" fill="#1E4A3C" opacity=".16"/>
+  <g>
+    <path d="M128.0 19.0 L147.5 29.9 L169.3 28.2 L183.6 44.9 L204.4 51.6 L213.6 70.8 L227.8 86.7 L224.1 108.9 L236.0 128.0 L226.1 147.5 L230.6 170.5 L211.1 183.6 L204.4 204.4 L183.6 211.1 L168.6 225.9 L148.1 229.0 L128.0 236.0 L108.5 226.1 L86.7 227.8 L72.4 211.1 L49.5 206.5 L46.5 182.4 L28.2 169.3 L29.9 147.5 L20.0 128.0 L27.0 107.9 L28.2 86.7 L44.9 72.4 L53.0 53.0 L72.4 44.9 L85.5 25.4 L108.5 29.9 Z" fill="#D6A24A" stroke="#14352B" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M128.0 30.0 L145.4 40.7 L165.1 38.4 L177.4 54.0 L196.6 59.4 L204.5 76.9 L217.6 90.9 L213.3 111.0 L225.0 128.0 L215.3 145.4 L220.4 166.3 L202.0 177.4 L196.6 196.6 L177.4 202.0 L164.4 215.8 L145.9 218.2 L128.0 225.0 L110.6 215.3 L90.9 217.6 L78.6 202.0 L57.3 198.7 L55.7 176.3 L38.4 165.1 L40.7 145.4 L31.0 128.0 L37.8 110.1 L38.4 90.9 L54.0 78.6 L60.8 60.8 L78.6 54.0 L89.7 35.6 L110.6 40.7 Z" fill="#F4EBD8" opacity=".14"/>
+    <g fill="none" stroke="#14352B" stroke-width="1.2" stroke-linecap="round" opacity=".35">
+      <path d="M128 40v-14M106 45l-8-12M150 45l8-12M86 59l-13-6M170 59l13-6M67 83l-15 2M189 83l15 2M58 111l-13 8M198 111l13 8M61 143l-12 11M195 143l12 11M78 180l-7 14M178 180l7 14"/>
+    </g>
+    <!-- orelhas -->
+    <path d="M73 76 L92 42 L110 82 Z" fill="#F4EBD8" stroke="#14352B" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M183 76 L164 42 L146 82 Z" fill="#F4EBD8" stroke="#14352B" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M82 68 L93 52 L100 71 Z" fill="#AA4F37"/>
+    <path d="M174 68 L163 52 L156 71 Z" fill="#AA4F37"/>
+    <!-- face -->
+    <path d="M70 108c0-29 26-48 58-48s58 19 58 48v31c0 20-12 30-26 37-8 5-15 14-32 14s-24-9-32-14c-14-7-26-17-26-37z" fill="#F4EBD8" stroke="#14352B" stroke-width="2.8"/>
+    <path d="M103 148c6-6 16-7 25-3 9-4 19-3 25 3 0 12-8 20-25 20s-25-8-25-20z" fill="#F4EBD8" stroke="#14352B" stroke-width="2.2"/>
+    <path d="M128 140l-9 11h18z" fill="#AA4F37"/>
+    <path d="M128 151v7M128 158c-6 6-13 6-18 0M128 158c6 6 13 6 18 0" fill="none" stroke="#14352B" stroke-width="2.1" stroke-linecap="round"/>
+    <!-- óculos -->
+    <circle cx="105" cy="118" r="20" fill="none" stroke="#14352B" stroke-width="4.8"/>
+    <circle cx="151" cy="118" r="20" fill="none" stroke="#14352B" stroke-width="4.8"/>
+    <path d="M125 118c2-6 4-6 6 0" fill="none" stroke="#14352B" stroke-width="4.4"/>
+    <path d="M85 116l-13-5M171 116l13-5" fill="none" stroke="#14352B" stroke-width="3.1" stroke-linecap="round"/>
+    <circle cx="105" cy="118" r="3.2" fill="#14352B"/>
+    <circle cx="151" cy="118" r="3.2" fill="#14352B"/>
+    <path d="M98 153l-25-4M99 160l-23 4M158 153l25-4M157 160l23 4" fill="none" stroke="#14352B" stroke-width="1.4" stroke-linecap="round" opacity=".65"/>
+  </g>
+</svg>

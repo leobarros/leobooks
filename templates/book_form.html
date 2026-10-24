@@ -19,7 +19,7 @@
       {% if book %}
         Corrija metadados, atualize o progresso ou troque a capa.
       {% else %}
-        Só título, autor e páginas são obrigatórios. O resto pode esperar a leitura.
+        Escolha o formato, informe o que já sabe e o resto pode esperar a leitura.
       {% endif %}
     </p>
   </div>
@@ -40,7 +40,8 @@
 {% endif %}
 
 <div class="lb-formgrid">
-  <form class="lb-formcard" method="post" enctype="multipart/form-data" action="">
+  <form class="lb-formcard" method="post" enctype="multipart/form-data" action=""
+        data-book-media-form>
     {{ form.hidden_tag() }}
 
     <section class="lb-formsection">
@@ -83,21 +84,56 @@
       <header class="lb-formsection__head">
         <span class="lb-formsection__num">02</span>
         <div>
-          <h2>Progresso</h2>
-          <p>Onde você está e como quer tratar este livro.</p>
+          <h2>Formato e progresso</h2>
+          <p>Como você lê este livro e onde está agora.</p>
         </div>
       </header>
 
+      <div class="lb-field">
+        <span class="lb-label">Formato de leitura <span class="lb-req">*</span></span>
+        <div class="lb-mediaoptions" role="radiogroup" aria-label="Formato de leitura">
+          {% for option in form.media_type %}
+            <label class="lb-mediaoption">
+              {{ option(class="lb-mediaoption__input", data_media_input="") }}
+              <span class="lb-mediaoption__body">
+                <i class="bi {{ 'bi-book' if option.data == 'PHYSICAL' else 'bi-tablet' }}" aria-hidden="true"></i>
+                <strong>{{ option.label.text }}</strong>
+                <small>
+                  {% if option.data == 'PHYSICAL' %}
+                    Acompanho pela página impressa.
+                  {% else %}
+                    Acompanho pelo percentual do livro digital.
+                  {% endif %}
+                </small>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        {% for error in form.media_type.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        <p class="lb-hint" data-media-hint>
+          <i class="bi bi-info-circle"></i>
+          No físico, o progresso é pela página. No livro digital, pelo percentual — a localização não é uma página.
+        </p>
+      </div>
+
       <div class="lb-fieldrow lb-fieldrow--3">
         <div class="lb-field">
-          <label class="lb-label" for="total_pages">Páginas totais <span class="lb-req">*</span></label>
+          <label class="lb-label" for="total_pages">Páginas totais <span class="lb-req" data-media-required {% if form.media_type.data == 'DIGITAL' %}hidden{% endif %}>*</span></label>
           {{ form.total_pages(class="form-control lb-input", id="total_pages", inputmode="numeric", placeholder="288") }}
+          <p class="lb-hint" data-media-total-hint {% if form.media_type.data != 'DIGITAL' %}hidden{% endif %}>No livro digital, é opcional; serve para estimar a página equivalente.</p>
           {% for error in form.total_pages.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
         </div>
-        <div class="lb-field">
+        <div class="lb-field" data-media-panel="PHYSICAL"
+             {% if form.media_type.data == 'DIGITAL' %}hidden{% endif %}>
           <label class="lb-label" for="current_page">Página atual</label>
           {{ form.current_page(class="form-control lb-input", id="current_page", inputmode="numeric", placeholder="0") }}
           {% for error in form.current_page.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="lb-field" data-media-panel="DIGITAL"
+             {% if form.media_type.data != 'DIGITAL' %}hidden{% endif %}>
+          <label class="lb-label" for="current_percent">Progresso (%)</label>
+          {{ form.current_percent(class="form-control lb-input", id="current_percent", inputmode="decimal", min="0", max="100", step="1", placeholder="0") }}
+          {% for error in form.current_percent.errors %}<p class="lb-error">{{ error }}</p>{% endfor %}
         </div>
         <div class="lb-field">
           <label class="lb-label" for="status">Status</label>

@@ -16,6 +16,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
+from utils.text import strip_accents
+
 db = SQLAlchemy()
 
 BOOK_STATUSES = {
@@ -23,6 +25,21 @@ BOOK_STATUSES = {
     "READING": {"label": "Lendo", "icon": "bi-book-half", "tone": "forest"},
     "READ": {"label": "Lido", "icon": "bi-check2-circle", "tone": "sage"},
     "ABANDONED": {"label": "Abandonado", "icon": "bi-slash-circle", "tone": "clay"},
+}
+
+BOOK_MEDIA = {
+    "PHYSICAL": {
+        "label": "Livro físico",
+        "short": "Físico",
+        "icon": "bi-book",
+        "description": "Acompanhe pela página impressa.",
+    },
+    "DIGITAL": {
+        "label": "Livro digital",
+        "short": "Digital",
+        "icon": "bi-tablet",
+        "description": "Acompanhe pelo percentual exibido no aparelho.",
+    },
 }
 
 NOTE_TYPES = {
@@ -76,6 +93,10 @@ def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record):  # noqa: 
     if isinstance(dbapi_connection, sqlite3.Connection):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
+        # Busca sem acentos, disponível como unaccent(coluna) no SQLite.
+        dbapi_connection.create_function(
+            "unaccent", 1, strip_accents, deterministic=True
+        )
         try:
             cursor.execute("PRAGMA journal_mode=WAL")
             cursor.execute("PRAGMA synchronous=NORMAL")
@@ -174,6 +195,8 @@ class Book(db.Model):
     total_pages = db.Column(db.Integer, nullable=False, default=0)
     current_page = db.Column(db.Integer, nullable=False, default=0)
     status = db.Column(db.String(20), nullable=False, default="READING")
+    media_type = db.Column(db.String(20), nullable=False, default="PHYSICAL")
+    percent_complete = db.Column(db.Float, nullable=False, default=0.0)
     cover_url = db.Column(db.Text)
     cover_filename = db.Column(db.String(255))
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
@@ -197,6 +220,10 @@ class Book(db.Model):
             "status IN ('WANT_TO_READ', 'READING', 'READ', 'ABANDONED')",
             name="ck_books_status",
         ),
+        db.CheckConstraint(
+            "media_type IN ('PHYSICAL', 'DIGITAL')",
+            name="ck_books_media_type",
+        ),
     )
 
     # --- Apresentação ------------------------------------------------------
@@ -213,7 +240,29 @@ class Book(db.Model):
         return self.status_meta["icon"]
 
     @property
+    def is_digital(self) -> bool:
+        return (self.media_type or "PHYSICAL") == "DIGITAL"
+
+    @property
+    def media_meta(self) -> dict:
+        return BOOK_MEDIA.get(self.media_type or "PHYSICAL", BOOK_MEDIA["PHYSICAL"])
+
+    @property
+    def media_label(self) -> str:
+        return self.media_meta["label"]
+
+    @property
+    def media_short(self) -> str:
+        return self.media_meta["short"]
+
+    @property
+    def media_icon(self) -> str:
+        return self.media_meta["icon"]
+
+    @property
     def progress_percent(self) -> int:
+        if self.is_digital:
+            return max(0, min(100, round(float(self.percent_complete or 0))))
         if not self.total_pages or self.total_pages <= 0:
             return 0
         return max(0, min(100, round((self.current_page or 0) * 100 / self.total_pages)))

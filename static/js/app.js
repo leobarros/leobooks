@@ -182,24 +182,23 @@
   });
 
   /* ----------------------------------------------------------------------
-     Progresso por página ou porcentagem do Kindle
+     Progresso do digital e formato do livro
      ---------------------------------------------------------------------- */
   const progressForm = $("[data-progress-form]");
   if (progressForm) {
-    const progressModeInput = $("[data-progress-mode-input]", progressForm);
-    const pagePanel = $('[data-progress-panel="page"]', progressForm);
-    const percentPanel = $('[data-progress-panel="percent"]', progressForm);
-    const pageInput = $("#currentPage", progressForm);
+    const totalPages = Number(progressForm.dataset.totalPages || 0);
     const percentInput = $("#currentPercent", progressForm);
     const percentEquivalent = $("[data-progress-equivalent]", progressForm);
-    const totalPages = Number(progressForm.dataset.totalPages || 0);
-    const progressModes = $$("[data-progress-mode]", progressForm);
 
     const updatePercentEquivalent = () => {
       if (!percentInput || !percentEquivalent) return;
+      if (!totalPages) {
+        percentEquivalent.textContent = "percentual do livro digital";
+        return;
+      }
       const raw = parseFloat(percentInput.value);
       if (!Number.isFinite(raw)) {
-        percentEquivalent.textContent = "informe a porcentagem";
+        percentEquivalent.textContent = "informe o percentual";
         return;
       }
       const percent = Math.max(0, Math.min(100, raw));
@@ -207,38 +206,42 @@
       percentEquivalent.textContent = `≈ página ${page} de ${totalPages}`;
     };
 
-    const setProgressMode = (mode) => {
-      const usePercent = mode === "percent";
-      if (progressModeInput) progressModeInput.value = usePercent ? "percent" : "page";
-      if (pagePanel) pagePanel.hidden = usePercent;
-      if (percentPanel) percentPanel.hidden = !usePercent;
+    percentInput?.addEventListener("input", updatePercentEquivalent);
+    updatePercentEquivalent();
+  }
 
-      if (pageInput) {
-        pageInput.disabled = usePercent;
-        pageInput.required = !usePercent;
-      }
-      if (percentInput) {
-        percentInput.disabled = !usePercent;
-        percentInput.required = usePercent;
-      }
+  const bookMediaForm = $("[data-book-media-form]");
+  if (bookMediaForm) {
+    const mediaInputs = $$('input[name="media_type"]', bookMediaForm);
+    const mediaPanels = $$("[data-media-panel]", bookMediaForm);
+    const currentPageInput = $("#current_page", bookMediaForm);
+    const currentPercentInput = $("#current_percent", bookMediaForm);
+    const totalPagesInput = $("#total_pages", bookMediaForm);
+    const requiredStar = $("[data-media-required]", bookMediaForm);
+    const totalHint = $("[data-media-total-hint]", bookMediaForm);
 
-      progressModes.forEach((button) => {
-        const active = button.dataset.progressMode === (usePercent ? "percent" : "page");
-        button.classList.toggle("is-active", active);
-        button.setAttribute("aria-pressed", active ? "true" : "false");
+    const syncBookMedia = () => {
+      const selected = mediaInputs.find((input) => input.checked)?.value || "PHYSICAL";
+      const isDigital = selected === "DIGITAL";
+      mediaPanels.forEach((panel) => {
+        panel.hidden = panel.dataset.mediaPanel !== selected;
       });
-
-      if (usePercent) {
-        updatePercentEquivalent();
-        percentInput?.focus();
+      if (currentPageInput) {
+        currentPageInput.disabled = isDigital;
+        currentPageInput.required = !isDigital;
       }
+      if (currentPercentInput) {
+        currentPercentInput.disabled = !isDigital;
+      }
+      if (totalPagesInput) {
+        totalPagesInput.required = !isDigital;
+      }
+      if (requiredStar) requiredStar.hidden = isDigital;
+      if (totalHint) totalHint.hidden = !isDigital;
     };
 
-    progressModes.forEach((button) => {
-      button.addEventListener("click", () => setProgressMode(button.dataset.progressMode));
-    });
-    percentInput?.addEventListener("input", updatePercentEquivalent);
-    setProgressMode("page");
+    mediaInputs.forEach((input) => input.addEventListener("change", syncBookMedia));
+    syncBookMedia();
   }
 
   /* ----------------------------------------------------------------------
@@ -684,7 +687,7 @@
     } else {
       if (title) title.textContent = noteForm?.dataset.createTitle || "Nova nota";
       if (eyebrow) eyebrow.textContent = noteForm?.dataset.createEyebrow || "Captura rápida";
-      if (submitLabel) submitLabel.textContent = "Guardar nota";
+      if (submitLabel) submitLabel.textContent = "Salvar";
     }
   }
 
@@ -1243,6 +1246,27 @@
     return canvas;
   }
 
+  function shareFilename(button) {
+    const clean = (value, max = 72) => String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, max);
+
+    const book = clean(button.dataset.shareBook || "");
+    const chapter = clean(button.dataset.shareChapter || "").replace(/^capitulo-/, "");
+    const page = clean(button.dataset.sharePage || "");
+    const parts = [];
+    if (book) parts.push(book);
+    if (chapter) parts.push(`capitulo-${chapter}`);
+    if (page) parts.push(`pagina-${page}`);
+    if (!parts.length) parts.push("citacao");
+    parts.push("leobooks");
+    return `${parts.join("-")}.png`;
+  }
+
   async function shareQuote(button) {
     const quote = button.dataset.shareQuote || "";
     if (!quote) return;
@@ -1256,7 +1280,8 @@
       );
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
       if (!blob) throw new Error("canvas");
-      const file = new File([blob], "leobooks-citacao.png", { type: "image/png" });
+      const filename = shareFilename(button);
+      const file = new File([blob], filename, { type: "image/png" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({ files: [file], title: "LeoBooks — citação" });
@@ -1269,7 +1294,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "leobooks-citacao.png";
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       link.remove();

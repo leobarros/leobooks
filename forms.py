@@ -23,7 +23,7 @@ from wtforms import (
 from wtforms.validators import DataRequired, EqualTo, Length, NumberRange, Optional, ValidationError
 
 from config import Config
-from models import BOOK_STATUSES, NOTE_TYPES
+from models import BOOK_MEDIA, BOOK_STATUSES, NOTE_TYPES
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$")
 ISBN_RE = re.compile(r"^[0-9Xx-]{10,17}$")
@@ -97,16 +97,30 @@ class BookForm(FlaskForm):
     )
     publisher = StringField("Editora", validators=[Optional(), Length(max=150)])
     isbn = StringField("ISBN", validators=[Optional(), Length(max=20)])
+    media_type = RadioField(
+        "Formato de leitura",
+        choices=[(key, meta["label"]) for key, meta in BOOK_MEDIA.items()],
+        default="PHYSICAL",
+        validators=[DataRequired("Escolha o formato do livro.")],
+    )
     total_pages = IntegerField(
         "Páginas totais",
         validators=[
-            DataRequired("Informe o total de páginas."),
-            NumberRange(min=1, max=50000, message="Use um número entre 1 e 50.000."),
+            Optional(),
+            NumberRange(min=0, max=50000, message="Use um número entre 0 e 50.000."),
         ],
     )
     current_page = IntegerField(
         "Página atual",
         validators=[Optional(), NumberRange(min=0, max=50000)],
+        default=0,
+    )
+    current_percent = IntegerField(
+        "Progresso (%)",
+        validators=[
+            Optional(),
+            NumberRange(min=0, max=100, message="Use um percentual entre 0 e 100."),
+        ],
         default=0,
     )
     status = SelectField(
@@ -127,6 +141,11 @@ class BookForm(FlaskForm):
         if value and not ISBN_RE.match(value):
             raise ValidationError("ISBN inválido: use 10 ou 13 dígitos (hífens são aceitos).")
         field.data = value or None
+
+    def validate_total_pages(self, field):  # noqa: ANN001
+        value = field.data or 0
+        if self.media_type.data == "PHYSICAL" and value < 1:
+            raise ValidationError("Informe o total de páginas do livro físico.")
 
     def validate_current_page(self, field):  # noqa: ANN001
         if field.data is None:

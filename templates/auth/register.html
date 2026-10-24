@@ -7,6 +7,8 @@
   <aside class="lb-auth__art">
     <div class="lb-auth__arttop">
       <a class="lb-brand lb-brand--light" href="{{ url_for('auth.login') }}">
+        <img class="lb-seal lb-seal--auth" src="{{ url_for('static', filename='img/logo-leao.svg') }}"
+             alt="" aria-hidden="true">
         <span class="lb-brand__text">
           <span class="lb-brand__word">Leo<span>Books</span></span>
           <span class="lb-brand__sub">caderno de leitura</span>
@@ -31,7 +33,7 @@
     </div>
 
     <div class="lb-auth__artfoot">
-      <span class="lb-auth__stamp">LB</span>
+      <img class="lb-auth__stamp lb-auth__stamp--logo" src="{{ url_for('static', filename='img/logo-leao.svg') }}" alt="" aria-hidden="true">
       <p>Um app para ler devagar e anotar com intenção.</p>
     </div>
   </aside>
@@ -39,6 +41,8 @@
   <main class="lb-auth__panel" id="conteudo">
     <div class="lb-auth__inner">
       <a class="lb-brand lb-brand--compact lb-auth__mobilebrand" href="{{ url_for('auth.login') }}">
+        <img class="lb-seal lb-seal--compact" src="{{ url_for('static', filename='img/logo-leao.svg') }}"
+             alt="" aria-hidden="true">
         <span class="lb-brand__word">Leo<span>Books</span></span>
       </a>
 

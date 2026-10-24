@@ -49,6 +49,9 @@
       <button type="button" class="lb-btn lb-btn--ghost"
               data-share-quote="{{ note.plain_text|e }}"
               data-share-source="{{ note.book.authors }} — {{ note.book.title }}"
+              data-share-book="{{ note.book.title|e }}"
+              data-share-chapter="{{ note.chapter|default('', true)|e }}"
+              data-share-page="{{ note.page_number if note.page_number is not none else '' }}"
               data-share-type="{{ note.type_label }}"
               data-share-tags="{{ note.tags|map(attribute='name')|join(' · ')|e }}">
         <i class="bi bi-image"></i> Compartilhar como imagem

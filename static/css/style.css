@@ -3696,7 +3696,7 @@ textarea.lb-input { min-height: 110px; resize: vertical; }
   .lb-coverlookup__selected { flex-wrap: wrap; }
 }
 
-/* 18. Progresso por página ou % do Kindle ================================= */
+/* 18. Progresso por página ou % do livro digital ================================= */
 .lb-progress-form__head {
   display: flex;
   align-items: center;
@@ -3915,7 +3915,7 @@ textarea.lb-input { min-height: 110px; resize: vertical; }
 .lb-onboarding__list i { width: 17px; flex: 0 0 auto; color: var(--lb-ochre); padding-top: 2px; }
 .lb-onboarding__list strong { color: var(--lb-ink-2); font-weight: 600; }
 
-.lb-onboarding__kindle {
+.lb-onboarding__digital {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
   gap: 22px;
@@ -3925,7 +3925,7 @@ textarea.lb-input { min-height: 110px; resize: vertical; }
   border-radius: 2px 16px 2px 2px;
   background: var(--lb-paper-soft);
 }
-.lb-onboarding__kindle-screen {
+.lb-onboarding__digital-screen {
   display: flex;
   aspect-ratio: 3 / 4;
   flex-direction: column;
@@ -3938,13 +3938,13 @@ textarea.lb-input { min-height: 110px; resize: vertical; }
   box-shadow: 4px 5px 0 var(--lb-rule);
   color: var(--lb-ink);
 }
-.lb-onboarding__kindle-screen span { font-family: var(--lb-serif); font-size: 2.4rem; line-height: 1; }
-.lb-onboarding__kindle-screen small { font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lb-ink-3); }
-.lb-onboarding__kindle-bar { height: 4px; overflow: hidden; border-radius: 3px; background: var(--lb-rule); }
-.lb-onboarding__kindle-bar i { display: block; width: 42%; height: 100%; background: var(--lb-forest); }
-.lb-onboarding__kindle h3 { margin: 0 0 6px; font-size: 1.35rem; font-weight: 500; }
-.lb-onboarding__kindle h3 span { font-family: var(--lb-sans); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--lb-ink-3); padding: 0 4px; }
-.lb-onboarding__kindle p:last-child { margin: 0; font-size: 0.8rem; line-height: 1.6; color: var(--lb-ink-3); }
+.lb-onboarding__digital-screen span { font-family: var(--lb-serif); font-size: 2.4rem; line-height: 1; }
+.lb-onboarding__digital-screen small { font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lb-ink-3); }
+.lb-onboarding__digital-bar { height: 4px; overflow: hidden; border-radius: 3px; background: var(--lb-rule); }
+.lb-onboarding__digital-bar i { display: block; width: 42%; height: 100%; background: var(--lb-forest); }
+.lb-onboarding__digital h3 { margin: 0 0 6px; font-size: 1.35rem; font-weight: 500; }
+.lb-onboarding__digital h3 span { font-family: var(--lb-sans); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--lb-ink-3); padding: 0 4px; }
+.lb-onboarding__digital p:last-child { margin: 0; font-size: 0.8rem; line-height: 1.6; color: var(--lb-ink-3); }
 
 .lb-onboarding__hint { margin-top: 20px; font-size: 0.72rem; }
 .lb-onboarding__hint i { color: var(--lb-ochre); }
@@ -3998,11 +3998,107 @@ textarea.lb-input { min-height: 110px; resize: vertical; }
   .lb-onboarding__sample h3 { font-size: 1.15rem; }
   .lb-onboarding__features, .lb-onboarding__features--two { grid-template-columns: 1fr; }
   .lb-onboarding__features article { padding: 12px; }
-  .lb-onboarding__kindle { grid-template-columns: 105px minmax(0, 1fr); gap: 14px; padding: 13px; }
-  .lb-onboarding__kindle-screen { padding: 12px; border-width: 4px; }
-  .lb-onboarding__kindle-screen span { font-size: 1.9rem; }
+  .lb-onboarding__digital { grid-template-columns: 105px minmax(0, 1fr); gap: 14px; padding: 13px; }
+  .lb-onboarding__digital-screen { padding: 12px; border-width: 4px; }
+  .lb-onboarding__digital-screen span { font-size: 1.9rem; }
   .lb-onboarding__foot { flex-wrap: wrap; padding: 12px 16px; gap: 10px; }
   .lb-onboarding__progress { width: 100%; justify-content: space-between; }
   .lb-onboarding__actions { width: 100%; }
   .lb-onboarding__actions .lb-btn { flex: 1; }
 }
+
+/* 20. Formato do livro: físico ou digital ================================= */
+.lb-media-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  border: 1px solid var(--lb-rule);
+  border-radius: 2px;
+  background: var(--lb-surface);
+  color: var(--lb-ink-2);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.lb-media-badge i { color: var(--lb-clay); font-size: 0.7rem; }
+
+.lb-format {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: var(--lb-ink-3);
+  font-family: var(--lb-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.lb-format i { color: var(--lb-ochre); font-size: 0.65rem; }
+.lb-format--digital { color: var(--lb-forest); }
+.lb-bookrow__top .lb-format { margin: 0 0 0 auto; }
+.lb-bookrow__top .lb-iconbtn { margin-left: 0; }
+
+.lb-mediaoptions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 5px; }
+.lb-mediaoption { position: relative; display: block; cursor: pointer; }
+.lb-mediaoption__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.lb-mediaoption__body {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 1px 8px;
+  align-items: center;
+  min-height: 70px;
+  padding: 10px 12px;
+  border: 1px solid var(--lb-rule);
+  border-radius: 2px;
+  background: var(--lb-surface);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.lb-mediaoption__body i {
+  grid-row: span 2;
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--lb-rule);
+  border-radius: 50%;
+  color: var(--lb-ink-3);
+  font-size: 0.8rem;
+}
+.lb-mediaoption__body strong { font-size: 0.82rem; font-weight: 600; color: var(--lb-ink); }
+.lb-mediaoption__body small { font-size: 0.64rem; line-height: 1.35; color: var(--lb-ink-3); }
+.lb-mediaoption__input:checked + .lb-mediaoption__body {
+  border-color: var(--lb-forest);
+  background: linear-gradient(135deg, rgba(93, 111, 82, 0.1), transparent 70%), var(--lb-surface);
+  box-shadow: inset 0 -2px 0 var(--lb-forest);
+}
+.lb-mediaoption__input:checked + .lb-mediaoption__body i { border-color: var(--lb-forest); color: var(--lb-forest); }
+.lb-mediaoption__input:focus-visible + .lb-mediaoption__body { outline: 2px solid var(--lb-ochre); outline-offset: 2px; }
+.lb-mediaoption:hover .lb-mediaoption__body { border-color: var(--lb-rule-strong); }
+
+.lb-progress-form__current {
+  font-family: var(--lb-mono);
+  font-size: 0.62rem;
+  color: var(--lb-clay);
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 700px) {
+  .lb-mediaoptions { grid-template-columns: 1fr; }
+  .lb-mediaoption__body { min-height: 62px; }
+}
+
+/* 21. Marca integrada: leão de óculos ==================================== */
+.lb-seal { display: block; object-fit: contain; }
+.lb-seal--auth { width: 56px; height: 56px; }
+.lb-seal--compact { width: 36px; height: 36px; }
+.lb-auth__stamp--logo { padding: 0; border: 0; background: transparent; }

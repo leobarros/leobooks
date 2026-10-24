@@ -54,6 +54,7 @@
   <div class="lb-bookhero__body">
     <div class="lb-bookhero__meta">
       {{ status_badge(book) }}
+      <span class="lb-media-badge"><i class="bi {{ book.media_icon }}"></i>{{ book.media_label }}</span>
       <span class="lb-bookhero__dot" aria-hidden="true"></span>
       <span>{{ counts.ALL }} {% if counts.ALL == 1 %}nota{% else %}notas{% endif %}</span>
       {% if book.last_note %}
@@ -71,55 +72,69 @@
     {{ progress(book, large=true) }}
 
     <div class="lb-bookhero__grid">
-      <form class="lb-progress-form" method="post"
-            action="{{ url_for('books.progress', book_id=book.id) }}"
-            data-progress-form data-total-pages="{{ book.total_pages }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="progress_mode" value="page" data-progress-mode-input>
+      {% if book.is_digital %}
+        <form class="lb-progress-form" method="post"
+              action="{{ url_for('books.progress', book_id=book.id) }}"
+              data-progress-form data-total-pages="{{ book.total_pages }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="progress_mode" value="percent">
 
-        <div class="lb-progress-form__head">
-          <label for="currentPage">Progresso de leitura</label>
-          <div class="lb-progress-modes" role="group" aria-label="Forma de atualizar o progresso">
-            <button type="button" class="is-active" data-progress-mode="page" aria-pressed="true">
-              Página
-            </button>
-            <button type="button" data-progress-mode="percent" aria-pressed="false">
-              % Kindle
+          <div class="lb-progress-form__head">
+            <label for="currentPercent">Progresso (%)</label>
+            <span class="lb-progress-form__current">{{ book.progress_percent }}%</span>
+          </div>
+
+          <div class="lb-progress-form__row lb-progress-form__row--percent">
+            <label class="visually-hidden" for="currentPercent">Porcentagem lida no livro digital</label>
+            <div class="lb-percent-input">
+              <input class="form-control lb-input lb-input--percent" type="number" id="currentPercent"
+                     name="percent" min="0" max="100" step="1" inputmode="decimal"
+                     value="{{ book.progress_percent }}" required>
+              <span>%</span>
+            </div>
+            <span class="lb-progress-form__equiv" data-progress-equivalent>
+              {% if book.total_pages %}≈ página {{ book.current_page }} de {{ book.total_pages }}{% else %}percentual do livro digital{% endif %}
+            </span>
+            <button class="lb-btn lb-btn--dark lb-btn--sm" type="submit">
+              Atualizar <i class="bi bi-arrow-right"></i>
             </button>
           </div>
-        </div>
 
-        <div class="lb-progress-form__row" data-progress-panel="page">
-          <label class="visually-hidden" for="currentPage">Página atual</label>
-          <input class="form-control lb-input lb-input--page" type="number" id="currentPage"
-                 name="current_page" min="0" max="{{ book.total_pages }}"
-                 value="{{ book.current_page }}" inputmode="numeric" required>
-          <span class="lb-progress-form__total">de {{ book.total_pages }}</span>
-          <button class="lb-btn lb-btn--dark lb-btn--sm" type="submit">
-            Atualizar <i class="bi bi-arrow-right"></i>
-          </button>
-        </div>
+          <p class="lb-hint lb-progress-form__hint">
+            <i class="bi bi-tablet"></i>
+            Use o percentual exibido no rodapé do seu leitor digital. A “localização” não equivale a páginas.
+            {% if not book.total_pages %}Informe as páginas equivalentes na edição para ver a estimativa.{% endif %}
+          </p>
+        </form>
+      {% else %}
+        <form class="lb-progress-form" method="post"
+              action="{{ url_for('books.progress', book_id=book.id) }}"
+              data-progress-form data-total-pages="{{ book.total_pages }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="progress_mode" value="page">
 
-        <div class="lb-progress-form__row lb-progress-form__row--percent"
-             data-progress-panel="percent" hidden>
-          <label class="visually-hidden" for="currentPercent">Porcentagem lida no Kindle</label>
-          <div class="lb-percent-input">
-            <input class="form-control lb-input lb-input--percent" type="number" id="currentPercent"
-                   name="percent" min="0" max="100" step="1" inputmode="decimal"
-                   placeholder="42" disabled>
-            <span>%</span>
+          <div class="lb-progress-form__head">
+            <label for="currentPage">Progresso de leitura</label>
+            <span class="lb-progress-form__current">{{ book.progress_percent }}%</span>
           </div>
-          <span class="lb-progress-form__equiv" data-progress-equivalent>informe a porcentagem</span>
-          <button class="lb-btn lb-btn--dark lb-btn--sm" type="submit">
-            Atualizar <i class="bi bi-arrow-right"></i>
-          </button>
-        </div>
 
-        <p class="lb-hint lb-progress-form__hint">
-          <i class="bi bi-tablet"></i>
-          No Kindle, use o percentual exibido no rodapé. A “localização” não equivale a páginas.
-        </p>
-      </form>
+          <div class="lb-progress-form__row">
+            <label class="visually-hidden" for="currentPage">Página atual</label>
+            <input class="form-control lb-input lb-input--page" type="number" id="currentPage"
+                   name="current_page" min="0" max="{{ book.total_pages or 50000 }}"
+                   value="{{ book.current_page }}" inputmode="numeric" required>
+            <span class="lb-progress-form__total">de {{ book.total_pages }}</span>
+            <button class="lb-btn lb-btn--dark lb-btn--sm" type="submit">
+              Atualizar <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+
+          <p class="lb-hint lb-progress-form__hint">
+            <i class="bi bi-book"></i>
+            Livro físico: marque pela página impressa. Para ler em formato digital, edite o formato do livro.
+          </p>
+        </form>
+      {% endif %}
 
       <form class="lb-status-form" method="post" action="{{ url_for('books.status', book_id=book.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -206,8 +221,9 @@
         <div><dt>Autor</dt><dd>{{ book.authors }}</dd></div>
         <div><dt>Editora</dt><dd>{{ book.publisher or '—' }}</dd></div>
         <div><dt>ISBN</dt><dd>{{ book.isbn or '—' }}</dd></div>
-        <div><dt>Páginas</dt><dd>{{ book.total_pages }}</dd></div>
-        <div><dt>Restantes</dt><dd>{{ book.pages_remaining }}</dd></div>
+        <div><dt>Formato</dt><dd>{{ book.media_label }}</dd></div>
+        <div><dt>Páginas</dt><dd>{% if book.is_digital and not book.total_pages %}—{% else %}{{ book.total_pages }}{% endif %}</dd></div>
+        <div><dt>Restantes</dt><dd>{% if book.is_digital and not book.total_pages %}—{% else %}{{ book.pages_remaining }}{% endif %}</dd></div>
         <div><dt>Na estante desde</dt><dd>{{ book.created_at|data_curta }}</dd></div>
       </dl>
     </section>
@@ -225,7 +241,17 @@
 
     <section class="lb-panel lb-panel--quiet">
       <p class="lb-sidequote">“{{ book.title }}” está {{ book.progress_percent }}% lido.
-        {% if book.pages_remaining %}Faltam {{ book.pages_remaining }} páginas para a última.{% else %}Você chegou à última página.{% endif %}
+        {% if book.is_digital %}
+          {% if book.total_pages %}
+            Faltam ≈ {{ book.pages_remaining }} páginas para a última.
+          {% else %}
+            Progresso informado pelo percentual do livro digital.
+          {% endif %}
+        {% elif book.pages_remaining %}
+          Faltam {{ book.pages_remaining }} páginas para a última.
+        {% else %}
+          Você chegou à última página.
+        {% endif %}
       </p>
     </section>
   </aside>

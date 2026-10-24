@@ -80,7 +80,13 @@ def test_book_note_and_progress_events_are_logged(
     app, auth_client, audit_handler
 ):
     audit_handler.events.clear()
-    create_book(auth_client, title="Livro auditado", total_pages="300")
+    create_book(
+        auth_client,
+        title="Livro auditado",
+        media_type="DIGITAL",
+        total_pages="300",
+        current_percent="0",
+    )
     with app.app_context():
         from models import Book
 

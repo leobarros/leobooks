@@ -65,12 +65,17 @@
           </h2>
           <p class="lb-bookcard__author">{{ book.authors }}</p>
           <p class="lb-bookcard__meta">
-            {% if book.status == 'WANT_TO_READ' and not book.current_page %}
+            {% if book.status == 'WANT_TO_READ' and not book.current_page and not book.is_digital %}
               ainda não iniciado
+            {% elif book.is_digital %}
+              {{ book.progress_percent }}% · {% if book.total_pages %}≈ {{ book.current_page }}/{{ book.total_pages }} pág.{% else %}digital{% endif %}
             {% else %}
               {{ book.progress_percent }}% · {{ book.current_page }}/{{ book.total_pages }} pág.
             {% endif %}
           </p>
+          <span class="lb-format lb-format--{{ book.media_type|lower }}">
+            <i class="bi {{ book.media_icon }}"></i> {{ book.media_short }}
+          </span>
         </div>
       </article>
     {% endfor %}
