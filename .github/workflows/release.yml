@@ -31,6 +31,9 @@ jobs:
               ./packaging/build-deb.sh
             '
 
+      - name: Normalize workspace ownership
+        run: sudo chown -R "$(id -u):$(id -g)" build dist
+
       - name: Build portable tarball
         run: ./packaging/build-tarball.sh
 
