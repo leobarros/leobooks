@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=LeoBooks
+GenericName=Caderno de leitura
+Comment=Guarde citações, resumos e insights dos seus livros
+Exec=xdg-open http://127.0.0.1:5057
+Icon=leobooks
+Terminal=false
+StartupNotify=true
+Categories=Office;Utility;
+Keywords=leitura;livros;notas;citações;

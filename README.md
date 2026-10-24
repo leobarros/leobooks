@@ -358,6 +358,7 @@ docker compose logs -f leobooks
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
 | `LEOBOOKS_PORT` | `5057` | Porta interna/local. |
+| `LEOBOOKS_INSTANCE` | `instance/` no código | Diretório de dados em instalações nativas (`/var/lib/leobooks` nos pacotes). |
 | `LEOBOOKS_SAMPLE_BOOK` | `1` | Cria o livro de exemplo em cada cadastro. |
 | `LEOBOOKS_COVER_LOOKUP` | `1` | Liga/desliga a busca de capas. |
 | `LEOBOOKS_IMAGE_TAG` | `latest` | Tag da imagem `nickolback/leobooks`. |
@@ -366,6 +367,70 @@ docker compose logs -f leobooks
 | `INSTALL_OCR` | `false` | Instala Tesseract na imagem (aumenta tamanho/memória). |
 
 O arquivo [.env.example](.env.example) traz todas as opções comentadas.
+
+### Instalação nativa: Debian, Fedora e Arch
+
+O Docker continua sendo a opção recomendada para o homelab, mas o LeoBooks
+também pode ser instalado como serviço systemd, sem container.
+
+**Debian 13 / Ubuntu (amd64):**
+
+```bash
+sudo apt install ./dist/leobooks_1.0.0_amd64.deb
+sudo systemctl status leobooks
+```
+
+O pacote instala o serviço, o atalho **LeoBooks** no GNOME, a configuração em
+`/etc/leobooks/leobooks.env` e os dados persistentes em `/var/lib/leobooks`.
+
+**Fedora 42 (x86_64):**
+
+```bash
+sudo dnf install ./dist/leobooks-1.0.0-1.fc42.x86_64.rpm
+# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.0-1.fc42.x86_64.rpm
+sudo systemctl status leobooks
+```
+
+**Arch e outras distros com Python 3 e systemd:**
+
+```bash
+tar -xzf dist/leobooks-1.0.0-linux-x86_64.tar.gz
+cd leobooks-1.0.0
+sudo ./install.sh
+```
+
+O instalador do tarball cria o venv no destino, então o alvo precisa de Python
+3.10+ e acesso ao PyPI durante a instalação.
+
+Em qualquer formato:
+
+```bash
+sudo nano /etc/leobooks/leobooks.env
+sudo systemctl restart leobooks
+```
+
+Para acessar pela LAN/Tailscale, ajuste no arquivo:
+
+```env
+LEOBOOKS_BIND=0.0.0.0
+```
+
+A porta padrão é **5057**. Para remover preservando os dados, use
+`apt remove leobooks`, `dnf remove leobooks` ou o `uninstall.sh` do tarball.
+O `purge` do Debian também remove `/var/lib/leobooks`.
+
+Gerar novamente os pacotes:
+
+```bash
+./packaging/build-deb.sh
+./packaging/build-rpm.sh   # usa um container Fedora 42
+./packaging/build-tarball.sh
+```
+
+Os artefatos são gerados em `dist/`, junto com `SHA256SUMS` e
+`BUILD-INFO.txt`. O RPM é específico para Fedora 42 x86_64; para outra
+versão/arquitetura, rebuilde no alvo correspondente. O registro de mudanças
+fica em [CHANGELOG.md](CHANGELOG.md).
 
 ### Publicar a imagem no Docker Hub
 

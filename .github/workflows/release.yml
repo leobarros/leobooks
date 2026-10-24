@@ -1,0 +1,82 @@
+name: Native packages release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build Debian 13 package
+        run: |
+          mkdir -p dist
+          docker run --rm \
+            -v "$PWD":/src \
+            -w /src \
+            debian:trixie \
+            bash -lc '
+              apt-get update
+              apt-get install -y --no-install-recommends \
+                python3 python3-venv ca-certificates
+              ./packaging/build-deb.sh
+            '
+
+      - name: Build portable tarball
+        run: ./packaging/build-tarball.sh
+
+      - name: Build Fedora 42 RPM
+        run: ./packaging/build-rpm.sh
+
+      - name: Generate checksums and build info
+        run: |
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          cd dist
+          sha256sum \
+            leobooks_${VERSION}_*.deb \
+            leobooks-${VERSION}-*.rpm \
+            leobooks-${VERSION}-linux-*.tar.gz > SHA256SUMS
+          cat > BUILD-INFO.txt <<INFO
+          LeoBooks ${VERSION} — pacotes nativos
+          Tag: ${GITHUB_REF_NAME}
+          Commit: ${GITHUB_SHA}
+          Debian: amd64, Python 3.13
+          Fedora: x86_64, Fedora 42 / Python 3.13
+          Tarball: instalador nativo (Python 3.10+ no destino)
+
+          Arquivos:
+          $(ls -1 leobooks_${VERSION}_*.deb leobooks-${VERSION}-*.rpm leobooks-${VERSION}-linux-*.tar.gz)
+          INFO
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-packages
+          path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+            dist/SHA256SUMS
+            dist/BUILD-INFO.txt
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "LeoBooks ${GITHUB_REF_NAME}" \
+            --generate-notes \
+            dist/*.deb \
+            dist/*.rpm \
+            dist/*.tar.gz \
+            dist/SHA256SUMS \
+            dist/BUILD-INFO.txt

@@ -1,0 +1,51 @@
+[Unit]
+Description=LeoBooks — caderno de leitura
+Documentation=https://hub.docker.com/repository/docker/nickolback/leobooks
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=leobooks
+Group=leobooks
+WorkingDirectory=/opt/leobooks/app
+EnvironmentFile=-/etc/leobooks/leobooks.env
+Environment=PYTHONUNBUFFERED=1
+Environment=MALLOC_ARENA_MAX=2
+Environment=LEOBOOKS_INSTANCE=/var/lib/leobooks
+Environment=LEOBOOKS_BIND=127.0.0.1
+Environment=LEOBOOKS_PORT=5057
+ExecStart=/opt/leobooks/venv/bin/gunicorn \
+    --config /opt/leobooks/app/gunicorn.conf.py \
+    --bind ${LEOBOOKS_BIND}:${LEOBOOKS_PORT} \
+    --workers 1 \
+    --worker-class gthread \
+    --threads 4 \
+    --timeout 120 \
+    --graceful-timeout 30 \
+    --max-requests 2000 \
+    --max-requests-jitter 100 \
+    --access-logfile - \
+    --error-logfile - \
+    wsgi:app
+Restart=on-failure
+RestartSec=3
+StateDirectory=leobooks
+StateDirectoryMode=0750
+ConfigurationDirectory=leobooks
+ConfigurationDirectoryMode=0750
+ReadWritePaths=/var/lib/leobooks
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0077
+MemoryMax=512M
+MemorySwapMax=512M
+
+[Install]
+WantedBy=multi-user.target

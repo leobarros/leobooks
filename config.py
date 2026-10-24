@@ -13,7 +13,11 @@ import secrets
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-INSTANCE_DIR = BASE_DIR / "instance"
+# Instalações nativas usam /var/lib/leobooks; Docker e execução local mantêm
+# o comportamento anterior em <projeto>/instance.
+INSTANCE_DIR = Path(
+    os.environ.get("LEOBOOKS_INSTANCE", str(BASE_DIR / "instance"))
+).expanduser()
 
 
 def _env_bool(name: str, default: bool = False) -> bool:
@@ -90,7 +94,9 @@ class Config:
     COVER_FOLDER = Path(
         os.environ.get("LEOBOOKS_COVERS", str(INSTANCE_DIR / "covers"))
     )
-    BACKUP_FOLDER = INSTANCE_DIR / "backups"
+    BACKUP_FOLDER = Path(
+        os.environ.get("LEOBOOKS_BACKUPS", str(INSTANCE_DIR / "backups"))
+    )
     # O restore aceita um ZIP completo; o limite global de 8 MB continua valendo
     # para os demais uploads. O request de restore recebe este limite próprio.
     BACKUP_MAX_BYTES = int(
