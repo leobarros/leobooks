@@ -8,7 +8,7 @@ import time
 from datetime import date
 from pathlib import Path
 
-from flask import Flask, g, redirect, render_template, url_for
+from flask import Flask, g, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFError, CSRFProtect
 
 from config import Config
@@ -56,6 +56,12 @@ def create_app(overrides: dict | None = None) -> Flask:
         g.csp_nonce = secrets.token_urlsafe(16)
         g.request_id = secrets.token_hex(6)
         g.request_started = time.perf_counter()
+        # O backup completo pode ser maior que o limite dos uploads de imagem.
+        # Precisa ser ajustado antes do CSRFProtect ler o formulário.
+        if request.path == "/settings/restore":
+            request.max_content_length = app.config.get(
+                "BACKUP_MAX_BYTES", 512 * 1024 * 1024
+            )
 
     # --- Extensões ---------------------------------------------------------
     db.init_app(app)

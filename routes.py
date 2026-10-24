@@ -74,6 +74,12 @@ from models import (
     utcnow,
 )
 from utils.audit import audit
+from utils.backup import (
+    BackupError,
+    build_full_backup,
+    extract_and_validate,
+    validate_sqlite,
+)
 from utils.text import strip_accents
 from utils.book_lookup import (
     CoverLookupError,
@@ -1439,59 +1445,178 @@ def theme():
 @login_required
 @admin_required
 def backup():
+    """Baixa um único ZIP com banco, capas, fotos e manifesto."""
     db_path = _sqlite_path()
     if not db_path.exists():
         abort(404)
-    with tempfile.TemporaryDirectory() as tmp:
-        destination = Path(tmp) / "backup.db"
-        source_conn = sqlite3.connect(db_path)
-        dest_conn = sqlite3.connect(destination)
-        try:
-            with dest_conn:
-                source_conn.backup(dest_conn)
-        finally:
-            source_conn.close()
-            dest_conn.close()
-        payload = destination.read_bytes()
 
-    audit("backup.download", backup_bytes=len(payload))
-    stamp = datetime.now().strftime("%Y%m%d_%H%M")
-    return send_file(
-        io.BytesIO(payload),
-        mimetype="application/x-sqlite3",
-        as_attachment=True,
-        download_name=f"leobooks_backup_{stamp}.db",
+    backup_dir = Path(current_app.config["BACKUP_FOLDER"])
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    temp_file = tempfile.NamedTemporaryFile(
+        prefix=".leobooks-download-", suffix=".zip", dir=backup_dir, delete=False
     )
+    temp_path = Path(temp_file.name)
+    temp_file.close()
+    try:
+        manifest = build_full_backup(
+            db_path=db_path,
+            covers_dir=Path(current_app.config["COVER_FOLDER"]),
+            uploads_dir=Path(current_app.config["UPLOAD_FOLDER"]),
+            destination=temp_path,
+        )
+        size = temp_path.stat().st_size
+        audit(
+            "backup.download",
+            backup_format="zip",
+            backup_bytes=size,
+            books=manifest["counts"].get("books", 0),
+            notes=manifest["counts"].get("notes", 0),
+        )
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        response = send_file(
+            temp_path,
+            mimetype="application/zip",
+            as_attachment=True,
+            download_name=f"leobooks_backup_{stamp}.zip",
+        )
+        response.call_on_close(lambda: temp_path.unlink(missing_ok=True))
+        return response
+    except Exception:
+        temp_path.unlink(missing_ok=True)
+        raise
 
 
 def _validate_backup_file(path: Path) -> tuple[bool, str]:
+    """Compatibilidade: valida um banco SQLite avulso (backup antigo)."""
+    return validate_sqlite(path)
+
+
+def _snapshot_current_database(db_path: Path, destination: Path) -> None:
+    source_conn = sqlite3.connect(db_path)
+    dest_conn = sqlite3.connect(destination)
     try:
-        with path.open("rb") as handle:
-            if handle.read(16) != b"SQLite format 3\x00":
-                return False, "O arquivo não é um banco SQLite válido."
-        connection = sqlite3.connect(path)
-        try:
-            integrity = connection.execute("PRAGMA integrity_check").fetchone()
-            if not integrity or integrity[0] != "ok":
-                return False, "O arquivo de backup está corrompido."
-            tables = {
-                row[0]
-                for row in connection.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table'"
-                )
-            }
-            required = {"users", "books", "notes", "tags", "note_tags"}
-            missing = required - tables
-            if missing:
-                return False, "O backup não parece ser do LeoBooks (tabelas ausentes)."
-            users = connection.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-            if users < 1:
-                return False, "O backup não contém nenhuma conta."
-        finally:
-            connection.close()
-    except (sqlite3.DatabaseError, OSError):
-        return False, "Não foi possível ler o arquivo de backup."
-    return True, ""
+        with dest_conn:
+            source_conn.backup(dest_conn)
+    finally:
+        source_conn.close()
+        dest_conn.close()
+
+
+def _install_database(source: Path, db_path: Path) -> None:
+    db.session.remove()
+    db.engine.dispose()
+    for suffix in ("-wal", "-shm"):
+        Path(f"{db_path}{suffix}").unlink(missing_ok=True)
+    shutil.copyfile(source, db_path)
+
+
+def _full_restore(upload, db_path: Path, stamp: str) -> tuple[bool, str]:
+    """Valida e instala um ZIP completo; devolve (ok, mensagem)."""
+    instance_dir = db_path.parent
+    temp_root = Path(tempfile.mkdtemp(prefix=".leobooks-restore-", dir=instance_dir))
+    covers_dir = Path(current_app.config["COVER_FOLDER"])
+    uploads_dir = Path(current_app.config["UPLOAD_FOLDER"])
+    backup_dir = Path(current_app.config["BACKUP_FOLDER"])
+    backup_dir.mkdir(parents=True, exist_ok=True)
+
+    old_covers = None
+    old_uploads = None
+    covers_installed = False
+    uploads_installed = False
+    safety_db = backup_dir / f"antes_da_restauracao_{stamp}.db"
+    safety_zip = backup_dir / f"antes_da_restauracao_{stamp}.zip"
+
+    try:
+        archive_path = temp_root / "upload.zip"
+        upload.save(archive_path)
+        manifest, source_db, source_covers, source_uploads = extract_and_validate(
+            archive_path,
+            temp_root / "data",
+            max_uncompressed_bytes=current_app.config.get(
+                "BACKUP_MAX_UNCOMPRESSED_BYTES", 1024 * 1024 * 1024
+            ),
+        )
+
+        # Cópia de segurança completa antes de tocar no estado atual.
+        build_full_backup(
+            db_path=db_path,
+            covers_dir=covers_dir,
+            uploads_dir=uploads_dir,
+            destination=safety_zip,
+        )
+        _snapshot_current_database(db_path, safety_db)
+        db.session.remove()
+        db.engine.dispose()
+
+        if covers_dir.exists():
+            old_covers = instance_dir / f".covers.before_restore_{stamp}"
+            covers_dir.rename(old_covers)
+        if uploads_dir.exists():
+            old_uploads = instance_dir / f".uploads.before_restore_{stamp}"
+            uploads_dir.rename(old_uploads)
+
+        shutil.move(str(source_covers), str(covers_dir))
+        covers_installed = True
+        shutil.move(str(source_uploads), str(uploads_dir))
+        uploads_installed = True
+        _install_database(source_db, db_path)
+
+        # Só remove a cópia antiga depois de o novo estado estar completo.
+        if old_covers is not None:
+            shutil.rmtree(old_covers, ignore_errors=True)
+        if old_uploads is not None:
+            shutil.rmtree(old_uploads, ignore_errors=True)
+        return True, f"Backup completo restaurado. Segurança: {safety_zip.name}."
+    except BackupError as exc:
+        # O estado atual ainda está intacto neste ponto (validação antes da troca).
+        if covers_installed and covers_dir.exists():
+            shutil.rmtree(covers_dir, ignore_errors=True)
+        if uploads_installed and uploads_dir.exists():
+            shutil.rmtree(uploads_dir, ignore_errors=True)
+        if old_covers is not None and old_covers.exists() and not covers_dir.exists():
+            old_covers.rename(covers_dir)
+        if old_uploads is not None and old_uploads.exists() and not uploads_dir.exists():
+            old_uploads.rename(uploads_dir)
+        return False, str(exc)
+    except Exception:
+        current_app.logger.exception("Falha ao restaurar backup completo")
+        # Rollback de diretórios e banco, se a troca já tiver começado.
+        if covers_installed and covers_dir.exists():
+            shutil.rmtree(covers_dir, ignore_errors=True)
+        if uploads_installed and uploads_dir.exists():
+            shutil.rmtree(uploads_dir, ignore_errors=True)
+        if old_covers is not None and old_covers.exists() and not covers_dir.exists():
+            old_covers.rename(covers_dir)
+        if old_uploads is not None and old_uploads.exists() and not uploads_dir.exists():
+            old_uploads.rename(uploads_dir)
+        if safety_db.exists():
+            try:
+                _install_database(safety_db, db_path)
+            except Exception:
+                current_app.logger.exception("Falha no rollback do banco")
+        return False, "Não foi possível restaurar o backup completo. O estado anterior foi mantido."
+    finally:
+        shutil.rmtree(temp_root, ignore_errors=True)
+
+
+def _legacy_restore(upload, db_path: Path, stamp: str) -> tuple[bool, str]:
+    """Restaura um .db antigo, mantendo as capas/fotos atuais."""
+    fd, temp_name = tempfile.mkstemp(suffix=".db")
+    try:
+        with open(fd, "wb") as handle:
+            upload.save(handle)
+        ok, message = _validate_backup_file(Path(temp_name))
+        if not ok:
+            return False, message
+
+        backup_dir = Path(current_app.config["BACKUP_FOLDER"])
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        safety = backup_dir / f"antes_da_restauracao_{stamp}.db"
+        _snapshot_current_database(db_path, safety)
+        _install_database(Path(temp_name), db_path)
+        return True, "Backup antigo do banco restaurado. Capas e fotos atuais foram mantidas."
+    finally:
+        Path(temp_name).unlink(missing_ok=True)
 
 
 @settings_bp.route("/settings/restore", methods=["POST"])
@@ -1505,58 +1630,33 @@ def restore():
 
     upload = form.backup.data
     db_path = _sqlite_path()
-    fd, temp_name = tempfile.mkstemp(suffix=".db")
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = (upload.filename or "").lower()
+
     try:
-        with open(fd, "wb") as handle:
-            handle.write(upload.read())
-
-        ok, message = _validate_backup_file(Path(temp_name))
-        if not ok:
-            audit(
-                "backup.restore_failed",
-                outcome="failure",
-                severity="warning",
-                reason="invalid_backup",
-            )
-            flash(message, "danger")
-            return redirect(url_for("settings.index") + "#dados")
-
-        backup_dir = Path(current_app.config["BACKUP_FOLDER"])
-        backup_dir.mkdir(parents=True, exist_ok=True)
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        if db_path.exists():
-            safety_copy = backup_dir / f"antes_da_restauracao_{stamp}.db"
-            source_conn = sqlite3.connect(db_path)
-            dest_conn = sqlite3.connect(safety_copy)
-            try:
-                with dest_conn:
-                    source_conn.backup(dest_conn)
-            finally:
-                source_conn.close()
-                dest_conn.close()
-
-        db.session.remove()
-        db.engine.dispose()
-        # Evita que arquivos WAL antigos contaminem o banco restaurado.
-        for suffix in ("-wal", "-shm"):
-            Path(f"{db_path}{suffix}").unlink(missing_ok=True)
-        shutil.copyfile(temp_name, db_path)
-    except Exception:  # noqa: BLE001 - qualquer falha não pode deixar o app quebrado
+        if filename.endswith(".zip"):
+            ok, message = _full_restore(upload, db_path, stamp)
+        else:
+            ok, message = _legacy_restore(upload, db_path, stamp)
+    except BackupError as exc:
+        ok, message = False, str(exc)
+    except Exception:
         current_app.logger.exception("Falha ao restaurar backup")
+        ok, message = False, "Não foi possível restaurar o backup. O estado anterior foi mantido."
+
+    if not ok:
         audit(
             "backup.restore_failed",
             outcome="failure",
-            severity="error",
-            reason="exception",
+            severity="warning",
+            reason="invalid_backup",
         )
-        flash("Não foi possível restaurar o backup. O banco atual não foi alterado.", "danger")
+        flash(message, "danger")
         return redirect(url_for("settings.index") + "#dados")
-    finally:
-        Path(temp_name).unlink(missing_ok=True)
 
-    audit("backup.restore")
+    audit("backup.restore", backup_format="zip" if filename.endswith(".zip") else "sqlite")
     session.clear()
-    flash("Backup restaurado. Entre novamente com a conta do arquivo.", "success")
+    flash(message, "success")
     return redirect(url_for("auth.login"))
 
 

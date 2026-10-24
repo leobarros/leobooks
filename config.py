@@ -91,6 +91,14 @@ class Config:
         os.environ.get("LEOBOOKS_COVERS", str(INSTANCE_DIR / "covers"))
     )
     BACKUP_FOLDER = INSTANCE_DIR / "backups"
+    # O restore aceita um ZIP completo; o limite global de 8 MB continua valendo
+    # para os demais uploads. O request de restore recebe este limite próprio.
+    BACKUP_MAX_BYTES = int(
+        os.environ.get("LEOBOOKS_BACKUP_MAX_BYTES", str(512 * 1024 * 1024))
+    )
+    BACKUP_MAX_UNCOMPRESSED_BYTES = int(
+        os.environ.get("LEOBOOKS_BACKUP_MAX_UNCOMPRESSED", str(1024 * 1024 * 1024))
+    )
     ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
     MAX_IMAGE_PIXELS = 16_000_000  # ~64 MB decodificada; evita bombas de imagem
 

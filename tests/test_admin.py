@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import zipfile
 
 from models import Book, Note, Tag, User, db
 from tests.helpers import create_book, create_note, register
@@ -112,11 +113,20 @@ def test_exports_markdown_and_json(auth_client, book):
     assert "Trecho exportável" in per_book.get_data(as_text=True)
 
 
-def test_backup_download_is_sqlite(auth_client):
+def test_backup_download_is_complete_zip(auth_client):
     response = auth_client.get("/settings/backup")
     assert response.status_code == 200
-    assert response.data.startswith(b"SQLite format 3\x00")
-    assert "attachment" in response.headers["Content-Disposition"]
+    assert response.mimetype == "application/zip"
+    assert ".zip" in response.headers["Content-Disposition"]
+    with zipfile.ZipFile(io.BytesIO(response.data)) as archive:
+        names = archive.namelist()
+        assert "leobooks.db" in names
+        assert "manifest.json" in names
+        manifest = json.loads(archive.read("manifest.json"))
+        assert manifest["format"] == "leobooks-backup"
+        assert manifest["version"] == 1
+        assert manifest["database"] == "leobooks.db"
+        assert "files" in manifest
 
 
 def test_restore_rejects_invalid_file(auth_client):
@@ -134,7 +144,7 @@ def test_restore_valid_backup_ends_session(app, auth_client):
     backup = auth_client.get("/settings/backup").data
     response = auth_client.post(
         "/settings/restore",
-        data={"backup": (io.BytesIO(backup), "backup.db")},
+        data={"backup": (io.BytesIO(backup), "backup.zip")},
         content_type="multipart/form-data",
         follow_redirects=False,
     )

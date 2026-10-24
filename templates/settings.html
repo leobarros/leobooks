@@ -163,7 +163,7 @@
         <span class="lb-setting-card__num">04</span>
         <div>
           <h2>Dados e backup</h2>
-          <p>Seu caderno é livre: leve tudo em Markdown, JSON ou no arquivo SQLite completo.</p>
+          <p>Seu caderno é livre: exporte em Markdown, JSON ou baixe tudo em um único arquivo ZIP restaurável.</p>
         </div>
       </header>
 
@@ -180,8 +180,8 @@
         </a>
         {% if current_user.is_admin %}
           <a class="lb-datalink" href="{{ url_for('settings.backup') }}">
-            <i class="bi bi-database"></i>
-            <span><strong>Baixar backup</strong><small>Banco SQLite .db</small></span>
+            <i class="bi bi-box-seam"></i>
+            <span><strong>Baixar backup completo</strong><small>Banco + capas + fotos (.zip)</small></span>
             <i class="bi bi-download lb-datalink__arrow"></i>
           </a>
         {% endif %}
@@ -191,24 +191,25 @@
         {% if current_user.is_admin %}
           <div class="lb-datapanel">
             <h3>Restaurar backup <span class="lb-adminbadge">admin</span></h3>
-            <p>Envie um arquivo <code>.db</code> exportado pelo LeoBooks. A integridade é verificada antes da troca e um backup de segurança é guardado.</p>
+            <p>Envie o <code>.zip</code> completo gerado pelo LeoBooks: banco, capas, fotos e manifesto em um único arquivo. Tudo é validado antes da troca e uma cópia de segurança do estado atual é guardada. Backups antigos <code>.db</code> também são aceitos.</p>
             <form method="post" action="{{ url_for('settings.restore') }}" enctype="multipart/form-data"
                   data-confirm="Restaurar este backup? Sua sessão será encerrada e o banco atual será substituído.">
               {{ restore_form.hidden_tag() }}
               <label class="lb-filelabel" for="backupFile">
                 <i class="bi bi-cloud-arrow-up"></i>
                 <span class="lb-filelabel__name is-empty" data-file-name>Nenhum arquivo escolhido</span>
-                <small>Escolher arquivo .db</small>
-                {{ restore_form.backup(class="lb-filelabel__input", id="backupFile", accept=".db,.sqlite,.sqlite3", data_file_input="") }}
+                <small>Escolher arquivo .zip</small>
+                {{ restore_form.backup(class="lb-filelabel__input", id="backupFile", accept=".zip,.db,.sqlite,.sqlite3", data_file_input="") }}
               </label>
-              <button type="submit" class="lb-btn lb-btn--ghost lb-btn--sm">Restaurar banco</button>
+              <p class="lb-hint">O arquivo não inclui a chave de sessão: após restaurar, será preciso entrar novamente.</p>
+              <button type="submit" class="lb-btn lb-btn--ghost lb-btn--sm">Restaurar backup</button>
             </form>
           </div>
         {% else %}
           <div class="lb-datapanel">
             <h3>Backup do servidor</h3>
-            <p>O backup completo do banco é uma operação administrativa e inclui os dados de todas as contas. Use a exportação em Markdown ou JSON para levar apenas o seu caderno.</p>
-            <p class="lb-hint">Se você administra este servidor, entre com a conta de administrador para baixar/restaurar o arquivo SQLite.</p>
+            <p>O backup completo (banco, capas e fotos) é uma operação administrativa e inclui os dados de todas as contas. Use a exportação em Markdown ou JSON para levar apenas o seu caderno.</p>
+            <p class="lb-hint">Se você administra este servidor, entre com a conta de administrador para baixar/restaurar o arquivo ZIP.</p>
           </div>
         {% endif %}
 

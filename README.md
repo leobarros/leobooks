@@ -20,7 +20,7 @@ capítulo e às tags que você escolher.
 - **Formato físico ou digital**, cada um com sua própria forma de progresso.
 - **Tags que atravessam livros**, busca sem acentos e revisão diária de citações.
 - **Tema claro ou madrugada**, para ler e anotar em qualquer hora.
-- **Seus dados no seu servidor**, com exportação e backup.
+- **Seus dados no seu servidor**, com exportação e um backup completo em arquivo único.
 
 ## Veja o app
 
@@ -225,8 +225,30 @@ formato: o LeoBooks converte o progresso existente.
 
 - Alterne entre **tema claro e madrugada** na lateral ou no topo.
 - Em **Ajustes**, edite seu perfil, troque a senha, exporte o caderno em
-  Markdown/JSON ou baixe um backup SQLite.
+  Markdown/JSON ou baixe um **backup completo**.
 - A conta administradora também pode criar outras contas e restaurar backups.
+
+### 6. Leve tudo com você
+
+Em **Ajustes → Dados e backup**, a administradora pode baixar **um único arquivo
+`.zip`** com:
+
+```text
+leobooks_backup_AAAAMMDD_HHMMSS.zip
+├── leobooks.db       # banco SQLite consistente
+├── covers/           # capas
+├── uploads/          # fotos das notas
+└── manifest.json     # formato, contagens e checksums
+```
+
+Para restaurar, basta enviar esse mesmo `.zip` de volta em **Restaurar backup**.
+O LeoBooks valida o arquivo inteiro antes de trocar qualquer coisa; se algo
+estiver corrompido ou faltando, o estado atual permanece intacto. Uma cópia de
+segurança do estado anterior é guardada em `instance/backups/`.
+
+O backup não inclui a chave de sessão: depois de restaurar, será preciso entrar
+novamente. Backups antigos `.db` continuam aceitos e restauram apenas o banco,
+mantendo as capas e fotos atuais.
 
 ## Perguntas frequentes
 
@@ -281,7 +303,7 @@ para buscar capas em bases públicas.
   Books e, como fallback, Goodreads. O conteúdo das suas notas nunca é enviado.
 - Os logs de auditoria ficam no servidor e não registram senhas, tokens nem o
   conteúdo das notas.
-- O backup do banco contém todas as contas e é restrito à administradora.
+- O backup completo contém todas as contas, capas e fotos; é restrito à administradora.
 
 ---
 
@@ -368,7 +390,7 @@ https://hub.docker.com/repository/docker/nickolback/leobooks.
 .venv/bin/pytest -q
 ```
 
-Estado atual: **103 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **105 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial e exclusão de
 conta.
 

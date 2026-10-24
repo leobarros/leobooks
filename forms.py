@@ -243,10 +243,13 @@ class DeleteAccountForm(FlaskForm):
 
 class RestoreForm(FlaskForm):
     backup = FileField(
-        "Arquivo .db",
+        "Arquivo de backup",
         validators=[
             DataRequired("Selecione um arquivo de backup."),
-            FileAllowed(["db", "sqlite", "sqlite3"], "Envie um arquivo SQLite (.db)."),
+            FileAllowed(
+                ["zip", "db", "sqlite", "sqlite3"],
+                "Envie o ZIP completo do LeoBooks (ou um .db antigo).",
+            ),
         ],
     )
 
