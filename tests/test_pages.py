@@ -119,3 +119,9 @@ def test_create_app_creates_configured_data_dir(tmp_path):
 
         db.session.remove()
         db.drop_all()
+
+
+def test_static_assets_are_cacheable(client):
+    response = client.get("/static/css/style.css")
+    assert response.status_code == 200
+    assert "max-age=3600" in response.headers["Cache-Control"]

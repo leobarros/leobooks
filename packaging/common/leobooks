@@ -109,34 +109,17 @@ class LeoWindow(Gtk.Window):
         self.url = url
 
         self.webview = WebKit2.WebView()
+        context = self.webview.get_context()
+        if context is not None:
+            context.set_cache_model(WebKit2.CacheModel.WEB_BROWSER)
         settings = self.webview.get_settings()
+        settings.set_enable_page_cache(True)
         settings.set_enable_developer_extras(False)
         settings.set_enable_write_console_messages_to_stdout(False)
         self.webview.connect("load-failed", self._on_load_failed)
         self.webview.connect("web-process-crashed", self._on_web_process_crashed)
 
-        toolbar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        toolbar.set_margin_top(6)
-        toolbar.set_margin_bottom(6)
-        toolbar.set_margin_start(6)
-        toolbar.set_margin_end(6)
-
-        reload_button = Gtk.Button.new_from_icon_name(
-            "view-refresh-symbolic", Gtk.IconSize.BUTTON
-        )
-        reload_button.set_tooltip_text("Recarregar a interface")
-        reload_button.connect("clicked", lambda _button: self.webview.reload())
-        toolbar.pack_start(reload_button, False, False, 0)
-
-        close_button = Gtk.Button(label="Fechar")
-        close_button.set_tooltip_text("Fechar o LeoBooks")
-        close_button.connect("clicked", lambda _button: self.destroy())
-        toolbar.pack_end(close_button, False, False, 0)
-
-        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        container.pack_start(toolbar, False, False, 0)
-        container.pack_start(self.webview, True, True, 0)
-        self.add(container)
+        self.add(self.webview)
 
         if service_available(url):
             self.webview.load_uri(url)

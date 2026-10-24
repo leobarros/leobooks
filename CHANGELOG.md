@@ -5,6 +5,14 @@
 - README reescrito como um percurso da leitora fictícia Mariana, cobrindo
   estante, citação no celular, livro digital, busca, compartilhamento e backup.
 
+## 1.0.7 — 2026-10-24
+
+- Removida a barra interna; a janela usa apenas a decoração e o botão Fechar do
+  GNOME.
+- Ativado cache de página e modelo de cache do WebKit.
+- Assets estáticos agora têm `Cache-Control: max-age=3600`.
+- Adicionado teste de regressão para o cache dos assets.
+
 ## 1.0.6 — 2026-10-24
 
 - O aplicativo GTK voltou a usar a janela e o renderizador WebKit padrão, que

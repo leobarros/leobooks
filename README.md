@@ -65,10 +65,8 @@ da distribuição.
 O servidor systemd continua existindo para que a janela tenha uma API local e
 para permitir acesso pela LAN/Tailscale pelo navegador de outro dispositivo.
 
-Em Debian/GNOME com Wayland, GPU virtual ou driver NVIDIA, o aplicativo força o
-renderizador de software do WebKitGTK para evitar a tela preta. Para voltar a
-testar a aceleração padrão, rode `WEBKIT_DISABLE_DMABUF_RENDERER=0
-WEBKIT_DISABLE_COMPOSITING_MODE=0 leobooks`.
+O aplicativo usa o renderizador padrão do WebKitGTK. Em GPUs problemáticas,
+`LEOBOOKS_GTK_SAFE=1 leobooks` ativa o modo de software.
 
 ## Comece a usar
 
@@ -419,7 +417,7 @@ também pode ser instalado como serviço systemd, sem container.
 **Debian 13 / Ubuntu (amd64):**
 
 ```bash
-sudo apt install ./dist/leobooks_1.0.6_amd64.deb
+sudo apt install ./dist/leobooks_1.0.7_amd64.deb
 sudo systemctl status leobooks
 ```
 
@@ -431,16 +429,16 @@ externo.
 **Fedora 42 (x86_64):**
 
 ```bash
-sudo dnf install ./dist/leobooks-1.0.6-1.fc42.x86_64.rpm
-# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.6-1.fc42.x86_64.rpm
+sudo dnf install ./dist/leobooks-1.0.7-1.fc42.x86_64.rpm
+# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.7-1.fc42.x86_64.rpm
 sudo systemctl status leobooks
 ```
 
 **Arch e outras distros com Python 3 e systemd:**
 
 ```bash
-tar -xzf dist/leobooks-1.0.6-linux-x86_64.tar.gz
-cd leobooks-1.0.6
+tar -xzf dist/leobooks-1.0.7-linux-x86_64.tar.gz
+cd leobooks-1.0.7
 sudo ./install.sh
 ```
 
@@ -494,8 +492,8 @@ docker compose push
 Para uma release versionada:
 
 ```bash
-LEOBOOKS_IMAGE_TAG=1.0.6 docker compose build
-LEOBOOKS_IMAGE_TAG=1.0.6 docker compose push
+LEOBOOKS_IMAGE_TAG=1.0.7 docker compose build
+LEOBOOKS_IMAGE_TAG=1.0.7 docker compose push
 ```
 
 O repositório é
@@ -508,7 +506,7 @@ https://hub.docker.com/repository/docker/nickolback/leobooks.
 .venv/bin/pytest -q
 ```
 
-Estado atual: **106 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **107 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial e exclusão de
 conta.
 
