@@ -58,6 +58,10 @@ class Config:
     HOST = os.environ.get("LEOBOOKS_HOST") or os.environ.get("HOST") or "127.0.0.1"
     PORT = int(os.environ.get("LEOBOOKS_PORT") or os.environ.get("PORT") or "5057")
 
+    # Diretório de dados usado pelo app (Docker usa instance/; pacotes usam
+    # /var/lib/leobooks via LEOBOOKS_INSTANCE).
+    DATA_DIR = INSTANCE_DIR
+
     # --- Banco de dados ----------------------------------------------------
     DATABASE_PATH = Path(
         os.environ.get("LEOBOOKS_DATABASE", str(INSTANCE_DIR / "leobooks.db"))

@@ -94,3 +94,28 @@ def test_security_headers_present(app):
     assert "script-src 'self' 'nonce-" in response.headers["Content-Security-Policy"]
     assert response.headers["Referrer-Policy"] == "strict-origin-when-cross-origin"
     assert "camera=(self)" in response.headers["Permissions-Policy"]
+
+
+def test_create_app_creates_configured_data_dir(tmp_path):
+    from app import create_app
+
+    data_dir = tmp_path / "dados"
+    application = create_app(
+        {
+            "TESTING": True,
+            "WTF_CSRF_ENABLED": False,
+            "SECRET_KEY": "data-dir-secret",
+            "DATA_DIR": data_dir,
+            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{tmp_path / 'data.db'}",
+            "UPLOAD_FOLDER": tmp_path / "uploads",
+            "COVER_FOLDER": tmp_path / "covers",
+            "BACKUP_FOLDER": tmp_path / "backups",
+            "SAMPLE_BOOK_ENABLED": False,
+        }
+    )
+    assert data_dir.is_dir()
+    with application.app_context():
+        from models import db
+
+        db.session.remove()
+        db.drop_all()

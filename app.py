@@ -38,7 +38,8 @@ def create_app(overrides: dict | None = None) -> Flask:
     configure_audit_logging(app)
 
     # --- Diretórios persistentes ------------------------------------------
-    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+    # Não use app.instance_path: em instalações nativas /opt é somente leitura.
+    Path(app.config["DATA_DIR"]).mkdir(parents=True, exist_ok=True)
     for key in ("UPLOAD_FOLDER", "COVER_FOLDER", "BACKUP_FOLDER"):
         Path(app.config[key]).mkdir(parents=True, exist_ok=True)
 

@@ -112,6 +112,8 @@ fi
 %doc /usr/share/doc/leobooks/README.md
 
 %changelog
+* Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.5-1
+- Corrigido diretório de dados nativo.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.4-1
 - Botão explícito Fechar na janela GTK.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.3-1

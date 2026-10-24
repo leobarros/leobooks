@@ -5,6 +5,13 @@
 - README reescrito como um percurso da leitora fictícia Mariana, cobrindo
   estante, citação no celular, livro digital, busca, compartilhamento e backup.
 
+## 1.0.5 — 2026-10-24
+
+- Corrigido o app nativo para criar os dados em `LEOBOOKS_INSTANCE`
+  (`/var/lib/leobooks`) em vez de `/opt/leobooks/app/instance`, que é somente
+  leitura no serviço systemd.
+- Adicionado teste de regressão para o diretório de dados configurado.
+
 ## 1.0.4 — 2026-10-24
 
 - Adicionado botão explícito **Fechar** na barra da janela GTK.
