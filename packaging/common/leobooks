@@ -14,6 +14,13 @@ import sys
 import urllib.request
 from pathlib import Path
 
+# Em Debian/GNOME com Wayland, GPU virtual ou drivers NVIDIA, o renderizador
+# DMA-BUF do WebKitGTK pode entregar uma superfície preta. Estes dois
+# interruptores forçam o caminho de software e são lidos antes de importar a
+# biblioteca. O usuário ainda pode sobrescrever com "0" no ambiente.
+os.environ.setdefault("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
+os.environ.setdefault("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
+
 try:
     import gi
 
@@ -102,17 +109,34 @@ class LeoWindow(Gtk.ApplicationWindow):
         self.set_size_request(900, 600)
         self.url = url
 
+        header = Gtk.HeaderBar()
+        header.set_show_close_button(True)
+        header.set_title("LeoBooks")
+        reload_button = Gtk.Button.new_from_icon_name(
+            "view-refresh-symbolic", Gtk.IconSize.BUTTON
+        )
+        reload_button.set_tooltip_text("Recarregar a interface")
+        reload_button.connect("clicked", lambda _button: self.webview.reload())
+        header.pack_end(reload_button)
+        self.set_titlebar(header)
+
         self.webview = WebKit2.WebView()
         settings = self.webview.get_settings()
         settings.set_enable_developer_extras(False)
         settings.set_enable_write_console_messages_to_stdout(False)
         self.webview.connect("load-failed", self._on_load_failed)
+        self.webview.connect("web-process-crashed", self._on_web_process_crashed)
         self.add(self.webview)
 
         if service_available(url):
             self.webview.load_uri(url)
         else:
             self.webview.load_html(error_page(url), f"{url}/")
+
+    def _on_web_process_crashed(self, _view, _terminated):
+        sys.stderr.write("LeoBooks: o processo web do WebKitGTK encerrou.\n")
+        self.webview.load_html(error_page(self.url), f"{self.url}/")
+        return True
 
     def _on_load_failed(self, _view, _event, uri, _error):
         # Não substitui a página por causa de um favicon ou imagem ausente.

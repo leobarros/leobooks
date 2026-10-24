@@ -5,6 +5,13 @@
 - README reescrito como um percurso da leitora fictícia Mariana, cobrindo
   estante, citação no celular, livro digital, busca, compartilhamento e backup.
 
+## 1.0.2 — 2026-10-24
+
+- Corrigida a tela preta do aplicativo GTK no Debian/GNOME com Wayland, GPU
+  virtual ou drivers NVIDIA, forçando o renderizador de software do WebKitGTK.
+- Adicionado botão nativo de recarregar a interface.
+- O serviço systemd e o banco SQLite local permanecem iguais.
+
 ## 1.0.1 — 2026-10-24
 
 - Pacotes nativos agora instalam um aplicativo GTK/WebKit em vez de abrir o

@@ -65,6 +65,11 @@ da distribuição.
 O servidor systemd continua existindo para que a janela tenha uma API local e
 para permitir acesso pela LAN/Tailscale pelo navegador de outro dispositivo.
 
+Em Debian/GNOME com Wayland, GPU virtual ou driver NVIDIA, o aplicativo força o
+renderizador de software do WebKitGTK para evitar a tela preta. Para voltar a
+testar a aceleração padrão, rode `WEBKIT_DISABLE_DMABUF_RENDERER=0
+WEBKIT_DISABLE_COMPOSITING_MODE=0 leobooks`.
+
 ## Comece a usar
 
 ### Com Docker (recomendado)
@@ -414,7 +419,7 @@ também pode ser instalado como serviço systemd, sem container.
 **Debian 13 / Ubuntu (amd64):**
 
 ```bash
-sudo apt install ./dist/leobooks_1.0.1_amd64.deb
+sudo apt install ./dist/leobooks_1.0.2_amd64.deb
 sudo systemctl status leobooks
 ```
 
@@ -426,16 +431,16 @@ externo.
 **Fedora 42 (x86_64):**
 
 ```bash
-sudo dnf install ./dist/leobooks-1.0.1-1.fc42.x86_64.rpm
-# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.1-1.fc42.x86_64.rpm
+sudo dnf install ./dist/leobooks-1.0.2-1.fc42.x86_64.rpm
+# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.2-1.fc42.x86_64.rpm
 sudo systemctl status leobooks
 ```
 
 **Arch e outras distros com Python 3 e systemd:**
 
 ```bash
-tar -xzf dist/leobooks-1.0.1-linux-x86_64.tar.gz
-cd leobooks-1.0.1
+tar -xzf dist/leobooks-1.0.2-linux-x86_64.tar.gz
+cd leobooks-1.0.2
 sudo ./install.sh
 ```
 
@@ -489,8 +494,8 @@ docker compose push
 Para uma release versionada:
 
 ```bash
-LEOBOOKS_IMAGE_TAG=1.0.1 docker compose build
-LEOBOOKS_IMAGE_TAG=1.0.1 docker compose push
+LEOBOOKS_IMAGE_TAG=1.0.2 docker compose build
+LEOBOOKS_IMAGE_TAG=1.0.2 docker compose push
 ```
 
 O repositório é
