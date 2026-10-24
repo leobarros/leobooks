@@ -4,6 +4,10 @@
 ideias dos livros que você está lendo — com uma estante que parece um caderno,
 não um painel de controle.
 
+A seguir, a leitora fictícia **Mariana** atravessa uma semana usando o app:
+uma edição de papel, uma citação no ônibus, um livro no Kindle e o backup de
+domingo.
+
 ![Tela inicial do LeoBooks](docs/screenshots/inicio.webp)
 
 > As imagens abaixo usam uma conta fictícia e livros de exemplo. Nenhum dado
@@ -157,81 +161,85 @@ O tutorial mostra a biblioteca, a captura rápida, o progresso de leitura e as
 opções de dados. Ele pode ser **pulado** e revisto depois em
 **Ajustes → Rever tutorial**.
 
-## Como usar
+## Mariana, uma leitora
 
-### 1. Coloque um livro na estante
+> Mariana tem 37 anos, ensina história em Belo Horizonte e lê tanto em papel
+> quanto no Kindle. Ela não quer transformar leitura em produtividade; quer
+> conseguir voltar às passagens que a fizeram parar. O LeoBooks é o caderno que
+> ela abre antes, durante e depois da leitura.
+>
+> A conta, os livros e as datas abaixo são fictícios. O percurso, porém, é o
+> mesmo que qualquer leitor pode fazer.
 
-Vá em **Biblioteca → Adicionar livro**. Informe título, autor e escolha o
-formato:
+### Domingo, 16h — *O Príncipe* entra na estante
 
-- **Livro físico:** o progresso é marcado pela página impressa.
-- **Livro digital:** o progresso é marcado pelo percentual exibido no
-  aparelho. O total de páginas é opcional e serve apenas para estimar a página
-  equivalente.
+Mariana chegou em casa com uma edição usada de *O Príncipe*. Em vez de anotar
+o ISBN num papel que ela saberia que perderia, abriu o LeoBooks e foi em
+**Biblioteca → Adicionar livro**.
 
-- A busca de capas consulta bases públicas por ISBN, título ou autor.
-- Se nenhuma capa for encontrada, o LeoBooks desenha uma capa editorial para o
-  livro — o caderno continua bonito e funcionando offline.
-- Você também pode enviar uma foto da capa.
+Preencheu título e autor, escolheu **Livro físico** e deixou o status em
+**Lendo**. Como a edição tinha ISBN, a busca de capas encontrou uma imagem; se
+não encontrasse, o LeoBooks desenharia uma capa editorial e o caderno
+continuaria funcionando offline.
 
 ![Escolha entre livro físico e digital](docs/screenshots/formato.webp)
 
-### 2. Registre o que ficou
+Na estante, *O Príncipe* passou a dividir espaço com os livros de trabalho e de
+prazer. A capa, o andamento e o status estavam ali — sem uma planilha, sem uma
+lista infinita de metadados.
 
-Use **Nova nota rápida** na lateral, no celular, ou **Adicionar nota** dentro de
-um livro. Escolha o tipo:
+### Segunda, 7h40 — a citação no ônibus
 
-- **Citação:** o trecho exato, com página e capítulo.
-- **Resumo:** as ideias do capítulo com suas palavras.
-- **Insight:** uma conexão, pergunta ou pensamento que ficou.
+No caminho para a escola, Mariana leu um trecho que queria guardar. Abriu
+**Nova nota rápida** no celular, escolheu **Citação** e escreveu o trecho com
+as próprias mãos, marcando o capítulo XXI e a página 74.
 
-O editor aceita Markdown. Você pode usar **negrito**, *itálico*, listas, links e
-citações; há uma prévia antes de guardar. As tags ajudam a reencontrar o assunto
-depois — por exemplo, `#atenção`, `#clássicos` ou `#política`.
+Antes de salvar, acrescentou duas tags: `#política` e `#clássicos`. Também
+anexou uma foto da página. O OCR é opcional; naquele dia ele não estava
+instalado, mas a foto ficou guardada normalmente.
 
-Se quiser, anexe uma foto da página. O OCR de texto é opcional: quando o
-servidor tem Tesseract instalado, ele tenta trazer o texto da foto; quando não,
-a imagem continua anexada normalmente.
+O editor aceita Markdown. Mariana usa negrito para as ideias centrais, listas
+para os argumentos e links para artigos que quer reler depois. A prévia mostra
+como a nota ficará antes de ela guardar.
 
-### 3. Acompanhe seu ritmo
+![Modal de nova nota com editor Markdown](docs/screenshots/nota.webp)
 
-Cada formato tem sua mecânica:
+### Quarta, 22h — a leitura muda de formato
 
-- **Livro físico:** informe a página atual. O app calcula o percentual e quanto
-  falta para o fim.
-- **Livro digital:** informe o percentual que aparece no rodapé do aparelho.
-  Se você preencheu o total de páginas, o app mostra também a página
-  equivalente aproximada. A “localização” no leitor digital não é uma página.
+À noite, Mariana começou *A Revolução dos Bichos* no Kindle. Em **Adicionar
+livro**, escolheu **Livro digital** e informou o percentual que aparecia no
+aparelho: **42%**.
 
-Ao chegar a 100%, o livro é marcado como **Lido**. Você também pode mudar o
-status manualmente para *Quero ler*, *Lendo*, *Lido* ou *Abandonado*.
+Ela não precisou inventar uma página. O total de páginas é opcional e serve
+apenas para estimar a página equivalente. Se ela trocar de formato no meio da
+leitura, pode editar o livro e converter o progresso existente.
 
-Se começou a ler em um formato e mudou para outro, edite o livro e troque o
-formato: o LeoBooks converte o progresso existente.
+Para Mariana, essa distinção importa: página impressa e porcentagem do leitor
+digital são coisas diferentes. O LeoBooks trata cada uma com sua própria
+mecânica, em vez de fingir que 42% são exatamente a página 84.
 
-### 4. Reencontre ideias
+### Sexta, 19h — a frase volta
 
-- **Busca** procura em títulos, autores, ISBN, conteúdo das notas, capítulos e
-  tags — e ignora acentos (por exemplo, `principe` encontra “O Príncipe”).
-- **Tags** mostram os fios que atravessam livros diferentes.
-- **Revisão** traz uma citação para reler, com opção de compartilhar como
-  imagem. O arquivo é salvo com livro, capítulo e página no nome, terminando em
-  `-leobooks.png` — por exemplo,
-  `o-principe-capitulo-xxi-pagina-74-leobooks.png`.
-- O **início** reúne o que está aberto agora, a citação do dia e seu ritmo de
-  leitura.
+Naquela sexta-feira, Mariana lembrou de uma passagem para preparar uma aula. Abriu
+a **Busca** e digitou `principe`, sem acento. O app encontrou *O Príncipe* no
+título e a citação guardada na segunda-feira.
 
-### 5. Deixe do seu jeito
+Ela também podia ter chegado pelo caminho das tags: `#política` mostrava o fio
+que atravessava *O Príncipe*, *A Revolução dos Bichos* e outros livros. A
+**Revisão** trouxe uma citação para reler. Mariana compartilhou a imagem com uma
+colega; o arquivo foi salvo com livro, capítulo e página no nome:
 
-- Alterne entre **tema claro e madrugada** na lateral ou no topo.
-- Em **Ajustes**, edite seu perfil, troque a senha, exporte o caderno em
-  Markdown/JSON ou baixe um **backup completo**.
-- A conta administradora também pode criar outras contas e restaurar backups.
+```text
+o-principe-capitulo-xxi-pagina-74-leobooks.png
+```
 
-### 6. Leve tudo com você
+### Sábado, 9h — tudo em ordem
 
-Em **Ajustes → Dados e backup**, a administradora pode baixar **um único arquivo
-`.zip`** com:
+No fim de semana, Mariana trocou o tema para **madrugada**, leu a citação do dia
+no início e foi em **Ajustes → Dados e backup**. Como foi a primeira conta do
+servidor, ela é administradora e pode baixar o backup completo.
+
+O arquivo é único:
 
 ```text
 leobooks_backup_AAAAMMDD_HHMMSS.zip
@@ -241,14 +249,30 @@ leobooks_backup_AAAAMMDD_HHMMSS.zip
 └── manifest.json     # formato, contagens e checksums
 ```
 
-Para restaurar, basta enviar esse mesmo `.zip` de volta em **Restaurar backup**.
-O LeoBooks valida o arquivo inteiro antes de trocar qualquer coisa; se algo
-estiver corrompido ou faltando, o estado atual permanece intacto. Uma cópia de
-segurança do estado anterior é guardada em `instance/backups/`.
+Ela guarda o ZIP no HD externo e, se precisar, envia o mesmo arquivo em
+**Restaurar backup**. O LeoBooks valida o conteúdo, as checksums e as referências
+às imagens antes de trocar qualquer coisa. Se algo estiver corrompido, o estado
+atual continua intacto; uma cópia de segurança fica em `instance/backups/` — ou,
+na instalação nativa, em `/var/lib/leobooks/backups/`.
 
-O backup não inclui a chave de sessão: depois de restaurar, será preciso entrar
-novamente. Backups antigos `.db` continuam aceitos e restauram apenas o banco,
-mantendo as capas e fotos atuais.
+> O backup não inclui a chave de sessão: depois de restaurar, é preciso entrar
+> novamente. Backups antigos em `.db` continuam aceitos, mas restauram apenas o
+> banco; capas e fotos atuais são mantidas.
+
+### O que o caminho da Mariana mostra
+
+| O que ela precisa | Como o LeoBooks responde |
+| --- | --- |
+| Guardar o livro que está lendo | Estante visual com capa, status e progresso |
+| Não perder a frase que a fez parar | Citação ligada à página, ao capítulo e às tags |
+| Separar leitura em papel e digital | Progresso por página ou por percentual |
+| Reencontrar uma ideia meses depois | Busca sem acentos, tags e revisão |
+| Levar o caderno para outro lugar | Exportação Markdown/JSON e backup completo em ZIP |
+| Ler de madrugada | Tema claro ou madrugada |
+
+O que Mariana não encontra no LeoBooks também é proposital: feed, ranking de
+leitura, notificações de produtividade e telemetria. O app foi feito para
+guardar o que a leitura deixa, não para competir com ela.
 
 ## Perguntas frequentes
 

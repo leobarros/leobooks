@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Não lançado
+
+- README reescrito como um percurso da leitora fictícia Mariana, cobrindo
+  estante, citação no celular, livro digital, busca, compartilhamento e backup.
+
 ## 1.0.0 — 2026-10-24
 
 - Empacotamento Debian 13 (`amd64`) com serviço systemd, atalho GNOME e dados em
