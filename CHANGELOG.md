@@ -2,8 +2,10 @@
 
 ## Não lançado
 
-- README reescrito como um percurso da leitora fictícia Mariana, cobrindo
-  estante, citação no celular, livro digital, busca, compartilhamento e backup.
+- README reorganizado em **O que é**, **Propósito**, **Como instalar**,
+  **Como usar**, **Dúvidas frequentes** e **Técnico**.
+- Capturas atualizadas na versão atual com a conta fictícia **Mariana Costa**,
+  incluindo desktop, celular, tutorial e tema madrugada.
 
 ## 1.0.7 — 2026-10-24
 

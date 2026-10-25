@@ -4,104 +4,129 @@
 ideias dos livros que você está lendo — com uma estante que parece um caderno,
 não um painel de controle.
 
-A seguir, a leitora fictícia **Mariana** atravessa uma semana usando o app:
-uma edição de papel, uma citação no ônibus, um livro no Kindle e o backup de
-domingo.
+![Tela inicial do LeoBooks com a conta de Mariana](docs/screenshots/inicio.webp)
 
-![Tela inicial do LeoBooks](docs/screenshots/inicio.webp)
+> As imagens usam a conta fictícia **Mariana Costa** e livros de exemplo.
+> Nenhum dado real de leitor aparece nelas.
 
-> As imagens abaixo usam uma conta fictícia e livros de exemplo. Nenhum dado
-> real de leitor aparece nelas.
+## O que é
 
-## Um lugar para as ideias que a leitura deixa
-
-O LeoBooks reúne, em uma só tela, o livro que você está lendo, o trecho que
-marcou e o pensamento que veio depois. Cada nota fica ligada à página, ao
-capítulo e às tags que você escolher.
+O LeoBooks é um caderno de leitura que reúne, em uma só tela, o livro que você
+está lendo, o trecho que marcou e o pensamento que veio depois. Cada nota fica
+ligada à página, ao capítulo e às tags que você escolher.
 
 - **Estante visual** com capas, andamento e status de cada leitura.
 - **Três tipos de nota:** citação, resumo e insight.
-- **Formato físico ou digital**, cada um com sua própria forma de progresso.
-- **Tags que atravessam livros**, busca sem acentos e revisão diária de citações.
+- **Livro físico ou digital**, cada um com sua própria forma de progresso.
+- **Tags que atravessam livros**, busca sem acentos e revisão de citações.
 - **Tema claro ou madrugada**, para ler e anotar em qualquer hora.
-- **Seus dados no seu servidor**, com exportação e um backup completo em arquivo único.
-
-## Veja o app
-
-### Sua estante
+- **Dados no seu servidor**, com exportação e backup completo em um arquivo ZIP.
+- **Aplicativo GTK no GNOME** ou acesso pelo navegador em outros dispositivos.
 
 ![Biblioteca do LeoBooks com capas e filtros](docs/screenshots/biblioteca.webp)
 
-### Cada livro, com suas margens
+## Propósito
 
-![Detalhe de um livro com progresso e notas](docs/screenshots/livro.webp)
+O LeoBooks existe para lembrar que leitura não é uma lista de tarefas.
 
-### Uma nota em poucos segundos
+Ele foi desenhado para ser aberto por alguns minutos, guardar uma passagem e
+sumir — sem feed, ranking de leituras, notificações de produtividade ou
+telemetria. A estante deve parecer um caderno, não um dashboard.
 
-![Modal de nova nota com editor Markdown](docs/screenshots/nota.webp)
+> “Eu não quero um relatório do quanto li. Quero reencontrar a frase que me fez
+> parar.”
+>
+> — Mariana, leitora fictícia que aparece nas capturas
 
-### No celular
+Os princípios são simples:
 
-<p align="center">
-  <img src="docs/screenshots/mobile.webp" alt="Tela inicial do LeoBooks no celular" width="300">
-  <img src="docs/screenshots/mobile-nota.webp" alt="Nova nota no celular" width="300">
-</p>
+- **Uma ideia de cada vez:** escrever uma nota deve ser mais rápido do que
+  procurar um caderno.
+- **Contexto importa:** página, capítulo, livro e tags ficam juntos.
+- **Seus dados são seus:** tudo fica no seu servidor, em SQLite.
+- **Funciona no seu ritmo:** papel, Kindle, celular ou computador; o caderno
+  acompanha você.
 
-### E quando a noite chega
+## Como instalar
 
-![LeoBooks no tema escuro](docs/screenshots/tema-escuro.webp)
+Escolha a forma que combina com o seu servidor ou computador.
 
-## Aplicativo para GNOME
+### Debian 13 / GNOME
 
-Nas instalações nativas, o LeoBooks é um **aplicativo GTK**, não um atalho que
-abre o navegador. O menu do GNOME inicia `leobooks`, que abre a interface em uma
-janela GTK/WebKit e conversa com o serviço local em `127.0.0.1:5057`. O banco
-continua sendo o SQLite em `/var/lib/leobooks`.
-
-O pacote também instala metadados **AppStream** e capturas de tela, para que o
-aplicativo apareça com nome, descrição e imagens no GNOME Software e na loja
-da distribuição.
-
-O servidor systemd continua existindo para que a janela tenha uma API local e
-para permitir acesso pela LAN/Tailscale pelo navegador de outro dispositivo.
-
-O aplicativo usa o renderizador padrão do WebKitGTK. Em GPUs problemáticas,
-`LEOBOOKS_GTK_SAFE=1 leobooks` ativa o modo de software.
-
-## Comece a usar
-
-### Com Docker (recomendado)
-
-Você só precisa de **Docker** e **Docker Compose** no servidor.
+O `.deb` instala o aplicativo GTK, o serviço local e o atalho no menu do GNOME:
 
 ```bash
-# dentro da pasta do projeto
-# opcional: cp .env.example .env (para ajustar fuso, OCR e outros detalhes)
+sudo apt install ./leobooks_1.0.7_amd64.deb
+sudo systemctl status leobooks
+```
+
+Abra **LeoBooks** no menu do GNOME ou execute:
+
+```bash
+leobooks
+```
+
+O aplicativo usa a janela e o botão de fechar do próprio GNOME. O banco fica em
+`/var/lib/leobooks` e a configuração em `/etc/leobooks/leobooks.env`.
+
+### Fedora 42
+
+```bash
+sudo dnf install ./leobooks-1.0.7-1.fc42.x86_64.rpm
+sudo systemctl status leobooks
+```
+
+Em Fedora com `yum`, o comando equivalente é:
+
+```bash
+sudo yum install ./leobooks-1.0.7-1.fc42.x86_64.rpm
+```
+
+### Arch e outras distros
+
+```bash
+tar -xzf leobooks-1.0.7-linux-x86_64.tar.gz
+cd leobooks-1.0.7
+sudo ./install.sh
+```
+
+No Arch, instale antes as dependências gráficas:
+
+```bash
+sudo pacman -S python-gobject gtk3 webkit2gtk-4.1
+```
+
+O instalador cria o venv no destino; o alvo precisa de Python 3.10+ e acesso ao
+PyPI durante a instalação.
+
+### Docker (servidor)
+
+Para usar pelo navegador, inclusive em outro computador ou no Tailscale:
+
+```bash
 docker compose up -d --build
 ```
 
-A porta **0.0.0.0:5059** já está definida no `docker-compose.yml`; não é preciso
-criar `.env` para acessar pela LAN/Tailscale.
+A porta **0.0.0.0:5059** já está definida no `docker-compose.yml`. Abra
+**[http://127.0.0.1:5059](http://127.0.0.1:5059)** e crie a primeira conta.
 
-Abra **[http://127.0.0.1:5059](http://127.0.0.1:5059)** e crie sua conta.
-
-Pronto. A primeira conta criada é a administradora do servidor. Na primeira
-entrada, o LeoBooks apresenta um tutorial de cinco passos — você pode fazê-lo
-ou clicar em **Pular tutorial**.
-
-Se a imagem já estiver publicada no Docker Hub, também é possível baixá-la:
+Se a imagem já estiver publicada:
 
 ```bash
 docker compose pull
 docker compose up -d --no-build
 ```
 
-O repositório configurado é
+A imagem fica em
 **[nickolback/leobooks](https://hub.docker.com/repository/docker/nickolback/leobooks)**.
 
-### Sem Docker
+O Docker e a instalação nativa têm bancos separados: o Docker usa o volume
+`leobooks_instance`; o app nativo usa `/var/lib/leobooks`. Para migrar dados,
+use o backup em ZIP em **Ajustes → Dados e backup**.
 
-Para rodar direto no computador ou servidor, com **Python 3.10+**:
+### Rodando direto com Python
+
+Para desenvolvimento ou para testar sem instalar:
 
 ```bash
 python3 -m venv .venv
@@ -109,154 +134,118 @@ python3 -m venv .venv
 ./run.sh
 ```
 
-Acesse **http://127.0.0.1:5057**.
+Acesse **http://127.0.0.1:5057**. Os dados ficam em `instance/`.
 
-Para parar, use `Ctrl+C`. Os dados ficam em `instance/`.
+### Acesso pelo Tailscale
 
-### Acessando pelo Tailscale
+Por segurança, o serviço nativo escuta apenas em `127.0.0.1`. Para acessar de
+outro dispositivo do tailnet, edite `/etc/leobooks/leobooks.env`:
 
-O LeoBooks escuta em `127.0.0.1` por padrão. Isso é bom para segurança, mas
-significa que o IP do Tailscale (`100.x.y.z`) **não** alcança a porta. Para
-acessar pelo tailnet, faça o bind na interface correta.
+```env
+LEOBOOKS_BIND=0.0.0.0
+```
 
-Descubra o IP da máquina:
+Depois reinicie:
+
+```bash
+sudo systemctl restart leobooks
+```
+
+Descubra o IP e teste:
 
 ```bash
 tailscale ip -4
-# exemplo: 100.x.y.z
-TAILSCALE_IP="$(tailscale ip -4)"
+curl -I "http://$(tailscale ip -4):5057/healthz"
 ```
 
-**Execução local** — reinicie o serviço apontando para o IP do Tailscale:
+No Docker, a porta já é publicada em `0.0.0.0:5059`; use
+`http://100.x.y.z:5059`. Enquanto `LEOBOOKS_HTTPS=0`, use `http://`, não
+`https://`.
 
-```bash
-pkill -f "waitress-serve.*5057"
-LEOBOOKS_HOST="$TAILSCALE_IP" LEOBOOKS_PORT=5057 ./run.sh
-```
+### Primeiro acesso
 
-Acesse `http://$TAILSCALE_IP:5057`. Se preferir aceitar também a LAN, use
-`LEOBOOKS_HOST=0.0.0.0` e restrinja a porta no firewall/ACL.
-
-**Com Docker** — a porta já está publicada diretamente no Compose como
-`0.0.0.0:5059:5057`, sem precisar de variável de ambiente:
-
-```bash
-docker compose up -d --force-recreate
-docker compose ps
-```
-
-A saída deve mostrar algo como
-`0.0.0.0:5059->5057/tcp`. Teste do próprio servidor:
-
-```bash
-TAILSCALE_IP="$(tailscale ip -4)"
-curl -I "http://$TAILSCALE_IP:5059/healthz"
-```
-
-E, de outro dispositivo no tailnet, abra
-`http://100.x.y.z:5059`. Se precisar trocar a porta, edite a linha
-`0.0.0.0:5059:5057` em `docker-compose.yml`.
-
-> Use `http://`, não `https://`, enquanto `LEOBOOKS_HTTPS=0`. Se
-> `LEOBOOKS_HTTPS=1` for usado em HTTP puro, o navegador não envia os cookies
-> seguros e o login pode parecer quebrado.
->
-> Se ainda houver timeout, confira `tailscale ping 100.x.y.z`, as ACLs do
-> tailnet e o firewall da máquina. Para publicar um serviço local em HTTPS sem
-> abrir porta, o Tailscale também oferece `tailscale serve` (consulte
-> `tailscale serve --help`).
-
-### O primeiro acesso
-
-Ao criar a conta, você recebe um livro de exemplo — *A Arte da Guerra* — para
-explorar. Ele não tem notas e pode ser excluído quando quiser começar a sua
-própria estante.
+A primeira conta criada é a administradora do servidor. Você recebe o livro de
+exemplo *A Arte da Guerra* para explorar; ele pode ser excluído normalmente.
 
 ![Tutorial de boas-vindas do LeoBooks](docs/screenshots/tutorial.webp)
 
-O tutorial mostra a biblioteca, a captura rápida, o progresso de leitura e as
-opções de dados. Ele pode ser **pulado** e revisto depois em
-**Ajustes → Rever tutorial**.
+O tutorial pode ser pulado e revisto depois em **Ajustes → Rever tutorial**.
 
-## Mariana, uma leitora
+## Como usar
 
-> Mariana tem 37 anos, ensina história em Belo Horizonte e lê tanto em papel
-> quanto no Kindle. Ela não quer transformar leitura em produtividade; quer
-> conseguir voltar às passagens que a fizeram parar. O LeoBooks é o caderno que
-> ela abre antes, durante e depois da leitura.
->
-> A conta, os livros e as datas abaixo são fictícios. O percurso, porém, é o
-> mesmo que qualquer leitor pode fazer.
+Mariana é professora de história, lê em papel e no Kindle e usa o celular no
+caminho da escola. Ela não quer registrar tudo: quer guardar o que vale a pena
+reler.
 
-### Domingo, 16h — *O Príncipe* entra na estante
+### 1. Coloque um livro na estante
 
-Mariana chegou em casa com uma edição usada de *O Príncipe*. Em vez de anotar
-o ISBN num papel que ela saberia que perderia, abriu o LeoBooks e foi em
-**Biblioteca → Adicionar livro**.
+Em **Biblioteca → Adicionar livro**, informe título e autor e escolha o formato:
 
-Preencheu título e autor, escolheu **Livro físico** e deixou o status em
-**Lendo**. Como a edição tinha ISBN, a busca de capas encontrou uma imagem; se
-não encontrasse, o LeoBooks desenharia uma capa editorial e o caderno
-continuaria funcionando offline.
+- **Livro físico:** o progresso é marcado pela página impressa.
+- **Livro digital:** o progresso é marcado pelo percentual exibido no aparelho.
+  O total de páginas é opcional e serve apenas para estimar a página equivalente.
+
+A busca de capas consulta bases públicas por ISBN, título ou autor. Se não
+encontrar, o LeoBooks desenha uma capa editorial — o caderno continua bonito e
+funcionando offline. Você também pode enviar uma foto da capa.
 
 ![Escolha entre livro físico e digital](docs/screenshots/formato.webp)
 
-Na estante, *O Príncipe* passou a dividir espaço com os livros de trabalho e de
-prazer. A capa, o andamento e o status estavam ali — sem uma planilha, sem uma
-lista infinita de metadados.
+### 2. Guarde o que ficou
 
-### Segunda, 7h40 — a citação no ônibus
+Use **Nova nota rápida** na lateral, no celular, ou **Adicionar nota** dentro de
+um livro. Escolha o tipo:
 
-No caminho para a escola, Mariana leu um trecho que queria guardar. Abriu
-**Nova nota rápida** no celular, escolheu **Citação** e escreveu o trecho com
-as próprias mãos, marcando o capítulo XXI e a página 74.
+- **Citação:** o trecho exato, com página e capítulo.
+- **Resumo:** as ideias do capítulo com suas palavras.
+- **Insight:** uma conexão, pergunta ou pensamento que ficou.
 
-Antes de salvar, acrescentou duas tags: `#política` e `#clássicos`. Também
-anexou uma foto da página. O OCR é opcional; naquele dia ele não estava
-instalado, mas a foto ficou guardada normalmente.
+O editor aceita Markdown: negrito, itálico, listas, links e citações. As tags
+ajudam a reencontrar o assunto depois — por exemplo, `#política`, `#clássicos`
+ou `#história`.
 
-O editor aceita Markdown. Mariana usa negrito para as ideias centrais, listas
-para os argumentos e links para artigos que quer reler depois. A prévia mostra
-como a nota ficará antes de ela guardar.
+Se quiser, anexe uma foto da página. O OCR é opcional: quando o servidor tem
+Tesseract instalado, ele tenta trazer o texto da foto; quando não, a imagem
+continua anexada normalmente.
 
 ![Modal de nova nota com editor Markdown](docs/screenshots/nota.webp)
 
-### Quarta, 22h — a leitura muda de formato
+### 3. Acompanhe seu ritmo
 
-À noite, Mariana começou *A Revolução dos Bichos* no Kindle. Em **Adicionar
-livro**, escolheu **Livro digital** e informou o percentual que aparecia no
-aparelho: **42%**.
+Cada formato tem sua mecânica:
 
-Ela não precisou inventar uma página. O total de páginas é opcional e serve
-apenas para estimar a página equivalente. Se ela trocar de formato no meio da
-leitura, pode editar o livro e converter o progresso existente.
+- **Livro físico:** informe a página atual. O app calcula o percentual e quanto
+  falta para o fim.
+- **Livro digital:** informe o percentual que aparece no rodapé do aparelho.
+  Se você preencheu o total de páginas, o app mostra também a página
+  equivalente aproximada. A “localização” do leitor digital não é uma página.
 
-Para Mariana, essa distinção importa: página impressa e porcentagem do leitor
-digital são coisas diferentes. O LeoBooks trata cada uma com sua própria
-mecânica, em vez de fingir que 42% são exatamente a página 84.
+Ao chegar a 100%, o livro é marcado como **Lido**. Você também pode mudar o
+status manualmente para *Quero ler*, *Lendo*, *Lido* ou *Abandonado*. Se trocar
+de formato no meio da leitura, o progresso existente é convertido.
 
-### Sexta, 19h — a frase volta
+![Detalhe de um livro com progresso e notas](docs/screenshots/livro.webp)
 
-Naquela sexta-feira, Mariana lembrou de uma passagem para preparar uma aula. Abriu
-a **Busca** e digitou `principe`, sem acento. O app encontrou *O Príncipe* no
-título e a citação guardada na segunda-feira.
+### 4. Reencontre ideias
 
-Ela também podia ter chegado pelo caminho das tags: `#política` mostrava o fio
-que atravessava *O Príncipe*, *A Revolução dos Bichos* e outros livros. A
-**Revisão** trouxe uma citação para reler. Mariana compartilhou a imagem com uma
-colega; o arquivo foi salvo com livro, capítulo e página no nome:
+- **Busca** procura em títulos, autores, ISBN, conteúdo das notas, capítulos e
+  tags — e ignora acentos: `principe` encontra “O Príncipe”.
+- **Tags** mostram os fios que atravessam livros diferentes.
+- **Revisão** traz uma citação para reler, com opção de compartilhar como
+  imagem. O arquivo termina em `-leobooks.png`, por exemplo
+  `o-principe-capitulo-xxi-pagina-74-leobooks.png`.
 
-```text
-o-principe-capitulo-xxi-pagina-74-leobooks.png
-```
+### 5. Deixe do seu jeito
 
-### Sábado, 9h — tudo em ordem
+- Alterne entre **tema claro e madrugada** na lateral ou no topo.
+- Em **Ajustes**, edite o perfil, troque a senha, exporte o caderno em
+  Markdown/JSON ou baixe um **backup completo**.
+- A conta administradora também cria outras contas e restaura backups.
 
-No fim de semana, Mariana trocou o tema para **madrugada**, leu a citação do dia
-no início e foi em **Ajustes → Dados e backup**. Como foi a primeira conta do
-servidor, ela é administradora e pode baixar o backup completo.
+### 6. Leve tudo com você
 
-O arquivo é único:
+Em **Ajustes → Dados e backup**, a administradora baixa **um único arquivo
+`.zip`** com banco, capas, fotos e manifesto:
 
 ```text
 leobooks_backup_AAAAMMDD_HHMMSS.zip
@@ -266,96 +255,99 @@ leobooks_backup_AAAAMMDD_HHMMSS.zip
 └── manifest.json     # formato, contagens e checksums
 ```
 
-Ela guarda o ZIP no HD externo e, se precisar, envia o mesmo arquivo em
-**Restaurar backup**. O LeoBooks valida o conteúdo, as checksums e as referências
-às imagens antes de trocar qualquer coisa. Se algo estiver corrompido, o estado
-atual continua intacto; uma cópia de segurança fica em `instance/backups/` — ou,
-na instalação nativa, em `/var/lib/leobooks/backups/`.
+Para restaurar, envie o mesmo `.zip` em **Restaurar backup**. O LeoBooks valida
+tudo antes de trocar qualquer coisa; se algo estiver corrompido, o estado atual
+permanece intacto. Backups antigos `.db` continuam aceitos, mas restauram apenas
+o banco.
 
-> O backup não inclui a chave de sessão: depois de restaurar, é preciso entrar
-> novamente. Backups antigos em `.db` continuam aceitos, mas restauram apenas o
-> banco; capas e fotos atuais são mantidas.
+![LeoBooks no tema madrugada](docs/screenshots/tema-escuro.webp)
 
-### O que o caminho da Mariana mostra
+### No celular
 
-| O que ela precisa | Como o LeoBooks responde |
-| --- | --- |
-| Guardar o livro que está lendo | Estante visual com capa, status e progresso |
-| Não perder a frase que a fez parar | Citação ligada à página, ao capítulo e às tags |
-| Separar leitura em papel e digital | Progresso por página ou por percentual |
-| Reencontrar uma ideia meses depois | Busca sem acentos, tags e revisão |
-| Levar o caderno para outro lugar | Exportação Markdown/JSON e backup completo em ZIP |
-| Ler de madrugada | Tema claro ou madrugada |
+<p align="center">
+  <img src="docs/screenshots/mobile.webp" alt="Tela inicial do LeoBooks no celular, com Mariana" width="300">
+  <img src="docs/screenshots/mobile-nota.webp" alt="Nova nota no celular, com Mariana" width="300">
+</p>
 
-O que Mariana não encontra no LeoBooks também é proposital: feed, ranking de
-leitura, notificações de produtividade e telemetria. O app foi feito para
-guardar o que a leitura deixa, não para competir com ela.
-
-## Perguntas frequentes
+## Dúvidas frequentes
 
 **Onde ficam meus dados?**
-No servidor onde o LeoBooks está rodando. No Docker, ficam em um volume
-persistente; sem Docker, em `instance/`. Não há envio para uma nuvem do
-LeoBooks.
+No seu servidor. No Docker, no volume `leobooks_instance`; na instalação nativa,
+em `/var/lib/leobooks`; rodando com Python, em `instance/`. Não há envio para
+uma nuvem do LeoBooks.
 
 **Como atualizo o app?**
-Com Docker:
+No Debian/Fedora, instale o pacote novo e reinicie o serviço. No Docker:
 
 ```bash
 docker compose pull
 docker compose up -d --no-build
 ```
 
-Se estiver compilando localmente:
+O volume de dados é preservado.
 
-```bash
-docker compose build --pull
-docker compose up -d
-```
-
-O volume com seus dados é preservado.
-
-**Como apago tudo?**
-Você pode excluir sua conta em **Ajustes → Excluir conta**. Para apagar também o
-volume do Docker, use `docker compose down -v` — atenção: isso remove o banco,
-as capas e todos os backups locais.
+**Como faço backup?**
+Entre como administradora em **Ajustes → Dados e backup → Baixar backup
+completo**. Guarde o ZIP fora do servidor. Para restaurar, use o mesmo arquivo
+em **Restaurar backup**.
 
 **Esqueci minha senha. E agora?**
-O LeoBooks não envia e-mail de recuperação. Peça à conta administradora para
-criar uma nova conta, ou remova o volume e comece de novo se for um ambiente de
-testes.
+Não há recuperação por e-mail. Peça à conta administradora para criar outra
+conta, ou remova o volume e comece de novo em um ambiente de testes.
 
-**Funciona em leitores digitais?**
-Use o navegador do celular ou computador; o app não é um aplicativo nativo de leitor digital. O progresso pode ser informado pela porcentagem exibida no aparelho.
+**O app nativo abriu uma janela preta.**
+Confira se o serviço está ativo e escutando na 5057:
 
-**Preciso estar sempre conectado à internet?**
-Não. O LeoBooks roda no seu servidor. A internet só é usada quando você pede
-para buscar capas em bases públicas.
+```bash
+systemctl status leobooks --no-pager
+curl -i http://127.0.0.1:5057/healthz
+```
+
+Se o `curl` não responder, veja os logs:
+
+```bash
+sudo journalctl -u leobooks -n 80 --no-pager
+```
+
+Em GPUs problemáticas, tente:
+
+```bash
+LEOBOOKS_GTK_SAFE=1 leobooks
+```
+
+O modo seguro usa o renderizador de software do WebKitGTK.
+
+**O app nativo e o Docker mostram dados diferentes.**
+É esperado: são instalações separadas. O app nativo usa `/var/lib/leobooks`; o
+Docker usa o volume `leobooks_instance`. Use o backup ZIP para migrar.
+
+**A porta 5059 é o app nativo?**
+Não. O Docker publica `5059` no host e escuta `5057` dentro do container. O app
+nativo usa `127.0.0.1:5057`. São portas diferentes; uma instalação não bloqueia a
+outra.
+
+**Preciso de internet?**
+Não para ler e anotar. A internet só é usada quando você pede para buscar capas
+em bases públicas.
 
 **Por que apareceu um livro que eu não cadastrei?**
-É o livro de exemplo do primeiro acesso. Ele pode ser excluído normalmente em
-**Biblioteca**.
+É o livro de exemplo do primeiro acesso. Pode ser excluído em **Biblioteca**.
 
-## Privacidade
+**Funciona em leitores digitais?**
+O caderno é acessado pelo navegador do celular/computador ou pelo aplicativo
+GTK no GNOME. Não é um aplicativo nativo para Kindle/Kobo.
 
-- Cada conta vê somente os próprios livros, notas, tags e imagens.
-- Não há telemetria nem rastreadores de terceiros.
-- A busca de capas envia apenas ISBN, título e autor para Open Library, Google
-  Books e, como fallback, Goodreads. O conteúdo das suas notas nunca é enviado.
-- Os logs de auditoria ficam no servidor e não registram senhas, tokens nem o
-  conteúdo das notas.
-- O backup completo contém todas as contas, capas e fotos; é restrito à administradora.
-
----
+## Técnico
 
 <details>
-<summary><strong>Detalhes técnicos, Docker Hub e configuração avançada</strong></summary>
+<summary><strong>Stack, segurança, memória, logs, pacotes e desenvolvimento</strong></summary>
 
 ### Stack
 
 Flask 3 + SQLite + Jinja + Bootstrap 5 local. Em produção, Waitress no modo
-local ou Gunicorn no Docker (1 worker, 4 threads). Os assets de interface
-(Bootstrap, ícones e fontes) são servidos localmente.
+local ou Gunicorn no Docker (1 worker, 4 threads). No Debian/Fedora/Arch, o app
+GTK usa GTK 3 + WebKitGTK 4.1 e conversa com o serviço local. Os assets de
+interface (Bootstrap, ícones e fontes) são servidos localmente.
 
 ### Segurança
 
@@ -366,6 +358,8 @@ local ou Gunicorn no Docker (1 worker, 4 threads). Os assets de interface
 - Busca de capas com allowlist de hosts, URLs assinadas e limite de tamanho.
 - CSP, `X-Content-Type-Options`, `X-Frame-Options` e `Referrer-Policy`.
 - Restauração de backup validada e restrita à administradora.
+- Dados nativos em `/var/lib/leobooks`, serviço systemd com usuário dedicado e
+  `ProtectSystem=strict`.
 
 ### Memória
 
@@ -387,11 +381,12 @@ As ações principais geram linhas JSON de auditoria no `stdout`, com
 são registrados.
 
 O endpoint `/healthz` é chamado pelo Docker a cada **5 minutos** e é filtrado do
-access log para não poluir o histórico. O resultado continua validando banco e
-HTTP; erros de health aparecem no log de erro do container.
+access log. O resultado continua validando banco e HTTP; erros de health
+aparecem no log de erro do container.
 
 ```bash
 docker compose logs -f leobooks
+journalctl -u leobooks -f
 ```
 
 ### Variáveis principais
@@ -399,74 +394,30 @@ docker compose logs -f leobooks
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
 | `LEOBOOKS_PORT` | `5057` | Porta interna/local. |
-| `LEOBOOKS_INSTANCE` | `instance/` no código | Diretório de dados em instalações nativas (`/var/lib/leobooks` nos pacotes). |
+| `LEOBOOKS_INSTANCE` | `instance/` no código | Diretório de dados; nos pacotes, `/var/lib/leobooks`. |
 | `LEOBOOKS_SAMPLE_BOOK` | `1` | Cria o livro de exemplo em cada cadastro. |
 | `LEOBOOKS_COVER_LOOKUP` | `1` | Liga/desliga a busca de capas. |
 | `LEOBOOKS_IMAGE_TAG` | `latest` | Tag da imagem `nickolback/leobooks`. |
-| `LEOBOOKS_HTTPS` | `0` | Ativa cookies seguros quando atrás de HTTPS. |
+| `LEOBOOKS_HTTPS` | `0` | Ativa cookies seguros atrás de HTTPS. |
 | `LEOBOOKS_LOG_LEVEL` | `INFO` | Nível dos logs. |
-| `INSTALL_OCR` | `false` | Instala Tesseract na imagem (aumenta tamanho/memória). |
+| `LEOBOOKS_BACKUP_MAX_BYTES` | `536870912` | Limite do upload de backup (512 MB). |
+| `INSTALL_OCR` | `false` | Instala Tesseract na imagem Docker. |
 
-O arquivo [.env.example](.env.example) traz todas as opções comentadas.
+O arquivo [.env.example](.env.example) traz as opções comentadas.
 
-### Instalação nativa: Debian, Fedora e Arch
+### Pacotes nativos e AppStream
 
-O Docker continua sendo a opção recomendada para o homelab, mas o LeoBooks
-também pode ser instalado como serviço systemd, sem container.
+Os pacotes instalam:
 
-**Debian 13 / Ubuntu (amd64):**
+- código em `/opt/leobooks`;
+- serviço systemd `leobooks.service`;
+- app GTK em `/usr/bin/leobooks`;
+- configuração em `/etc/leobooks/leobooks.env`;
+- dados em `/var/lib/leobooks`;
+- atalho e ícone no GNOME;
+- metadados AppStream e capturas para o GNOME Software/loja.
 
-```bash
-sudo apt install ./dist/leobooks_1.0.7_amd64.deb
-sudo systemctl status leobooks
-```
-
-O pacote instala o serviço, o **aplicativo GTK LeoBooks** no menu do GNOME, a
-configuração em `/etc/leobooks/leobooks.env` e os dados persistentes em
-`/var/lib/leobooks`. O atalho abre uma janela GTK/WebKit; não abre um navegador
-externo.
-
-**Fedora 42 (x86_64):**
-
-```bash
-sudo dnf install ./dist/leobooks-1.0.7-1.fc42.x86_64.rpm
-# Em Fedora com yum (compatibilidade): sudo yum install ./dist/leobooks-1.0.7-1.fc42.x86_64.rpm
-sudo systemctl status leobooks
-```
-
-**Arch e outras distros com Python 3 e systemd:**
-
-```bash
-tar -xzf dist/leobooks-1.0.7-linux-x86_64.tar.gz
-cd leobooks-1.0.7
-sudo ./install.sh
-```
-
-O instalador do tarball cria o venv no destino, então o alvo precisa de Python
-3.10+, GTK 3/WebKitGTK 4.1 e acesso ao PyPI durante a instalação. Em Arch:
-
-```bash
-sudo pacman -S python-gobject gtk3 webkit2gtk-4.1
-```
-
-Em qualquer formato:
-
-```bash
-sudo nano /etc/leobooks/leobooks.env
-sudo systemctl restart leobooks
-```
-
-Para acessar pela LAN/Tailscale, ajuste no arquivo:
-
-```env
-LEOBOOKS_BIND=0.0.0.0
-```
-
-A porta padrão é **5057**. Para remover preservando os dados, use
-`apt remove leobooks`, `dnf remove leobooks` ou o `uninstall.sh` do tarball.
-O `purge` do Debian também remove `/var/lib/leobooks`.
-
-Gerar novamente os pacotes:
+Gerar novamente:
 
 ```bash
 ./packaging/build-deb.sh
@@ -474,14 +425,11 @@ Gerar novamente os pacotes:
 ./packaging/build-tarball.sh
 ```
 
-Os artefatos são gerados em `dist/`, junto com `SHA256SUMS` e
-`BUILD-INFO.txt`. O RPM é específico para Fedora 42 x86_64; para outra
-versão/arquitetura, rebuilde no alvo correspondente. O registro de mudanças
-fica em [CHANGELOG.md](CHANGELOG.md).
+Os artefatos ficam em `dist/`, com `SHA256SUMS` e `BUILD-INFO.txt`. O RPM é
+específico para Fedora 42 x86_64; o `.deb` para Debian 13 amd64. Rebuilde no
+alvo para outra versão/arquitetura.
 
-### Publicar a imagem no Docker Hub
-
-O Compose já aponta para `nickolback/leobooks`:
+### Docker Hub
 
 ```bash
 docker login
@@ -496,9 +444,6 @@ LEOBOOKS_IMAGE_TAG=1.0.7 docker compose build
 LEOBOOKS_IMAGE_TAG=1.0.7 docker compose push
 ```
 
-O repositório é
-https://hub.docker.com/repository/docker/nickolback/leobooks.
-
 ### Testes
 
 ```bash
@@ -507,8 +452,8 @@ https://hub.docker.com/repository/docker/nickolback/leobooks.
 ```
 
 Estado atual: **107 testes passando** — rotas, CSRF, isolamento entre contas,
-sanitização de Markdown, uploads, busca de capas, backup, tutorial e exclusão de
-conta.
+sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache e
+exclusão de conta.
 
 ### Limites conhecidos
 
@@ -527,6 +472,8 @@ app.py, routes.py, models.py, helpers.py, forms.py
 utils/            Markdown, capas, imagens, OCR, auditoria
 templates/        telas e componentes Jinja
 static/           CSS, JS, fontes e Bootstrap local
+packaging/        Debian, RPM, tarball, systemd e AppStream
+scripts/          geração das capturas com a conta fictícia Mariana
 tests/            suíte de testes
 wireframe/        referências originais de design
 ```

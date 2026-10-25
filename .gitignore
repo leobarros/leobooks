@@ -106,3 +106,6 @@ desktop.ini
 *.swp
 *.swo
 *.code-workspace
+
+# Browser usado para gerar capturas
+.playwright/
