@@ -54,8 +54,8 @@ def seed() -> dict[str, str]:
     with application.app_context():
         db.create_all()
         user = User(
-            name="Mariana Costa",
-            email="mariana@leobooks.local",
+            name="Mariana Sales",
+            email="mariana.sales@leobooks.local",
             password_hash=generate_password_hash(PASSWORD),
             theme="light",
             is_admin=True,
@@ -232,7 +232,7 @@ def seed() -> dict[str, str]:
 
 def login(page) -> None:
     page.goto(f"{BASE}/login", wait_until="networkidle")
-    page.fill("#loginEmail", "mariana@leobooks.local")
+    page.fill("#loginEmail", "mariana.sales@leobooks.local")
     page.fill("#loginPassword", PASSWORD)
     page.locator("button[type=submit]").first.click()
     page.wait_for_url(f"{BASE}/", wait_until="networkidle")

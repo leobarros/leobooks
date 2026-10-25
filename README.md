@@ -6,7 +6,7 @@ não um painel de controle.
 
 ![Tela inicial do LeoBooks com a conta de Mariana](docs/screenshots/inicio.webp)
 
-> As imagens usam a conta fictícia **Mariana Costa** e livros de exemplo.
+> As imagens usam a conta fictícia **Mariana Sales** e livros de exemplo.
 > Nenhum dado real de leitor aparece nelas.
 
 ## O que é

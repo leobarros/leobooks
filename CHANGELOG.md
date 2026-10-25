@@ -4,7 +4,7 @@
 
 - README reorganizado em **O que é**, **Propósito**, **Como instalar**,
   **Como usar**, **Dúvidas frequentes** e **Técnico**.
-- Capturas atualizadas na versão atual com a conta fictícia **Mariana Costa**,
+- Capturas atualizadas na versão atual com a conta fictícia **Mariana Sales**,
   incluindo desktop, celular, tutorial e tema madrugada.
 
 ## 1.0.7 — 2026-10-24
