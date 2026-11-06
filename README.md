@@ -456,8 +456,12 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 ```
 
 Estado atual: **108 testes passando** — rotas, CSRF, isolamento entre contas,
-sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache e
-exclusão de conta.
+sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
+ordenação por uso e exclusão de conta.
+
+**Toda mudança deve ser validada localmente e no Docker.** A política completa
+está em [AGENTS.md](AGENTS.md): suíte local, build do container, healthcheck e,
+quando aplicável, teste do fluxo no navegador em `http://127.0.0.1:5059`.
 
 ### Limites conhecidos
 
