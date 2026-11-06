@@ -38,8 +38,18 @@ ser validada **localmente e no Docker** antes de ser considerada concluída.
 A suíte atual tem **108 testes**. Não considere a mudança pronta se houver
 falhas.
 
-Para mudanças de interface ou fluxo, valide também a página afetada no
-navegador local.
+**Além dos testes, suba o próprio projeto e veja a mudança acontecendo.** Use uma
+instância temporária para não tocar no banco real:
+
+```bash
+LEOBOOKS_INSTANCE="$(mktemp -d)" LEOBOOKS_PORT=5057 ./run.sh
+```
+
+Abra `http://127.0.0.1:5057` e valide a tela/fluxo alterado na aplicação real,
+não apenas no test client. Para mudanças de interface, faça a validação nos
+temas claro e madrugada e em viewport móvel.
+
+Não use `instance/` nem `/var/lib/leobooks` para esse teste.
 
 ### 2. Docker
 

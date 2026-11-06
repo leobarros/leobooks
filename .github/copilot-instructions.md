@@ -25,6 +25,10 @@ O LeoBooks é uma aplicação web e mobile para captura, organização e consult
 
 2. Requisitos Técnicos & Arquitetura
 
+Teste local: além de `pytest`, suba o próprio projeto com
+`LEOBOOKS_INSTANCE="$(mktemp -d)" ./run.sh` e valide a mudança na aplicação real
+em `http://127.0.0.1:5057`. Use instância temporária, nunca o banco real.
+
 Stack Tecnológica & Interfaces WSGI
 
 Backend / Interface: Python 3.10+ utilizando Flask com conformidade total à especificação WSGI (Web Server Gateway Interface) para fácil implantação via servidores WSGI (Gunicorn, uWSGI, Waitress).

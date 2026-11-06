@@ -468,8 +468,15 @@ sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 
 **Toda mudança deve ser validada localmente e no Docker.** A política completa
-está em [AGENTS.md](AGENTS.md): suíte local, build do container, healthcheck e,
-quando aplicável, teste do fluxo no navegador em `http://127.0.0.1:5059`.
+está em [AGENTS.md](AGENTS.md). No local, além do pytest, suba o próprio projeto
+e valide a mudança na aplicação real:
+
+```bash
+LEOBOOKS_INSTANCE="$(mktemp -d)" ./run.sh
+# abra http://127.0.0.1:5057
+```
+
+Depois valide o container em `http://127.0.0.1:5059`.
 
 ### Limites conhecidos
 
