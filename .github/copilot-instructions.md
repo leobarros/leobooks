@@ -10,6 +10,26 @@ da implementação. Não altere cores, fontes, ícones, espaçamento ou componen
 sem essa aprovação. Depois, valide tema claro e madrugada, desktop e mobile,
 além de local + Docker.
 
+## Links, rotas e criação de telas
+
+Toda mudança em link, rota, `url_for`, `endpoint`, `action` de formulário,
+redirect, menu, modal ou criação de nova tela precisa incluir uma checagem de
+regressão das funções já implementadas.
+
+Antes de considerar a mudança pronta:
+
+- procure referências ao endpoint/rota alterada em `templates/`, `routes.py`,
+  `static/js/` e testes;
+- confirme que links antigos continuam válidos ou que o redirecionamento foi
+  criado;
+- valide formulários, ações de menu, modais, navegação e retorno após salvar;
+- rode a suíte completa;
+- suba o projeto e percorra os fluxos afetados na aplicação real;
+- repita o fluxo principal no Docker.
+
+Uma tela nova ou link novo não pode quebrar rotas, botões, formulários ou
+redirecionamentos existentes.
+
 ## Pausa atual: sem pacotes Linux
 
 Não gerar `.deb`, `.rpm`, tarball ou releases de pacotes Linux neste momento.

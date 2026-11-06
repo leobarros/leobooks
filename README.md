@@ -478,6 +478,10 @@ LEOBOOKS_INSTANCE="$(mktemp -d)" ./run.sh
 
 Depois valide o container em `http://127.0.0.1:5059`.
 
+Mudanças de link, rota, formulário, redirect ou tela nova também exigem uma
+checagem de regressão: confirmar que botões, menus, modais, ações de salvar e
+URLs existentes continuam funcionando. A regra está em [AGENTS.md](AGENTS.md).
+
 ### Limites conhecidos
 
 - Não há recuperação de senha por e-mail.
