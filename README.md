@@ -135,6 +135,9 @@ make test       # roda a suíte local
 make pull       # baixa a imagem latest do Docker Hub
 make up         # pull + docker compose up + healthcheck
 make up-build   # build do código atual + up + healthcheck
+make login      # docker login no registry
+make push       # build + push da imagem latest
+make push v1    # build + push da imagem v1
 make down       # para o Compose, preservando o volume
 make restart    # reinicia o container
 make logs       # acompanha os logs

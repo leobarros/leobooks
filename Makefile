@@ -4,7 +4,11 @@ COMPOSE ?= docker compose
 SERVICE ?= leobooks
 HOST_PORT ?= 5059
 HEALTH_URL ?= http://127.0.0.1:$(HOST_PORT)/healthz
-IMAGE ?= nickolback/leobooks:latest
+REGISTRY ?= docker.io
+IMAGE_NAME ?= nickolback/leobooks
+IMAGE_TAG ?= latest
+IMAGE ?= $(IMAGE_NAME):$(IMAGE_TAG)
+PUSH_TAG := $(if $(filter push,$(MAKECMDGOALS)),$(word 2,$(MAKECMDGOALS)),)
 
 VENV := .venv
 PYTHON := $(VENV)/bin/python
@@ -13,6 +17,7 @@ PIP := $(VENV)/bin/pip
 .DEFAULT_GOAL := help
 .PHONY: help setup setup-dev local run test verify \
         pull docker-pull docker-build up docker-up up-build docker-up-build \
+        login push \
         down docker-down stop docker-stop restart docker-restart \
         ps docker-ps logs docker-logs shell health image version clean
 
@@ -26,6 +31,9 @@ help:
 	@echo "  make pull               baixa a imagem mais recente do Docker Hub"
 	@echo "  make up                 pull + docker compose up -d + healthcheck"
 	@echo "  make up-build           build da imagem local + up + healthcheck"
+	@echo "  make login              faz login no registry"
+	@echo "  make push               build + push da imagem latest"
+	@echo "  make push v1            build + push da imagem v1"
 	@echo "  make down               para o Compose (preserva o volume)"
 	@echo "  make restart            reinicia o serviço"
 	@echo "  make logs               acompanha os logs"
@@ -36,7 +44,7 @@ help:
 	@echo "  make version            mostra VERSION"
 	@echo "  make clean              limpa caches Python (não toca em dados)"
 	@echo ""
-	@echo "Variáveis: COMPOSE, SERVICE, HOST_PORT, IMAGE"
+	@echo "Variáveis: COMPOSE, SERVICE, HOST_PORT, REGISTRY, IMAGE_NAME, IMAGE_TAG"
 
 setup: $(PYTHON)
 	@echo "Ambiente local pronto."
@@ -80,6 +88,15 @@ up-build: docker-up-build
 docker-up-build: docker-build
 	$(COMPOSE) up -d --no-build
 	@$(MAKE) --no-print-directory health
+
+login:
+	docker login $(REGISTRY)
+
+push:
+	@tag="$(if $(PUSH_TAG),$(PUSH_TAG),latest)"; \
+	echo "Building $(IMAGE_NAME):$$tag"; \
+	LEOBOOKS_IMAGE_TAG="$$tag" $(COMPOSE) build; \
+	docker push "$(IMAGE_NAME):$$tag"
 
 down: docker-down
 
@@ -134,3 +151,9 @@ clean:
 	rm -rf .pytest_cache __pycache__ tests/__pycache__ utils/__pycache__
 	find . -name '*.pyc' -not -path './.venv/*' -delete
 	@echo "Caches removidos; dados preservados."
+
+# `make push v1` treats v1 as a second goal; it is consumed by the push recipe.
+ifneq ($(PUSH_TAG),)
+$(PUSH_TAG):
+	@:
+endif
