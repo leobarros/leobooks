@@ -2,6 +2,11 @@
 
 ## Não lançado
 
+- Sugestões de tags existentes no modal de nota, ordenadas por uso e filtradas
+  enquanto o usuário digita.
+- Unicidade case-insensitive de tags (`Humano`/`humano`), com migração que une
+  duplicatas antigas e índice no banco.
+
 - README reorganizado em **O que é**, **Propósito**, **Como instalar**,
   **Como usar**, **Dúvidas frequentes** e **Técnico**.
 - Capturas atualizadas na versão atual com a conta fictícia **Mariana Sales**,

@@ -208,6 +208,10 @@ O editor aceita Markdown: negrito, itálico, listas, links e citações. As tags
 ajudam a reencontrar o assunto depois — por exemplo, `#política`, `#clássicos`
 ou `#história`.
 
+As tags que você já usa aparecem como sugestões, ordenadas pelas mais
+utilizadas. Ao digitar, a lista é filtrada; escolher uma sugestão reaproveita a
+grafia existente e evita criar `Humano` e `humano` como tags diferentes.
+
 Se quiser, anexe uma foto da página. O OCR é opcional: quando o servidor tem
 Tesseract instalado, ele tenta trazer o texto da foto; quando não, a imagem
 continua anexada normalmente.
@@ -463,7 +467,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **108 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **111 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 

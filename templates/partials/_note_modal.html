@@ -144,8 +144,9 @@
               </div>
               <input type="hidden" name="tags" value="" data-tag-hidden>
               {% if tag_suggestions %}
-                <div class="lb-suggestions" data-tag-suggestions>
-                  {% for name in tag_suggestions[:6] %}
+                <div class="lb-suggestions" data-tag-suggestions
+                     data-tag-catalog='{{ tag_catalog|tojson|forceescape }}'>
+                  {% for name in tag_suggestions %}
                     <button type="button" class="lb-suggestion" data-suggestion="{{ name }}">#{{ name }}</button>
                   {% endfor %}
                 </div>

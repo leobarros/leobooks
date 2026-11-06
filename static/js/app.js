@@ -398,6 +398,14 @@
   const tagHidden = $("[data-tag-hidden]");
   const tagInput = $("[data-tag-input]");
   const tagChips = $("[data-tag-chips]");
+  const tagSuggestions = $("[data-tag-suggestions]");
+  const tagSuggestionButtons = $$("[data-suggestion]");
+  let tagCatalog = [];
+  try {
+    tagCatalog = JSON.parse(tagSuggestions?.dataset.tagCatalog || "[]");
+  } catch (_error) {
+    tagCatalog = [];
+  }
   let photoObjectUrl = null;
 
   function updateCounter() {
@@ -570,8 +578,32 @@
     });
   }
 
-  function addTag(raw) {
+  function canonicalTag(raw) {
     const clean = String(raw || "").replace(/^#/, "").trim();
+    if (!clean) return "";
+    const key = clean.toLocaleLowerCase("pt-BR");
+    const existing = tagCatalog.find(
+      (name) => name.toLocaleLowerCase("pt-BR") === key
+    );
+    return existing || clean;
+  }
+
+  function filterTagSuggestions() {
+    const query = String(tagInput?.value || "")
+      .replace(/^#/, "")
+      .trim()
+      .toLocaleLowerCase("pt-BR");
+    tagSuggestionButtons.forEach((button) => {
+      const name = String(button.dataset.suggestion || "").toLocaleLowerCase("pt-BR");
+      // Também sugere "humano" quando a pessoa começa a digitar "humanos".
+      button.hidden = Boolean(query) && !(
+        name.includes(query) || query.includes(name)
+      );
+    });
+  }
+
+  function addTag(raw) {
+    const clean = canonicalTag(raw);
     if (!clean) return;
     const values = readTagValues();
     if (values.length >= 8) {
@@ -583,6 +615,7 @@
       writeTagValues(values);
     }
     if (tagInput) tagInput.value = "";
+    filterTagSuggestions();
   }
 
   tagInput?.addEventListener("keydown", (event) => {
@@ -600,7 +633,9 @@
     if (tagInput.value.trim()) addTag(tagInput.value);
   });
 
-  $$("[data-suggestion]").forEach((button) => {
+  tagInput?.addEventListener("input", filterTagSuggestions);
+
+  tagSuggestionButtons.forEach((button) => {
     button.addEventListener("click", () => addTag(button.dataset.suggestion));
   });
 

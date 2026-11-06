@@ -20,7 +20,7 @@ from helpers import (
     register_template_helpers,
     weekday_long,
 )
-from models import BOOK_STATUSES, NOTE_TYPES, Book, db
+from models import BOOK_STATUSES, NOTE_TYPES, Book, Tag, db
 from routes import auth_bp, books_bp, main_bp, notes_bp, settings_bp
 from utils.audit import audit, configure_audit_logging
 from utils.ocr import ocr_available
@@ -91,6 +91,7 @@ def create_app(overrides: dict | None = None) -> Flask:
             "app_name": "LeoBooks",
             "quick_note_form": None,
             "quick_books": [],
+            "tag_catalog": [],
             "tag_suggestions": [],
             "ocr_available": ocr_available(),
         }
@@ -105,13 +106,21 @@ def create_app(overrides: dict | None = None) -> Flask:
                 form.book_id.choices = [
                     (book.id, f"{book.title} — {book.authors}") for book in books
                 ]
+                tags = list(user.tags)
                 context.update(
                     {
                         "quick_note_form": form,
                         "quick_books": books,
-                        "tag_suggestions": sorted(
-                            {tag.name for tag in user.tags}, key=str.casefold
+                        "tag_catalog": sorted(
+                            {tag.name for tag in tags}, key=str.casefold
                         ),
+                        "tag_suggestions": [
+                            tag.name
+                            for tag in sorted(
+                                tags,
+                                key=lambda item: (-item.count, item.name.casefold()),
+                            )[:12]
+                        ],
                     }
                 )
             except Exception:  # pragma: no cover - não derruba a página
@@ -226,6 +235,7 @@ def create_app(overrides: dict | None = None) -> Flask:
         _ensure_onboarding_column()
         _ensure_book_media_columns()
         _ensure_book_usage_columns()
+        _ensure_tag_uniqueness()
         _ensure_an_admin_exists()
 
     return app
@@ -323,6 +333,45 @@ def _ensure_book_usage_columns() -> None:
         text(
             "CREATE INDEX IF NOT EXISTS idx_books_user_activity "
             "ON books (user_id, last_opened_at)"
+        )
+    )
+    db.session.commit()
+
+
+def _ensure_tag_uniqueness() -> None:
+    """Une variantes de tags por caixa e cria unicidade case-insensitive.
+
+    Bancos antigos podem ter ``Humano`` e ``humano`` como tags diferentes. As
+    notas da segunda são transferidas para a primeira e a duplicata é removida.
+    O índice NOCASE impede novas variantes ASCII no banco.
+    """
+    from collections import defaultdict
+
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "tags" not in inspector.get_table_names():
+        return
+
+    grouped: dict[tuple[str, str], list[Tag]] = defaultdict(list)
+    for tag in Tag.query.order_by(Tag.created_at.asc(), Tag.id.asc()).all():
+        grouped[(tag.user_id, tag.name.casefold())].append(tag)
+
+    for tags in grouped.values():
+        if len(tags) < 2:
+            continue
+        canonical, *duplicates = tags
+        for duplicate in duplicates:
+            for note in duplicate.notes:
+                if canonical not in note.tags:
+                    note.tags.append(canonical)
+            db.session.delete(duplicate)
+
+    db.session.flush()
+    db.session.execute(
+        text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS uq_tags_user_name_ci "
+            "ON tags(user_id, name COLLATE NOCASE)"
         )
     )
     db.session.commit()

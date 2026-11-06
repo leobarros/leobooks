@@ -229,3 +229,54 @@ def test_orphan_tags_are_cleaned(app, auth_client, book):
     auth_client.post(f"/notes/{note_id}/delete", follow_redirects=True)
     with app.app_context():
         assert Tag.query.filter_by(name="descartável").count() == 0
+
+
+def test_tag_names_are_case_insensitive(app, auth_client, book):
+    create_note(auth_client, book["id"], content="Primeira", tags="Humano")
+    create_note(auth_client, book["id"], content="Segunda", tags="humano")
+
+    with app.app_context():
+        tags = Tag.query.all()
+        assert len(tags) == 1
+        assert tags[0].name == "Humano"
+
+
+def test_legacy_case_variant_tags_are_merged(app, auth_client, book):
+    with app.app_context():
+        from sqlalchemy import text
+        from models import User
+
+        # Simula um banco antigo, anterior ao índice case-insensitive.
+        db.session.execute(text("DROP INDEX IF EXISTS uq_tags_user_name_ci"))
+        db.session.commit()
+
+        user = User.query.one()
+        first = Tag(user_id=user.id, name="Humano", color_hex="#1F4A3D")
+        second = Tag(user_id=user.id, name="humano", color_hex="#AA4F37")
+        db.session.add_all([first, second])
+        db.session.flush()
+        note = Note(
+            user_id=user.id,
+            book_id=book["id"],
+            type="QUOTE",
+            content="Nota com variantes.",
+        )
+        note.tags = [first, second]
+        db.session.add(note)
+        db.session.commit()
+
+        from app import _ensure_tag_uniqueness
+
+        _ensure_tag_uniqueness()
+        remaining = Tag.query.all()
+        assert len(remaining) == 1
+        assert remaining[0].name == "Humano"
+        assert {tag.name for tag in Note.query.one().tags} == {"Humano"}
+
+
+def test_note_modal_exposes_existing_tags_as_suggestions(auth_client, book):
+    create_note(auth_client, book["id"], content="Com tags", tags="Humano, história")
+    page = auth_client.get("/").get_data(as_text=True)
+    assert "data-tag-catalog=" in page
+    assert 'data-suggestion="Humano"' in page
+    assert 'data-suggestion="história"' in page
