@@ -353,6 +353,14 @@ local ou Gunicorn no Docker (1 worker, 4 threads). No Debian/Fedora/Arch, o app
 GTK usa GTK 3 + WebKitGTK 4.1 e conversa com o serviço local. Os assets de
 interface (Bootstrap, ícones e fontes) são servidos localmente.
 
+### Design system
+
+Cores, temas claro/madrugada, tipografia, ícones Bootstrap, espaçamento e
+componentes estão documentados em [docs/design-system.md](docs/design-system.md).
+
+Alterações visuais são discutidas e validadas antes de serem aplicadas; o guia
+preserva o design editorial atual e o Bootstrap/Bootstrap Icons locais.
+
 ### Segurança
 
 - CSRF em todos os formulários e requisições de escrita.

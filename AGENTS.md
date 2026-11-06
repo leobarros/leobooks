@@ -11,6 +11,19 @@ A seção **Empacotamento** abaixo fica suspensa até que o usuário peça
 explicitamente para retomar os pacotes. Retomar significa remover esta pausa e
 atualizar os arquivos de agentes.
 
+## Design system e mudanças de estilo
+
+O guia de cores, temas, fontes, ícones, espaçamento e componentes está em
+`docs/design-system.md`.
+
+**Toda mudança de estilo precisa ser informada ao usuário e validada em
+conjunto antes de ser implementada.** Não altere cores, tipografia, ícones,
+espaçamentos ou componentes por conta própria, mesmo que pareça uma melhoria.
+A proposta deve dizer o que muda, por quê e quais telas/temas serão afetados.
+
+Depois da aprovação, valide tema claro e madrugada, desktop e mobile, capture
+antes/depois e rode os testes local + Docker.
+
 ## Testes obrigatórios
 
 Toda mudança — código, template, configuração, migração ou empacotamento — deve

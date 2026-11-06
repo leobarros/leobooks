@@ -1,5 +1,15 @@
 # Skill LeoBooks Development Specialist
 
+## Design system e mudanças de estilo
+
+O guia atual está em `docs/design-system.md`. Preserve Bootstrap 5, Bootstrap
+Icons, as fontes locais e os tokens `--lb-*`.
+
+Toda mudança visual deve ser proposta ao usuário e validada em conjunto antes
+da implementação. Não altere cores, fontes, ícones, espaçamento ou componentes
+sem essa aprovação. Depois, valide tema claro e madrugada, desktop e mobile,
+além de local + Docker.
+
 ## Pausa atual: sem pacotes Linux
 
 Não gerar `.deb`, `.rpm`, tarball ou releases de pacotes Linux neste momento.
