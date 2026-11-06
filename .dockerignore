@@ -23,3 +23,13 @@ squema_sql.md
 indice_otimizado.md
 run.sh
 gvid.jpg
+
+# Artefatos locais e ferramentas de desenvolvimento
+build/
+dist/
+.playwright/
+.playwright-browsers/
+packaging/
+scripts/
+coverage/
+htmlcov/
