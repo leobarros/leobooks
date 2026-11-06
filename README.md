@@ -124,6 +124,32 @@ O Docker e a instalação nativa têm bancos separados: o Docker usa o volume
 `leobooks_instance`; o app nativo usa `/var/lib/leobooks`. Para migrar dados,
 use o backup em ZIP em **Ajustes → Dados e backup**.
 
+### Atalhos com Makefile
+
+O `Makefile` reúne as operações do dia a dia:
+
+```bash
+make help       # lista os comandos
+make local      # sobe o projeto local em 5057
+make test       # roda a suíte local
+make pull       # baixa a imagem latest do Docker Hub
+make up         # pull + docker compose up + healthcheck
+make up-build   # build do código atual + up + healthcheck
+make down       # para o Compose, preservando o volume
+make restart    # reinicia o container
+make logs       # acompanha os logs
+make ps         # status do container
+make health     # testa http://127.0.0.1:5059/healthz
+make shell      # shell dentro do container
+make image      # mostra a imagem configurada
+make version    # mostra VERSION
+make clean      # limpa caches Python, sem tocar nos dados
+```
+
+Use `make up` quando quiser a imagem publicada mais recente e `make
+up-build` quando quiser testar o código que está nesta pasta.
+
+
 ### Rodando direto com Python
 
 Para desenvolvimento ou para testar sem instalar:
