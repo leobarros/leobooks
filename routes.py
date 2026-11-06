@@ -129,12 +129,44 @@ def _first_error(form) -> str:
     return "Confira os dados do formulário."
 
 
+def _book_usage_order():
+    """Ordem da estante: em andamento primeiro, depois uso real."""
+    from sqlalchemy import case, func
+
+    note_count = (
+        db.session.query(func.count(Note.id))
+        .filter(Note.book_id == Book.id)
+        .correlate(Book)
+        .scalar_subquery()
+    )
+    status_rank = case(
+        (Book.status == "READING", 0),
+        (Book.status == "WANT_TO_READ", 1),
+        (Book.status == "READ", 2),
+        else_=3,
+    )
+    return (
+        status_rank,
+        note_count.desc(),
+        Book.open_count.desc(),
+        func.coalesce(Book.last_opened_at, Book.updated_at).desc(),
+        Book.updated_at.desc(),
+    )
+
+
+def _touch_book(book: Book) -> None:
+    """Marca uso ao abrir o livro; mantém o livro em andamento no topo."""
+    book.last_opened_at = utcnow()
+    book.open_count = (book.open_count or 0) + 1
+    db.session.commit()
+
+
 def _note_form() -> NoteForm:
     """Formulário de nota com os livros do usuário como opções."""
     form = NoteForm()
     books = (
         Book.query.filter_by(user_id=current_user().id)
-        .order_by(Book.updated_at.desc())
+        .order_by(*_book_usage_order())
         .all()
     )
     form.book_id.choices = [(book.id, f"{book.title} — {book.authors}") for book in books]
@@ -424,7 +456,7 @@ def dashboard():
     )
     books = (
         Book.query.filter_by(user_id=user.id)
-        .order_by(Book.updated_at.desc())
+        .order_by(*_book_usage_order())
         .all()
     )
     reading = [book for book in books if book.status == "READING"]
@@ -460,7 +492,7 @@ def library():
     user = current_user()
     status_filter = (request.args.get("status") or "").strip().upper()
     query_text = (request.args.get("q") or "").strip()[:120]
-    sort = request.args.get("sort", "recent")
+    sort = request.args.get("sort", "usage")
 
     query = Book.query.filter_by(user_id=user.id)
     if status_filter in BOOK_STATUSES:
@@ -481,7 +513,7 @@ def library():
         query = query.order_by(
             (Book.current_page * 1.0 / func.nullif(Book.total_pages, 0)).desc()
         )
-    else:
+    elif sort == "recent":
         status_rank = case(
             (Book.status == "READING", 0),
             (Book.status == "WANT_TO_READ", 1),
@@ -489,6 +521,8 @@ def library():
             else_=3,
         )
         query = query.order_by(status_rank, Book.updated_at.desc())
+    else:
+        query = query.order_by(*_book_usage_order())
 
     books = query.all()
     all_books = user.books
@@ -796,6 +830,7 @@ def edit(book_id: str):
         elif book.total_pages and book.current_page >= book.total_pages:
             book.status = "READ"
         book.updated_at = utcnow()
+        book.last_opened_at = utcnow()
         db.session.commit()
         audit(
             "book.update",
@@ -896,6 +931,7 @@ def cover_lookup():
 @login_required
 def detail(book_id: str):
     book = _owned_book(book_id)
+    _touch_book(book)
     type_filter = (request.args.get("type") or "ALL").upper()
     if type_filter not in NOTE_TYPES:
         type_filter = "ALL"
@@ -986,6 +1022,7 @@ def progress(book_id: str):
         mode = "page"
 
     book.updated_at = utcnow()
+    book.last_opened_at = utcnow()
 
     if completed:
         book.status = "READ"
@@ -1041,6 +1078,7 @@ def status(book_id: str):
         elif book.total_pages:
             book.current_page = book.total_pages
     book.updated_at = utcnow()
+    book.last_opened_at = utcnow()
     db.session.commit()
     audit(
         "book.status",
@@ -1129,6 +1167,7 @@ def create():
 
     db.session.add(note)
     book.updated_at = utcnow()
+    book.last_opened_at = utcnow()
     db.session.commit()
     audit(
         "note.create",
@@ -1159,6 +1198,7 @@ def edit(note_id: str):
         abort(404)
 
     note.book_id = book.id
+    book.last_opened_at = utcnow()
     _apply_note_form(note, form)
     try:
         _save_note_photo(form, note)

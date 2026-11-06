@@ -56,7 +56,7 @@ Escolha a forma que combina com o seu servidor ou computador.
 O `.deb` instala o aplicativo GTK, o serviço local e o atalho no menu do GNOME:
 
 ```bash
-sudo apt install ./leobooks_1.0.7_amd64.deb
+sudo apt install ./leobooks_1.0.8_amd64.deb
 sudo systemctl status leobooks
 ```
 
@@ -72,21 +72,21 @@ O aplicativo usa a janela e o botão de fechar do próprio GNOME. O banco fica e
 ### Fedora 42
 
 ```bash
-sudo dnf install ./leobooks-1.0.7-1.fc42.x86_64.rpm
+sudo dnf install ./leobooks-1.0.8-1.fc42.x86_64.rpm
 sudo systemctl status leobooks
 ```
 
 Em Fedora com `yum`, o comando equivalente é:
 
 ```bash
-sudo yum install ./leobooks-1.0.7-1.fc42.x86_64.rpm
+sudo yum install ./leobooks-1.0.8-1.fc42.x86_64.rpm
 ```
 
 ### Arch e outras distros
 
 ```bash
-tar -xzf leobooks-1.0.7-linux-x86_64.tar.gz
-cd leobooks-1.0.7
+tar -xzf leobooks-1.0.8-linux-x86_64.tar.gz
+cd leobooks-1.0.8
 sudo ./install.sh
 ```
 
@@ -178,6 +178,10 @@ caminho da escola. Ela não quer registrar tudo: quer guardar o que vale a pena
 reler.
 
 ### 1. Coloque um livro na estante
+
+A estante abre pelos livros **em andamento** e pelos que você mais usa —
+aberturas, notas e progresso contam. Assim, o livro atual não some quando novos
+títulos entram na lista.
 
 Em **Biblioteca → Adicionar livro**, informe título e autor e escolha o formato:
 
@@ -440,8 +444,8 @@ docker compose push
 Para uma release versionada:
 
 ```bash
-LEOBOOKS_IMAGE_TAG=1.0.7 docker compose build
-LEOBOOKS_IMAGE_TAG=1.0.7 docker compose push
+LEOBOOKS_IMAGE_TAG=1.0.8 docker compose build
+LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 ```
 
 ### Testes
@@ -451,7 +455,7 @@ LEOBOOKS_IMAGE_TAG=1.0.7 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **107 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **108 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache e
 exclusão de conta.
 

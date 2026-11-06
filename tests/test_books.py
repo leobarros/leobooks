@@ -241,3 +241,22 @@ def test_progress_rejects_invalid_digital_percentage(app, auth_client):
     with app.app_context():
         assert db.session.get(Book, book_id).current_page == 126
         assert db.session.get(Book, book_id).percent_complete == 42.0
+
+
+def test_library_usage_keeps_current_reading_ahead(app, auth_client):
+    create_book(auth_client, title="Livro atual", status="READING")
+    with app.app_context():
+        current_id = Book.query.filter_by(title="Livro atual").one().id
+
+    create_book(auth_client, title="Livro recém-adicionado", status="READING")
+
+    # Abrir o livro atual deve colocá-lo à frente do recém-adicionado.
+    auth_client.get(f"/books/{current_id}")
+    html = auth_client.get("/library").get_data(as_text=True)
+    assert html.index('aria-label="Abrir Livro atual"') < html.index(
+        'aria-label="Abrir Livro recém-adicionado"'
+    )
+    with app.app_context():
+        book = db.session.get(Book, current_id)
+        assert book.open_count >= 2
+        assert book.last_opened_at is not None

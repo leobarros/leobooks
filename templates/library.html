@@ -38,6 +38,7 @@
     </div>
     <label class="visually-hidden" for="librarySort">Ordenar</label>
     <select class="form-select lb-select lb-select--sm" id="librarySort" name="sort" data-auto-submit>
+      <option value="usage" {{ 'selected' if sort == 'usage' }}>Mais usados</option>
       <option value="recent" {{ 'selected' if sort == 'recent' }}>Recentes</option>
       <option value="title" {{ 'selected' if sort == 'title' }}>Título A–Z</option>
       <option value="progress" {{ 'selected' if sort == 'progress' }}>Mais avançados</option>

@@ -199,6 +199,8 @@ class Book(db.Model):
     percent_complete = db.Column(db.Float, nullable=False, default=0.0)
     cover_url = db.Column(db.Text)
     cover_filename = db.Column(db.String(255))
+    last_opened_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    open_count = db.Column(db.Integer, nullable=False, default=0)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
     updated_at = db.Column(
         db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
@@ -216,6 +218,7 @@ class Book(db.Model):
 
     __table_args__ = (
         db.Index("idx_books_status", "status"),
+        db.Index("idx_books_user_activity", "user_id", "last_opened_at"),
         db.CheckConstraint(
             "status IN ('WANT_TO_READ', 'READING', 'READ', 'ABANDONED')",
             name="ck_books_status",

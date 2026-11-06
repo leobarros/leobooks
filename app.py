@@ -225,6 +225,7 @@ def create_app(overrides: dict | None = None) -> Flask:
         _ensure_admin_column()
         _ensure_onboarding_column()
         _ensure_book_media_columns()
+        _ensure_book_usage_columns()
         _ensure_an_admin_exists()
 
     return app
@@ -299,6 +300,31 @@ def _ensure_book_media_columns() -> None:
                 "FLOAT NOT NULL DEFAULT 0"
             )
         )
+    db.session.commit()
+
+
+def _ensure_book_usage_columns() -> None:
+    """Migração leve para a ordenação por uso (aberturas e atividade)."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "books" not in inspector.get_table_names():
+        return
+    columns = {column["name"] for column in inspector.get_columns("books")}
+    if "last_opened_at" not in columns:
+        db.session.execute(
+            text("ALTER TABLE books ADD COLUMN last_opened_at DATETIME")
+        )
+    if "open_count" not in columns:
+        db.session.execute(
+            text("ALTER TABLE books ADD COLUMN open_count INTEGER NOT NULL DEFAULT 0")
+        )
+    db.session.execute(
+        text(
+            "CREATE INDEX IF NOT EXISTS idx_books_user_activity "
+            "ON books (user_id, last_opened_at)"
+        )
+    )
     db.session.commit()
 
 

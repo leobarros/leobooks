@@ -7,6 +7,16 @@
 - Capturas atualizadas na versão atual com a conta fictícia **Mariana Sales**,
   incluindo desktop, celular, tutorial e tema madrugada.
 
+## 1.0.8 — 2026-11-05
+
+- A estante agora indexa os livros por uso: em andamento primeiro, depois
+  quantidade de notas, aberturas e última atividade.
+- O livro em leitura deixa de ir para trás quando novos livros são cadastrados.
+- Adicionadas as opções de ordenação **Mais usados** (padrão) e **Recentes**.
+- A abertura de um livro e a atividade de notas/progresso atualizam o índice.
+- Migração leve para `last_opened_at` e `open_count`, com índice por usuário e
+  atividade.
+
 ## 1.0.7 — 2026-10-24
 
 - Removida a barra interna; a janela usa apenas a decoração e o botão Fechar do

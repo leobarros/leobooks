@@ -112,6 +112,8 @@ fi
 %doc /usr/share/doc/leobooks/README.md
 
 %changelog
+* Wed Nov 05 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.8-1
+- Ordenação da estante por uso.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.7-1
 - Janela padrão do GNOME e cache de assets/WebKit.
 * Sat Oct 24 2026 LeoBooks <nickolback@users.noreply.github.com> - 1.0.6-1
