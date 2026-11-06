@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block title %}Ajuda · LeoBooks{% endblock %}
+
+{% block content %}
+<header class="lb-pagehead">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">Ajuda <span class="lb-eyebrow__dot" aria-hidden="true"></span> método de anotação</p>
+    <h1 class="lb-pagehead__title">Anotar é <em>conversar</em> com o texto.</h1>
+    <p class="lb-pagehead__deck">
+      Não é sobre escrever muito. É sobre parar no momento certo, registrar uma
+      reação e conseguir voltar a ela depois. Estes três métodos funcionam no
+      papel e dentro do LeoBooks.
+    </p>
+  </div>
+  <button type="button" class="lb-btn lb-btn--primary" data-note-open data-note-type="QUOTE">
+    <i class="bi bi-feather"></i> Nova nota
+  </button>
+</header>
+
+<div class="lb-settings__content">
+  <section class="lb-setting-card" id="simbolos">
+    <header class="lb-setting-card__head">
+      <span class="lb-setting-card__num">01</span>
+      <div>
+        <h2>Três símbolos</h2>
+        <p>Para marcar durante a leitura sem interromper o ritmo.</p>
+      </div>
+    </header>
+    <p>Use poucos sinais no papel ou no digital. Eles são um lembrete para a
+      conversa que você terá depois com o texto.</p>
+    <div class="d-flex flex-column gap-2 mb-3">
+      <p class="mb-0"><span class="lb-kbd">*</span> <strong>Importante:</strong>
+        uma ideia que mudou algo na sua leitura.</p>
+      <p class="mb-0"><span class="lb-kbd">?</span> <strong>Dúvida:</strong>
+        algo que você quer investigar, comparar ou reler.</p>
+      <p class="mb-0"><span class="lb-kbd">R</span> <strong>Releitura:</strong>
+        um trecho que merece voltar, pela beleza ou pela dificuldade.</p>
+    </div>
+    <p class="lb-hint">
+      No LeoBooks, transforme cada marca em uma nota curta. Uma frase já basta;
+      o importante é registrar a sua reação, não copiar a página inteira.
+    </p>
+  </section>
+
+  <section class="lb-setting-card" id="notas">
+    <header class="lb-setting-card__head">
+      <span class="lb-setting-card__num">02</span>
+      <div>
+        <h2>Três notas</h2>
+        <p>Para dar uma forma diferente a cada tipo de pensamento.</p>
+      </div>
+    </header>
+    <p class="mb-2"><i class="bi bi-quote"></i> <strong>Citação:</strong>
+      o trecho exato que você quer guardar, com capítulo e página.</p>
+    <p class="mb-2"><i class="bi bi-journal-text"></i> <strong>Resumo:</strong>
+      a ideia do capítulo com as suas palavras. Se não conseguir reformular,
+      talvez ainda não tenha entendido — e tudo bem voltar.</p>
+    <p class="mb-3"><i class="bi bi-lightbulb"></i> <strong>Insight:</strong>
+      uma conexão com outro livro, uma aula, uma pergunta ou uma discordância.</p>
+    <p class="lb-hint">
+      Evite sublinhar tudo. Destaque só o que gerou surpresa, dúvida ou
+      discordância; depois, escolha uma das três notas para elaborar.
+    </p>
+  </section>
+
+  <section class="lb-setting-card" id="tempos">
+    <header class="lb-setting-card__head">
+      <span class="lb-setting-card__num">03</span>
+      <div>
+        <h2>Três tempos</h2>
+        <p>Para a anotação não virar um arquivo esquecido.</p>
+      </div>
+    </header>
+    <p class="mb-2"><strong>Durante:</strong> marque o que provoca reação.
+      Não pare a leitura para escrever um texto longo.</p>
+    <p class="mb-2"><strong>No fim do capítulo:</strong> transforme as marcas em
+      uma citação, um resumo ou um insight. É aqui que a leitura vira caderno.</p>
+    <p class="mb-3"><strong>Depois:</strong> use a <strong>Revisão</strong> e as
+      tags para reencontrar o que ficou. Reler uma nota vale mais do que
+      acumular cinquenta sublinhados.</p>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="lb-btn lb-btn--ghost lb-btn--sm" href="{{ url_for('main.review') }}">
+        <i class="bi bi-shuffle"></i> Revisar citações
+      </a>
+      <a class="lb-btn lb-btn--ghost lb-btn--sm" href="{{ url_for('main.library') }}">
+        <i class="bi bi-collection"></i> Voltar à estante
+      </a>
+    </div>
+  </section>
+
+  <p class="lb-hint">
+    Inspirado em
+    <a href="https://consciencialiteraria.com/anotacoes-durante-leitura/"
+       target="_blank" rel="noopener noreferrer">“Anotações durante a Leitura:
+       Guia Prático”</a>, adaptado ao caderno do LeoBooks.
+  </p>
+</div>
+{% endblock %}

@@ -22,6 +22,7 @@ def test_authenticated_pages_render(auth_client, book):
         "/tags": "fios",
         "/review": "Releia o que você",
         "/settings": "Dados e backup",
+        "/help": "Três símbolos",
         "/books/new": "Coloque um livro",
         f"/books/{book['id']}": "O Poder do Hábito",
         "/search?q=grande": "A <strong>grande</strong> ideia",
@@ -125,3 +126,11 @@ def test_static_assets_are_cacheable(client):
     response = client.get("/static/css/style.css")
     assert response.status_code == 200
     assert "max-age=3600" in response.headers["Cache-Control"]
+
+
+def test_help_page_explains_three_methods(auth_client):
+    page = auth_client.get("/help").get_data(as_text=True)
+    assert "Três símbolos" in page
+    assert "Três notas" in page
+    assert "Três tempos" in page
+    assert 'href="/help"' in auth_client.get("/").get_data(as_text=True)

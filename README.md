@@ -247,6 +247,15 @@ continua anexada normalmente.
 
 ![Modal de nova nota com editor Markdown](docs/screenshots/nota.webp)
 
+![Página de ajuda com três métodos de anotação](docs/screenshots/ajuda.webp)
+
+Em **Ajuda**, o LeoBooks reúne três métodos curtos:
+
+- **Três símbolos:** marcar importância, dúvida e releitura sem interromper a leitura.
+- **Três notas:** transformar as marcas em citação, resumo ou insight.
+- **Três tempos:** capturar durante, sintetizar no fim do capítulo e revisar depois.
+
+
 ### 3. Acompanhe seu ritmo
 
 Cada formato tem sua mecânica:
@@ -496,7 +505,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **111 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **112 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 

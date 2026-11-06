@@ -1874,6 +1874,13 @@ def export_book(book_id: str):
     )
 
 
+@main_bp.route("/help")
+@login_required
+def help_page():
+    """Guia curto de método de anotação para o leitor."""
+    return render_template("help.html")
+
+
 @main_bp.route("/healthz")
 def healthz():
     return Response("ok", mimetype="text/plain")

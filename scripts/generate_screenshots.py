@@ -280,6 +280,10 @@ def main() -> None:
         login(page)
         shot(page, "inicio")
 
+        page.goto(f"{BASE}/help", wait_until="networkidle")
+        page.wait_for_timeout(400)
+        shot(page, "ajuda")
+
         page.goto(f"{BASE}/library", wait_until="networkidle")
         page.wait_for_timeout(500)
         shot(page, "biblioteca")

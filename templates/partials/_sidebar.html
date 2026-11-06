@@ -43,9 +43,16 @@
       <span class="lb-nav__text">Revisão</span>
     </a>
 
+    <a class="lb-nav__link {{ 'is-active' if request.endpoint == 'main.help_page' }}"
+       {% if request.endpoint == 'main.help_page' %}aria-current="page"{% endif %} href="{{ url_for('main.help_page') }}">
+      <span class="lb-nav__num">05</span>
+      <i class="bi bi-question-circle"></i>
+      <span class="lb-nav__text">Ajuda</span>
+    </a>
+
     <a class="lb-nav__link {{ 'is-active' if request.endpoint and request.endpoint.startswith('settings.') }}"
        {% if request.endpoint and request.endpoint.startswith('settings.') %}aria-current="page"{% endif %} href="{{ url_for('settings.index') }}">
-      <span class="lb-nav__num">05</span>
+      <span class="lb-nav__num">06</span>
       <i class="bi bi-sliders2"></i>
       <span class="lb-nav__text">Ajustes</span>
     </a>
@@ -86,6 +93,11 @@
           <span>{{ current_user.email }}</span>
         </li>
         <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item" href="{{ url_for('main.help_page') }}">
+            <i class="bi bi-question-circle"></i> Ajuda e método de anotação
+          </a>
+        </li>
         <li>
           <a class="dropdown-item" href="{{ url_for('settings.index') }}">
             <i class="bi bi-sliders2"></i> Ajustes da conta

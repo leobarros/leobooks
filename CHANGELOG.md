@@ -2,6 +2,10 @@
 
 ## Não lançado
 
+- Adicionada a página **Ajuda**, com três métodos de anotação: três símbolos,
+  três notas e três tempos.
+- Ajuda acessível pelo menu lateral, pelo menu da conta e pelos Ajustes.
+
 - Sugestões de tags existentes no modal de nota, ordenadas por uso e filtradas
   enquanto o usuário digita.
 - Unicidade case-insensitive de tags (`Humano`/`humano`), com migração que une
