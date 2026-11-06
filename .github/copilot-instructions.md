@@ -1,5 +1,12 @@
 # Skill LeoBooks Development Specialist
 
+## Pausa atual: sem pacotes Linux
+
+Não gerar `.deb`, `.rpm`, tarball ou releases de pacotes Linux neste momento.
+Não executar `./packaging/build-all.sh`. O desenvolvimento atual é focado no app
+local e no Docker. A pausa só deve ser removida quando o usuário pedir
+explicitamente para retomar o empacotamento Linux.
+
 Esta skill estabelece o contexto, as diretrizes de código, os padrões de segurança e as especificações de design para o desenvolvimento do aplicativo LeoBooks utilizando Flask (WSGI), SQLite, Bootstrap e Markdown.
 
 1. Contexto & Objetivos

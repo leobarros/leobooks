@@ -1,5 +1,16 @@
 # Diretrizes de desenvolvimento
 
+## Estado atual: pacotes Linux pausados
+
+**Não gerar pacotes Linux neste momento.** Enquanto esta instrução estiver
+presente, não execute `./packaging/build-all.sh`, não crie `.deb`, `.rpm` ou
+tarball e não publique releases de pacotes Linux. O foco é o app local e o
+Docker.
+
+A seção **Empacotamento** abaixo fica suspensa até que o usuário peça
+explicitamente para retomar os pacotes. Retomar significa remover esta pausa e
+atualizar os arquivos de agentes.
+
 ## Testes obrigatórios
 
 Toda mudança — código, template, configuração, migração ou empacotamento — deve
@@ -41,10 +52,10 @@ O resultado esperado é `healthy` e HTTP **200**.
 Para mudanças de interface, abra `http://127.0.0.1:5059` e valide o fluxo
 principal no container, não apenas no servidor local.
 
-## Empacotamento
+## Empacotamento (suspenso enquanto a pausa acima estiver ativa)
 
-Mudanças em `packaging/`, `VERSION`, `app.py`, `models.py`, `routes.py` ou nas
-migrações também exigem:
+Quando a pausa for removida, mudanças em `packaging/`, `VERSION`, `app.py`,
+`models.py`, `routes.py` ou nas migrações também exigirão:
 
 ```bash
 ./packaging/build-all.sh
