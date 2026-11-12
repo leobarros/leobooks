@@ -629,13 +629,22 @@
     }
   });
 
-  tagInput?.addEventListener("blur", () => {
-    if (tagInput.value.trim()) addTag(tagInput.value);
-  });
-
   tagInput?.addEventListener("input", filterTagSuggestions);
 
+  // Não consolida no blur: o clique numa sugestão chegaria depois e o prefixo
+  // digitado ("hum") viraria uma tag antes de "humanidade".
+  noteForm?.addEventListener("submit", () => {
+    if (tagInput?.value.trim()) addTag(tagInput.value);
+  });
+
   tagSuggestionButtons.forEach((button) => {
+    // pointerdown acontece antes do blur do input; sem isso, o texto parcial
+    // ("hum") seria salvo antes de o clique aplicar a sugestão ("humanos").
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      addTag(button.dataset.suggestion);
+    });
+    // Mantém o clique para ativação por teclado.
     button.addEventListener("click", () => addTag(button.dataset.suggestion));
   });
 

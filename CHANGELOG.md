@@ -2,6 +2,10 @@
 
 ## Não lançado
 
+- Corrigido o clique nas sugestões de tags: o `blur` do campo não salva mais o
+  prefixo digitado (`hum`) antes de aplicar a sugestão (`humanidade`).
+- Tags digitadas sem Enter são consolidadas no envio do formulário.
+
 - Adicionada a página **Ajuda**, com três métodos de anotação: três símbolos,
   três notas e três tempos.
 - Ajuda acessível pelo menu lateral, pelo menu da conta e pelos Ajustes.
