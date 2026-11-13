@@ -247,6 +247,10 @@ continua anexada normalmente.
 
 ![Modal de nova nota com editor Markdown](docs/screenshots/nota.webp)
 
+Ao terminar uma nota, use **Salvar e adicionar outra** para continuar no mesmo
+livro e capítulo sem precisar clicar novamente em “Adicionar nota”. O botão
+**Salvar** continua fechando a nota e voltando ao livro.
+
 ![Página de ajuda com três métodos de anotação](docs/screenshots/ajuda.webp)
 
 Em **Ajuda**, o LeoBooks reúne três métodos curtos:
@@ -505,7 +509,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **112 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **113 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 

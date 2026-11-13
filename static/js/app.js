@@ -724,6 +724,8 @@
     const title = $("[data-note-title]");
     const eyebrow = $("[data-note-eyebrow]");
     const submitLabel = $("[data-note-submit] span");
+    const anotherButton = $("[data-note-submit-another]");
+    if (anotherButton) anotherButton.hidden = mode === "edit";
     if (mode === "edit") {
       if (title) title.textContent = "Editar nota";
       if (eyebrow) eyebrow.textContent = "Revisitando uma margem";
@@ -769,6 +771,10 @@
       const typeInput = $(`input[name="type"][value="${options.type}"]`, noteForm);
       if (typeInput) typeInput.checked = true;
     }
+    if (options.chapter) {
+      const chapter = $("#noteChapter", noteForm);
+      if (chapter) chapter.value = options.chapter;
+    }
     noteModalInstance.show();
     window.setTimeout(() => {
       if (options.focus === "photo") {
@@ -789,6 +795,18 @@
       });
     });
   });
+
+  // Após "Salvar e adicionar outra", reabre o modal no mesmo livro/capítulo.
+  const autoNoteParams = new URLSearchParams(window.location.search);
+  if (autoNoteParams.get("add_note") === "1" && noteModalInstance && noteForm) {
+    const options = {
+      bookId: autoNoteParams.get("book_id") || "",
+      type: autoNoteParams.get("note_type") || "QUOTE",
+      chapter: autoNoteParams.get("chapter") || "",
+    };
+    window.history.replaceState({}, "", window.location.pathname);
+    window.setTimeout(() => openNoteModal(options), 350);
+  }
 
   $$(".js-edit-note").forEach((button) => {
     button.addEventListener("click", () => {

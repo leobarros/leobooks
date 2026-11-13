@@ -280,3 +280,27 @@ def test_note_modal_exposes_existing_tags_as_suggestions(auth_client, book):
     assert "data-tag-catalog=" in page
     assert 'data-suggestion="Humano"' in page
     assert 'data-suggestion="história"' in page
+
+
+def test_save_and_add_another_redirects_to_new_note(app, auth_client, book):
+    response = auth_client.post(
+        "/notes/new",
+        data={
+            "book_id": book["id"],
+            "type": "QUOTE",
+            "content": "Primeira citação do capítulo.",
+            "chapter": "3",
+            "page_number": "42",
+            "tags": "política",
+            "add_another": "1",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    location = response.headers["Location"]
+    assert f"/books/{book['id']}" in location
+    assert "add_note=1" in location
+    assert "note_type=QUOTE" in location
+    assert "chapter=3" in location
+    with app.app_context():
+        assert Note.query.count() == 1

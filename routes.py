@@ -1178,6 +1178,17 @@ def create():
         tag_count=len(note.tags),
         has_photo=bool(note.image_filename),
     )
+    if request.form.get("add_another") == "1":
+        flash("Nota guardada. Continue com a próxima.", "success")
+        params = {
+            "book_id": book.id,
+            "add_note": 1,
+            "note_type": note.type,
+        }
+        if note.chapter:
+            params["chapter"] = note.chapter
+        return redirect(url_for("books.detail", **params))
+
     flash("Nota guardada no seu caderno.", "success")
     return redirect_back("books.detail", fallback_kwargs={"book_id": book.id})
 

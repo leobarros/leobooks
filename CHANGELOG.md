@@ -2,6 +2,10 @@
 
 ## Não lançado
 
+- Adicionado **Salvar e adicionar outra** no modal de nota: salva e reabre uma
+  nota nova no mesmo livro, preservando tipo e capítulo.
+- O botão **Salvar** continua com o comportamento anterior.
+
 - Corrigido o clique nas sugestões de tags: o `blur` do campo não salva mais o
   prefixo digitado (`hum`) antes de aplicar a sugestão (`humanidade`).
 - Tags digitadas sem Enter são consolidadas no envio do formulário.
