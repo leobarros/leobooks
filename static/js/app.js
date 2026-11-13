@@ -797,6 +797,15 @@
   });
 
   // Após "Salvar e adicionar outra", reabre o modal no mesmo livro/capítulo.
+  function cleanAutoNoteUrl(raw) {
+    const url = new URL(raw, window.location.origin);
+    if (url.searchParams.get("add_note") !== "1") return url.pathname + url.search + url.hash;
+    ["add_note", "book_id", "note_type", "chapter"].forEach((key) => {
+      url.searchParams.delete(key);
+    });
+    return url.pathname + url.search + url.hash;
+  }
+
   const autoNoteParams = new URLSearchParams(window.location.search);
   if (autoNoteParams.get("add_note") === "1" && noteModalInstance && noteForm) {
     const options = {
@@ -804,7 +813,12 @@
       type: autoNoteParams.get("note_type") || "QUOTE",
       chapter: autoNoteParams.get("chapter") || "",
     };
-    window.history.replaceState({}, "", window.location.pathname);
+    // Os formulários de exclusão guardam request.full_path em `next`.
+    // Limpa também esses valores para o modal não voltar após excluir.
+    $$('input[name="next"]').forEach((input) => {
+      input.value = cleanAutoNoteUrl(input.value);
+    });
+    window.history.replaceState({}, "", cleanAutoNoteUrl(window.location.href));
     window.setTimeout(() => openNoteModal(options), 350);
   }
 

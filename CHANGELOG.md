@@ -2,6 +2,10 @@
 
 ## Não lançado
 
+- Corrigido o fluxo de edição/exclusão de nota: parâmetros de auto-abertura
+  (`add_note`) são removidos do destino, evitando que o formulário de criação
+  reapareça após excluir.
+
 - Adicionado **Salvar e adicionar outra** no modal de nota: salva e reabre uma
   nota nova no mesmo livro, preservando tipo e capítulo.
 - O botão **Salvar** continua com o comportamento anterior.

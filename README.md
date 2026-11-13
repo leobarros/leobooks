@@ -509,7 +509,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **113 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **114 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 

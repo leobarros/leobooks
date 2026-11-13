@@ -304,3 +304,18 @@ def test_save_and_add_another_redirects_to_new_note(app, auth_client, book):
     assert "chapter=3" in location
     with app.app_context():
         assert Note.query.count() == 1
+
+
+def test_delete_note_ignores_auto_open_query(app, auth_client, book):
+    create_note(auth_client, book["id"], content="Para excluir")
+    with app.app_context():
+        note_id = Note.query.one().id
+
+    response = auth_client.post(
+        f"/notes/{note_id}/delete",
+        data={"next": f"/books/{book['id']}?add_note=1&book_id={book['id']}&chapter=3"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    assert "add_note" not in response.headers["Location"]
+    assert "chapter=" not in response.headers["Location"]

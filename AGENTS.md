@@ -55,7 +55,7 @@ ser validada **localmente e no Docker** antes de ser considerada concluída.
 .venv/bin/pytest -q
 ```
 
-A suíte atual tem **113 testes**. Não considere a mudança pronta se houver
+A suíte atual tem **114 testes**. Não considere a mudança pronta se houver
 falhas.
 
 **Além dos testes, suba o próprio projeto e veja a mudança acontecendo.** Use uma

@@ -6,7 +6,7 @@ import hashlib
 import re
 from datetime import date, datetime, timedelta, timezone
 from functools import wraps
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunsplit
 
 from flask import abort, flash, g, redirect, request, session, url_for
 
@@ -89,6 +89,20 @@ def safe_next_url(target: str | None) -> str | None:
     return target
 
 
+def _strip_auto_note_query(target: str) -> str:
+    """Remove parâmetros usados só para reabrir o modal após salvar uma nota."""
+    parsed = urlparse(target)
+    if "add_note" not in dict(parse_qsl(parsed.query, keep_blank_values=True)):
+        return target
+    auto_keys = {"add_note", "book_id", "note_type", "chapter"}
+    query = [
+        (key, value)
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if key not in auto_keys
+    ]
+    return urlunsplit(("", "", parsed.path, urlencode(query), parsed.fragment))
+
+
 def redirect_back(
     fallback_endpoint: str = "main.dashboard",
     fallback_kwargs: dict | None = None,
@@ -97,7 +111,7 @@ def redirect_back(
     target = request.form.get("next") or request.args.get("next")
     safe = safe_next_url(target)
     if safe:
-        return redirect(safe)
+        return redirect(_strip_auto_note_query(safe))
     return redirect(url_for(fallback_endpoint, **(fallback_kwargs or {})))
 
 
