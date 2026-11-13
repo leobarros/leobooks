@@ -103,6 +103,14 @@ def _strip_auto_note_query(target: str) -> str:
     return urlunsplit(("", "", parsed.path, urlencode(query), parsed.fragment))
 
 
+def clean_return_url(target: str) -> str:
+    """Destino de retorno seguro, sem parâmetros de auto-abertura do modal."""
+    safe = safe_next_url(target)
+    if not safe:
+        return ""
+    return _strip_auto_note_query(safe)
+
+
 def redirect_back(
     fallback_endpoint: str = "main.dashboard",
     fallback_kwargs: dict | None = None,
@@ -349,5 +357,6 @@ def register_template_helpers(app) -> None:
             "data_curta": format_date_short,
             "hora": format_time,
             "tempo_atras": time_ago,
+            "return_url": clean_return_url,
         }
     )

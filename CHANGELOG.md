@@ -2,6 +2,9 @@
 
 ## Não lançado
 
+- Adicionada cobertura de regressão para o formulário renderizado de exclusão:
+  o campo `next` não pode conter `add_note` nem reabrir o modal de criação.
+
 - Corrigido o fluxo de edição/exclusão de nota: parâmetros de auto-abertura
   (`add_note`) são removidos do destino, evitando que o formulário de criação
   reapareça após excluir.

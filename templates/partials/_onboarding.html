@@ -194,7 +194,7 @@
       <form id="onboardingCompleteForm" method="post"
             action="{{ url_for('settings.onboarding_complete') }}" hidden>
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="next" value="{{ request.full_path }}">
+        <input type="hidden" name="next" value="{{ request.full_path|return_url }}">
       </form>
     </div>
   </div>

@@ -319,3 +319,26 @@ def test_delete_note_ignores_auto_open_query(app, auth_client, book):
     assert response.status_code == 302
     assert "add_note" not in response.headers["Location"]
     assert "chapter=" not in response.headers["Location"]
+
+
+def test_book_detail_delete_form_does_not_reopen_note_modal(app, auth_client, book):
+    response = auth_client.post(
+        "/notes/new",
+        data={
+            "book_id": book["id"],
+            "type": "QUOTE",
+            "content": "Citação para testar o retorno.",
+            "chapter": "3",
+            "page_number": "10",
+            "add_another": "1",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    detail = auth_client.get(response.headers["Location"])
+    html = detail.get_data(as_text=True)
+    next_values = __import__("re").findall(
+        r'name="next" value="([^"]*)"', html
+    )
+    assert next_values
+    assert all("add_note" not in value for value in next_values)

@@ -10,7 +10,7 @@
               data-create-title="Nova nota"
               data-create-eyebrow="Captura rápida">
           {{ quick_note_form.hidden_tag() }}
-          <input type="hidden" name="next" value="{{ request.full_path }}">
+          <input type="hidden" name="next" value="{{ request.full_path|return_url }}">
 
           <header class="lb-modal__head">
             <div>

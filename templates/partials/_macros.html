@@ -90,7 +90,7 @@
               <form method="post" action="{{ url_for('notes.delete', note_id=note.id) }}"
                     data-confirm="Remover esta nota? Essa ação não pode ser desfeita.">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <input type="hidden" name="next" value="{{ request.full_path|return_url }}">
                 <button type="submit" class="dropdown-item dropdown-item--danger">
                   <i class="bi bi-trash3"></i> Excluir nota
                 </button>
