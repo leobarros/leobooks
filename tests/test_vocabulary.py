@@ -139,3 +139,33 @@ def test_dictionary_parser_handles_missing_page(monkeypatch):
         pass
     else:
         raise AssertionError("palavra ausente deveria levantar WordNotFound")
+
+
+def test_vocabulary_is_filtered_by_book_and_linked_from_book(app, auth_client, book):
+    from tests.helpers import create_book
+
+    create_book(auth_client, title="Outro Livro", isbn="9780000000002")
+    with app.app_context():
+        from models import Book
+
+        other_book = Book.query.filter_by(title="Outro Livro").one()
+        other_id = other_book.id
+
+    for word, book_id in (("primeira", book["id"]), ("outra", other_id)):
+        auth_client.post(
+            "/vocabulary",
+            data={
+                "word": word,
+                "definition": f"Definição de {word}.",
+                "book_id": book_id,
+            },
+        )
+
+    filtered = auth_client.get(f"/vocabulary?book_id={book['id']}")
+    html = filtered.get_data(as_text=True)
+    assert "Definição de primeira" in html
+    assert "Definição de outra" not in html
+    assert book["title"] in html
+
+    detail = auth_client.get(f"/books/{book['id']}").get_data(as_text=True)
+    assert f"/vocabulary?book_id={book['id']}" in detail

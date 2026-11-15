@@ -4,12 +4,24 @@
 {% block content %}
 <header class="lb-pagehead">
   <div class="lb-pagehead__main">
-    <p class="lb-eyebrow">Vocabulário <span class="lb-eyebrow__dot" aria-hidden="true"></span> {{ words|length }} {% if words|length == 1 %}palavra{% else %}palavras{% endif %}</p>
-    <h1 class="lb-pagehead__title">Palavras que <em>ficaram</em>.</h1>
-    <p class="lb-pagehead__deck">
-      Anote as palavras que interromperam a leitura, a definição que fez sentido
-      e o contexto em que elas apareceram.
+    <p class="lb-eyebrow">
+      Vocabulário <span class="lb-eyebrow__dot" aria-hidden="true"></span>
+      {{ words|length }} {% if words|length == 1 %}palavra{% else %}palavras{% endif %}
+      {% if selected_book %} · {{ selected_book.title }}{% endif %}
     </p>
+    {% if selected_book %}
+      <h1 class="lb-pagehead__title">Palavras de <em>{{ selected_book.title }}</em>.</h1>
+      <p class="lb-pagehead__deck">
+        Definições e contextos que você encontrou neste livro.
+        <a href="{{ url_for('main.vocabulary') }}">Ver todo o vocabulário</a>
+      </p>
+    {% else %}
+      <h1 class="lb-pagehead__title">Palavras que <em>ficaram</em>.</h1>
+      <p class="lb-pagehead__deck">
+        Anote as palavras que interromperam a leitura, a definição que fez sentido
+        e o contexto em que elas apareceram.
+      </p>
+    {% endif %}
   </div>
 </header>
 
@@ -18,7 +30,7 @@
     <header class="lb-setting-card__head">
       <span class="lb-setting-card__num">01</span>
       <div>
-        <h2>Anotar uma palavra</h2>
+        <h2>{% if selected_book %}Anotar neste livro{% else %}Anotar uma palavra{% endif %}</h2>
         <p>Busque no Wikcionário ou escreva a definição com suas palavras.</p>
       </div>
     </header>
@@ -69,6 +81,7 @@
     </header>
 
     <form method="get" action="{{ url_for('main.vocabulary') }}" class="lb-toolbar" role="search">
+      {% if selected_book %}<input type="hidden" name="book_id" value="{{ selected_book.id }}">{% endif %}
       <div class="lb-input-icon">
         <i class="bi bi-search"></i>
         <input class="form-control lb-input" type="search" name="q" value="{{ query_text }}"
@@ -113,8 +126,8 @@
       <div class="lb-empty lb-empty--inline">
         <div class="lb-empty__content">
           <p class="lb-eyebrow">Nenhuma palavra ainda</p>
-          <h2>A primeira palavra está esperando.</h2>
-          <p>Quando uma palavra interromper sua leitura, traga ela para cá.</p>
+          <h2>{% if selected_book %}Nenhuma palavra deste livro ainda.{% else %}A primeira palavra está esperando.{% endif %}</h2>
+          <p>{% if selected_book %}A primeira palavra deste livro pode começar agora.{% else %}Quando uma palavra interromper sua leitura, traga ela para cá.{% endif %}</p>
         </div>
       </div>
     {% endif %}

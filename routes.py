@@ -613,6 +613,15 @@ def vocabulary():
     if request.method == "POST" and form.errors:
         flash(_first_error(form), "danger")
 
+    book_filter_id = (request.args.get("book_id") or "").strip()
+    selected_book = None
+    if book_filter_id:
+        selected_book = Book.query.filter_by(
+            id=book_filter_id, user_id=user.id
+        ).first_or_404()
+        if request.method == "GET" and not form.book_id.data:
+            form.book_id.data = selected_book.id
+
     if form.validate_on_submit():
         word = " ".join((form.word.data or "").split()).strip()
         key = strip_accents(word).casefold()
@@ -644,10 +653,14 @@ def vocabulary():
             has_context=bool(entry.context),
         )
         flash(f"“{entry.word}” guardada no vocabulário.", "success")
+        if entry.book_id:
+            return redirect(url_for("main.vocabulary", book_id=entry.book_id))
         return redirect(url_for("main.vocabulary"))
 
     query_text = (request.args.get("q") or "").strip()[:120]
     query = VocabularyWord.query.filter_by(user_id=user.id)
+    if selected_book is not None:
+        query = query.filter(VocabularyWord.book_id == selected_book.id)
     if query_text:
         like = f"%{strip_accents(query_text)}%"
         query = query.filter(
@@ -663,6 +676,7 @@ def vocabulary():
         form=form,
         words=words,
         query_text=query_text,
+        selected_book=selected_book,
     )
 
 
@@ -690,6 +704,8 @@ def vocabulary_delete(word_id: str):
     db.session.commit()
     audit("vocabulary.delete", word_id=word_id)
     flash(f"“{word}” removida do vocabulário.", "info")
+    if entry.book_id:
+        return redirect(url_for("main.vocabulary", book_id=entry.book_id))
     return redirect(url_for("main.vocabulary"))
 
 

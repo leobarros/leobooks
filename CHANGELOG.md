@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- Vocabulário filtrado por livro e novo botão **Vocabulário** na página do
+  livro, mantendo o acesso pelo menu lateral.
 - Adicionados testes do parser do Wikcionário, incluindo resposta vazia.
 - Adicionada a página **Vocabulário** para guardar palavras, definições,
   contexto e o livro relacionado.
