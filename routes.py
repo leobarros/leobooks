@@ -45,6 +45,7 @@ from forms import (
     ProfileForm,
     RegisterForm,
     RestoreForm,
+    VocabularyForm,
 )
 from helpers import (
     admin_required,
@@ -70,9 +71,11 @@ from models import (
     Note,
     Tag,
     User,
+    VocabularyWord,
     db,
     utcnow,
 )
+from utils import dictionary
 from utils.audit import audit
 from utils.backup import (
     BackupError,
@@ -591,6 +594,103 @@ def review():
         index=index,
         next_seed=index + 1,
     )
+
+
+@main_bp.route("/vocabulary", methods=["GET", "POST"])
+@login_required
+def vocabulary():
+    user = current_user()
+    form = VocabularyForm()
+    books = (
+        Book.query.filter_by(user_id=user.id)
+        .order_by(*_book_usage_order())
+        .all()
+    )
+    form.book_id.choices = [("", "Sem livro")] + [
+        (book.id, f"{book.title} — {book.authors}") for book in books
+    ]
+
+    if request.method == "POST" and form.errors:
+        flash(_first_error(form), "danger")
+
+    if form.validate_on_submit():
+        word = " ".join((form.word.data or "").split()).strip()
+        key = strip_accents(word).casefold()
+        existing = VocabularyWord.query.filter_by(
+            user_id=user.id, word_key=key
+        ).first()
+        if existing is not None:
+            flash(f"A palavra “{existing.word}” já está no seu vocabulário.", "warning")
+            return redirect(url_for("main.vocabulary"))
+        book = None
+        if form.book_id.data:
+            book = Book.query.filter_by(
+                id=form.book_id.data, user_id=user.id
+            ).first()
+        entry = VocabularyWord(
+            user_id=user.id,
+            book_id=book.id if book else None,
+            word=word,
+            word_key=key,
+            definition=(form.definition.data or "").strip(),
+            context=(form.context.data or "").strip() or None,
+        )
+        db.session.add(entry)
+        db.session.commit()
+        audit(
+            "vocabulary.create",
+            word_id=entry.id,
+            book_id=entry.book_id,
+            has_context=bool(entry.context),
+        )
+        flash(f"“{entry.word}” guardada no vocabulário.", "success")
+        return redirect(url_for("main.vocabulary"))
+
+    query_text = (request.args.get("q") or "").strip()[:120]
+    query = VocabularyWord.query.filter_by(user_id=user.id)
+    if query_text:
+        like = f"%{strip_accents(query_text)}%"
+        query = query.filter(
+            or_(
+                func.unaccent(VocabularyWord.word).ilike(like),
+                func.unaccent(VocabularyWord.definition).ilike(like),
+                func.unaccent(VocabularyWord.context).ilike(like),
+            )
+        )
+    words = query.order_by(VocabularyWord.word.asc()).all()
+    return render_template(
+        "vocabulary.html",
+        form=form,
+        words=words,
+        query_text=query_text,
+    )
+
+
+@main_bp.route("/vocabulary/lookup")
+@login_required
+def vocabulary_lookup():
+    word = (request.args.get("word") or "").strip()
+    try:
+        result = dictionary.lookup_word(word)
+    except dictionary.WordNotFound as exc:
+        return jsonify({"ok": False, "message": str(exc)}), 404
+    except dictionary.DictionaryError as exc:
+        return jsonify({"ok": False, "message": str(exc)}), 502
+    return jsonify({"ok": True, **result})
+
+
+@main_bp.route("/vocabulary/<word_id>/delete", methods=["POST"])
+@login_required
+def vocabulary_delete(word_id: str):
+    entry = VocabularyWord.query.filter_by(
+        id=word_id, user_id=current_user().id
+    ).first_or_404()
+    word = entry.word
+    db.session.delete(entry)
+    db.session.commit()
+    audit("vocabulary.delete", word_id=word_id)
+    flash(f"“{word}” removida do vocabulário.", "info")
+    return redirect(url_for("main.vocabulary"))
 
 
 @main_bp.route("/search")

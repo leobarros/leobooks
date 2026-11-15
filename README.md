@@ -260,6 +260,13 @@ Em **Ajuda**, o LeoBooks reúne três métodos curtos:
 - **Três tempos:** capturar durante, sintetizar no fim do capítulo e revisar depois.
 
 
+### Palavras que ficaram
+
+Em **Vocabulário**, guarde a palavra, a definição e o contexto em que ela apareceu. A definição pode ser escrita à mão ou buscada no Wikcionário; você pode editá-la antes de salvar. A consulta envia apenas a palavra, e suas notas ficam locais.
+
+![Página de vocabulário com palavras e definições](docs/screenshots/vocabulario.webp)
+
+
 ### 3. Acompanhe seu ritmo
 
 Cada formato tem sua mecânica:
@@ -509,7 +516,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **115 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **120 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 

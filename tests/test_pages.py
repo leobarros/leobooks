@@ -23,6 +23,7 @@ def test_authenticated_pages_render(auth_client, book):
         "/review": "Releia o que você",
         "/settings": "Dados e backup",
         "/help": "Três símbolos",
+        "/vocabulary": "Palavras que",
         "/books/new": "Coloque um livro",
         f"/books/{book['id']}": "O Poder do Hábito",
         "/search?q=grande": "A <strong>grande</strong> ideia",

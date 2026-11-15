@@ -2,6 +2,13 @@
 
 ## Não lançado
 
+- Adicionados testes do parser do Wikcionário, incluindo resposta vazia.
+- Adicionada a página **Vocabulário** para guardar palavras, definições,
+  contexto e o livro relacionado.
+- Consulta opcional de definições no Wikcionário, com edição manual e fallback
+  quando a API não responde.
+- Busca sem acentos e remoção de palavras.
+
 - Adicionada cobertura de regressão para o formulário renderizado de exclusão:
   o campo `next` não pode conter `add_note` nem reabrir o modal de criação.
 

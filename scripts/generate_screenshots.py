@@ -29,7 +29,7 @@ os.environ["LEOBOOKS_SAMPLE_BOOK"] = "0"
 os.environ["SECRET_KEY"] = "screenshots-only-secret"
 
 from app import create_app  # noqa: E402
-from models import BOOK_STATUSES, TAG_COLORS, Book, Note, Tag, User, db  # noqa: E402
+from models import BOOK_STATUSES, TAG_COLORS, Book, Note, Tag, User, VocabularyWord, db  # noqa: E402
 from waitress import serve  # noqa: E402
 from playwright.sync_api import sync_playwright  # noqa: E402
 from PIL import Image  # noqa: E402
@@ -223,6 +223,34 @@ def seed() -> dict[str, str]:
             note.tags = [tags[name] for name in tag_names]
             db.session.add(note)
 
+        vocabulary = [
+            (
+                "O Príncipe",
+                "virtù",
+                "virtu",
+                "Força pessoal que se conquista pela ação e pelo caráter.",
+                "A fortuna decide metade das nossas ações; a outra metade cabe à virtù.",
+            ),
+            (
+                "Torto Arado",
+                "ressentimento",
+                "ressentimento",
+                "Mágoa antiga que permanece e orienta silenciosamente as relações.",
+                "O ressentimento atravessa as gerações das famílias da fazenda.",
+            ),
+        ]
+        for title, word, key, definition, context in vocabulary:
+            db.session.add(
+                VocabularyWord(
+                    user_id=user.id,
+                    book_id=books[title].id,
+                    word=word,
+                    word_key=key,
+                    definition=definition,
+                    context=context,
+                )
+            )
+
         db.session.commit()
         return {
             "book_id": books["O Príncipe"].id,
@@ -283,6 +311,10 @@ def main() -> None:
         page.goto(f"{BASE}/help", wait_until="networkidle")
         page.wait_for_timeout(400)
         shot(page, "ajuda")
+
+        page.goto(f"{BASE}/vocabulary", wait_until="networkidle")
+        page.wait_for_timeout(500)
+        shot(page, "vocabulario")
 
         page.goto(f"{BASE}/library", wait_until="networkidle")
         page.wait_for_timeout(500)

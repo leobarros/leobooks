@@ -227,6 +227,25 @@ class PasswordForm(FlaskForm):
     )
 
 
+class VocabularyForm(FlaskForm):
+    word = StringField(
+        "Palavra",
+        validators=[DataRequired("Escreva a palavra."), Length(max=80)],
+    )
+    definition = TextAreaField(
+        "Definição",
+        validators=[
+            DataRequired("Escreva ou busque uma definição."),
+            Length(max=4000),
+        ],
+    )
+    context = TextAreaField(
+        "Onde encontrou",
+        validators=[Optional(), Length(max=1000)],
+    )
+    book_id = SelectField("Livro", choices=[], coerce=str, validators=[Optional()])
+
+
 class DeleteAccountForm(FlaskForm):
     password = PasswordField(
         "Confirme sua senha", validators=[DataRequired("Informe sua senha.")]

@@ -467,3 +467,41 @@ class Tag(db.Model):
 
 def seed_reference_data(user: User) -> Iterable[Tag]:  # pragma: no cover - conveniência
     return user.tags
+
+
+class VocabularyWord(db.Model):
+    """Palavra encontrada durante a leitura, com definição e contexto."""
+
+    __tablename__ = "vocabulary_words"
+
+    id = db.Column(db.String(36), primary_key=True, default=new_id)
+    user_id = db.Column(
+        db.String(36),
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    book_id = db.Column(
+        db.String(36),
+        db.ForeignKey("books.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    word = db.Column(db.String(80), nullable=False)
+    word_key = db.Column(db.String(100), nullable=False)
+    definition = db.Column(db.Text)
+    context = db.Column(db.Text)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = db.Column(
+        db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
+    )
+
+    book = db.relationship("Book", lazy="joined")
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "word_key", name="uq_vocabulary_user_word"),
+        db.Index("idx_vocabulary_word", "word"),
+    )
+
+    def __repr__(self) -> str:  # pragma: no cover
+        return f"<VocabularyWord {self.word!r}>"

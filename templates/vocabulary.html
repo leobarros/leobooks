@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+{% block title %}Vocabulário · LeoBooks{% endblock %}
+
+{% block content %}
+<header class="lb-pagehead">
+  <div class="lb-pagehead__main">
+    <p class="lb-eyebrow">Vocabulário <span class="lb-eyebrow__dot" aria-hidden="true"></span> {{ words|length }} {% if words|length == 1 %}palavra{% else %}palavras{% endif %}</p>
+    <h1 class="lb-pagehead__title">Palavras que <em>ficaram</em>.</h1>
+    <p class="lb-pagehead__deck">
+      Anote as palavras que interromperam a leitura, a definição que fez sentido
+      e o contexto em que elas apareceram.
+    </p>
+  </div>
+</header>
+
+<div class="lb-settings__content">
+  <section class="lb-setting-card" id="nova-palavra">
+    <header class="lb-setting-card__head">
+      <span class="lb-setting-card__num">01</span>
+      <div>
+        <h2>Anotar uma palavra</h2>
+        <p>Busque no Wikcionário ou escreva a definição com suas palavras.</p>
+      </div>
+    </header>
+
+    <form method="post" action="{{ url_for('main.vocabulary') }}" data-vocab-form>
+      {{ form.hidden_tag() }}
+      <div class="lb-field">
+        <label class="lb-label" for="vocabWord">Palavra</label>
+        <div class="d-flex flex-wrap gap-2">
+          {{ form.word(class="form-control lb-input", id="vocabWord", placeholder="ex.: virtù", autocomplete="off", data_dict_word="") }}
+          <button type="button" class="lb-btn lb-btn--ghost lb-btn--sm" data-dict-lookup
+                  data-dict-url="{{ url_for('main.vocabulary_lookup') }}">
+            <i class="bi bi-book"></i> Buscar no Wikcionário
+          </button>
+        </div>
+      </div>
+
+      <div class="lb-field">
+        <span class="lb-label">Definição</span>
+        {{ form.definition(class="form-control lb-input", id="vocabDefinition", rows="4", placeholder="A definição que você quer guardar.") }}
+        <p class="lb-hint" data-dict-status>Consulta opcional. Você pode editar o texto antes de salvar.</p>
+      </div>
+
+      <div class="lb-fieldrow">
+        <div class="lb-field">
+          <label class="lb-label" for="vocabBook">Livro relacionado</label>
+          {{ form.book_id(class="form-select lb-select", id="vocabBook") }}
+        </div>
+        <div class="lb-field">
+          <label class="lb-label" for="vocabContext">Onde encontrou</label>
+          {{ form.context(class="form-control lb-input", id="vocabContext", rows="2", placeholder="Frase, capítulo ou situação.") }}
+        </div>
+      </div>
+
+      <button type="submit" class="lb-btn lb-btn--primary">
+        <i class="bi bi-bookmark-plus"></i> Guardar palavra
+      </button>
+    </form>
+  </section>
+
+  <section class="lb-setting-card" id="palavras">
+    <header class="lb-setting-card__head">
+      <span class="lb-setting-card__num">02</span>
+      <div>
+        <h2>Suas palavras</h2>
+        <p>Definições e contextos ficam no seu banco local.</p>
+      </div>
+    </header>
+
+    <form method="get" action="{{ url_for('main.vocabulary') }}" class="lb-toolbar" role="search">
+      <div class="lb-input-icon">
+        <i class="bi bi-search"></i>
+        <input class="form-control lb-input" type="search" name="q" value="{{ query_text }}"
+               placeholder="Buscar palavra, definição ou contexto" aria-label="Buscar no vocabulário">
+      </div>
+      <button type="submit" class="lb-btn lb-btn--ghost lb-btn--sm">Buscar</button>
+    </form>
+
+    {% if words %}
+      {% for entry in words %}
+        <article class="lb-note lb-note--insight" id="palavra-{{ entry.id }}">
+          <header class="lb-note__head">
+            <span class="lb-note__type"><i class="bi bi-translate"></i> Palavra</span>
+            <span class="lb-note__loc">
+              {% if entry.book %}
+                <a href="{{ url_for('books.detail', book_id=entry.book.id) }}">{{ entry.book.title }}</a>
+              {% else %}
+                Vocabulário
+              {% endif %}
+            </span>
+          </header>
+          <div class="lb-note__body">
+            <h3 class="lb-section__title">{{ entry.word }}</h3>
+            <p>{{ entry.definition|replace('\n', ' · ') }}</p>
+            {% if entry.context %}
+              <blockquote class="lb-note__quote">{{ entry.context }}</blockquote>
+            {% endif %}
+            <footer class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <span class="lb-hint">Guardada em {{ entry.created_at|data_curta }}</span>
+              <form method="post" action="{{ url_for('main.vocabulary_delete', word_id=entry.id) }}"
+                    data-confirm="Remover esta palavra do vocabulário?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="lb-btn lb-btn--quiet lb-btn--sm">
+                  <i class="bi bi-trash3"></i> Remover
+                </button>
+              </form>
+            </footer>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <div class="lb-empty lb-empty--inline">
+        <div class="lb-empty__content">
+          <p class="lb-eyebrow">Nenhuma palavra ainda</p>
+          <h2>A primeira palavra está esperando.</h2>
+          <p>Quando uma palavra interromper sua leitura, traga ela para cá.</p>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+
+  <p class="lb-hint">
+    Definições opcionais são consultadas no
+    <a href="https://pt.wiktionary.org/" target="_blank" rel="noopener noreferrer">Wikcionário</a>
+    (CC BY-SA). Apenas a palavra é enviada; suas notas e seu contexto ficam locais.
+  </p>
+</div>
+{% endblock %}

@@ -648,6 +648,45 @@
     button.addEventListener("click", () => addTag(button.dataset.suggestion));
   });
 
+  /* ----------------------------- Vocabulário --------------------------- */
+  const dictLookup = $("[data-dict-lookup]");
+  const dictWord = $("[data-dict-word]");
+  const dictDefinition = $("#vocabDefinition");
+  const dictStatus = $("[data-dict-status]");
+
+  dictLookup?.addEventListener("click", async () => {
+    const word = String(dictWord?.value || "").trim();
+    if (!word) {
+      notify("Escreva a palavra antes de consultar.", "warning");
+      dictWord?.focus();
+      return;
+    }
+    const original = dictLookup.innerHTML;
+    dictLookup.disabled = true;
+    dictLookup.innerHTML = '<i class="bi bi-hourglass-split"></i> Consultando…';
+    if (dictStatus) dictStatus.textContent = "Consultando o Wikcionário…";
+    try {
+      const response = await fetch(
+        `${dictLookup.dataset.dictUrl}?word=${encodeURIComponent(word)}`,
+        { headers: { Accept: "application/json" } }
+      );
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        throw new Error(result.message || "Definição não encontrada.");
+      }
+      if (dictDefinition) dictDefinition.value = result.definition || "";
+      if (dictStatus) {
+        dictStatus.textContent = `Definição do ${result.source || "Wikcionário"}. Edite se quiser.`;
+      }
+    } catch (error) {
+      if (dictStatus) dictStatus.textContent = "Não foi possível buscar; escreva a definição.";
+      notify(error.message || "Falha ao consultar o dicionário.", "warning");
+    } finally {
+      dictLookup.disabled = false;
+      dictLookup.innerHTML = original;
+    }
+  });
+
   /* --------------------------- Foto / OCR ------------------------------ */
   function clearPhoto() {
     if (photoInput) photoInput.value = "";
