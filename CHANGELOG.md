@@ -2,8 +2,8 @@
 
 ## Não lançado
 
-- A criação de palavra ganhou uma página dedicada, com o mesmo fluxo de
-  formulário usado nas notas.
+- A criação de palavra agora abre em popup na própria página, com o mesmo
+  fluxo de formulário usado nas notas.
 - Adicionados exportação e importação do vocabulário em Markdown, com formato
   versionado, casamento de livros por título e importação idempotente.
 - O vocabulário agora aparece no manifesto do backup, nas exportações

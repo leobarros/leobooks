@@ -1,0 +1,72 @@
+<div class="modal fade lb-modal" id="vocabularyModal" tabindex="-1"
+     aria-labelledby="vocabularyModalTitle" aria-hidden="true" data-vocabulary-modal>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="lb-modal__head">
+        <div>
+          <p class="lb-modal__eyebrow">Vocabulário</p>
+          <h2 class="lb-modal__title" id="vocabularyModalTitle">Nova palavra</h2>
+        </div>
+        <button type="button" class="lb-modal__close" data-bs-dismiss="modal" aria-label="Fechar">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form method="post" action="{{ url_for('main.vocabulary_new') }}" id="vocabularyForm">
+        {{ quick_vocabulary_form.hidden_tag() }}
+        <div class="lb-modal__body">
+          <div class="lb-field">
+            <label class="lb-label" for="vocabWord">Palavra</label>
+            <div class="d-flex flex-wrap gap-2">
+              {{ quick_vocabulary_form.word(class="form-control lb-input", id="vocabWord", placeholder="ex.: virtù", autocomplete="off", data_dict_word="") }}
+              <button type="button" class="lb-btn lb-btn--ghost lb-btn--sm" data-dict-lookup
+                      data-dict-url="{{ url_for('main.vocabulary_lookup') }}">
+                <i class="bi bi-book"></i> Buscar no Wikcionário
+              </button>
+            </div>
+          </div>
+
+          <div class="lb-field">
+            <label class="lb-label" for="vocabDefinition">Definição</label>
+            {{ quick_vocabulary_form.definition(class="form-control lb-input", id="vocabDefinition", rows="5", placeholder="A definição que você quer guardar.") }}
+            <p class="lb-hint" data-dict-status>Consulta opcional. Você pode editar o texto antes de salvar.</p>
+          </div>
+
+          <div class="lb-fieldrow">
+            <div class="lb-field">
+              <label class="lb-label" for="vocabBook">Livro relacionado</label>
+              {{ quick_vocabulary_form.book_id(class="form-select lb-select", id="vocabBook") }}
+            </div>
+            <div class="lb-field">
+              <label class="lb-label" for="vocabContext">Onde encontrou</label>
+              {{ quick_vocabulary_form.context(class="form-control lb-input", id="vocabContext", rows="2", placeholder="Frase ou situação em que a palavra apareceu.") }}
+            </div>
+          </div>
+
+          <div class="lb-fieldrow">
+            <div class="lb-field">
+              <label class="lb-label" for="vocabChapter">Capítulo</label>
+              {{ quick_vocabulary_form.chapter(class="form-control lb-input", id="vocabChapter", placeholder="ex.: 3", maxlength="100") }}
+            </div>
+            <div class="lb-field">
+              <label class="lb-label" for="vocabPage">Página</label>
+              {{ quick_vocabulary_form.page_number(class="form-control lb-input", id="vocabPage", inputmode="numeric", placeholder="ex.: 42") }}
+            </div>
+          </div>
+        </div>
+
+        <footer class="lb-modal__foot">
+          <span class="lb-hint lb-hint--kbd">
+            <span class="lb-kbd">Ctrl</span> + <span class="lb-kbd">Enter</span> para guardar
+          </span>
+          <div class="lb-modal__foot-actions">
+            <button type="button" class="lb-btn lb-btn--quiet" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="lb-btn lb-btn--primary">
+              <i class="bi bi-bookmark-plus"></i> Guardar palavra
+            </button>
+          </div>
+        </footer>
+      </form>
+    </div>
+  </div>
+</div>

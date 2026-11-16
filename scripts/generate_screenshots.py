@@ -321,6 +321,12 @@ def main() -> None:
         page.goto(f"{BASE}/vocabulary", wait_until="networkidle")
         page.wait_for_timeout(500)
         shot(page, "vocabulario")
+        page.locator("[data-vocabulary-open]").first.click()
+        page.wait_for_selector("#vocabularyModal.show")
+        page.wait_for_timeout(450)
+        shot(page, "vocabulario-modal")
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(250)
 
         page.goto(f"{BASE}/library", wait_until="networkidle")
         page.wait_for_timeout(500)

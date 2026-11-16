@@ -630,6 +630,12 @@ def vocabulary_new():
 
     if request.method == "POST" and form.errors:
         flash(_first_error(form), "danger")
+        target = (
+            url_for("books.detail", book_id=selected_book.id, tab="vocabulary", nova_palavra="1")
+            if selected_book
+            else url_for("main.vocabulary", nova_palavra="1")
+        )
+        return redirect(target)
 
     if form.validate_on_submit():
         word = " ".join((form.word.data or "").split()).strip()
@@ -668,11 +674,18 @@ def vocabulary_new():
             return redirect(url_for("books.detail", book_id=entry.book_id, tab="vocabulary"))
         return redirect(url_for("main.vocabulary"))
 
-    return render_template(
-        "vocabulary_new.html",
-        form=form,
-        selected_book=selected_book,
-    )
+    if request.method == "GET":
+        if selected_book:
+            return redirect(
+                url_for(
+                    "books.detail",
+                    book_id=selected_book.id,
+                    tab="vocabulary",
+                    nova_palavra="1",
+                )
+            )
+        return redirect(url_for("main.vocabulary", nova_palavra="1"))
+    return redirect(url_for("main.vocabulary"))
 
 
 @main_bp.route("/vocabulary", methods=["GET", "POST"])
@@ -780,6 +793,12 @@ def vocabulary_edit(word_id: str):
 
     if request.method == "POST" and form.errors:
         flash(_first_error(form), "danger")
+        target = (
+            url_for("books.detail", book_id=selected_book.id, tab="vocabulary", nova_palavra="1")
+            if selected_book
+            else url_for("main.vocabulary", nova_palavra="1")
+        )
+        return redirect(target)
 
     if form.validate_on_submit():
         book = None

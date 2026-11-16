@@ -128,6 +128,9 @@
   const modal = (element) => (element && window.bootstrap ? window.bootstrap.Modal.getOrCreateInstance(element) : null);
   const noteModal = $("#noteModal");
   const noteModalInstance = modal(noteModal);
+  const vocabularyModal = $("#vocabularyModal");
+  const vocabularyModalInstance = modal(vocabularyModal);
+  const vocabularyForm = $("#vocabularyForm");
   const searchModal = $("#searchModal");
   const searchModalInstance = modal(searchModal);
   const confirmModalEl = $("#confirmModal");
@@ -834,6 +837,36 @@
       });
     });
   });
+
+  function openVocabularyModal(options = {}) {
+    if (!vocabularyModalInstance || !vocabularyForm) return;
+    vocabularyForm.reset();
+    const book = $("#vocabBook", vocabularyForm);
+    if (book) book.value = options.bookId || "";
+    const status = $("[data-dict-status]", vocabularyForm);
+    if (status) status.textContent = "Consulta opcional. Você pode editar o texto antes de salvar.";
+    vocabularyModalInstance.show();
+    window.setTimeout(() => $("#vocabWord", vocabularyForm)?.focus(), 320);
+  }
+
+  $$("[data-vocabulary-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openVocabularyModal({ bookId: button.dataset.bookId || "" });
+    });
+  });
+
+  // A rota antiga /vocabulary/new abre o popup na página atual.
+  const vocabularyParams = new URLSearchParams(window.location.search);
+  if (vocabularyParams.get("nova_palavra") === "1" && vocabularyModalInstance) {
+    const bookId = vocabularyParams.get("book_id") || "";
+    vocabularyParams.delete("nova_palavra");
+    vocabularyParams.delete("book_id");
+    const query = vocabularyParams.toString();
+    window.history.replaceState(
+      {}, "", window.location.pathname + (query ? `?${query}` : "")
+    );
+    window.setTimeout(() => openVocabularyModal({ bookId }), 350);
+  }
 
   // Após "Salvar e adicionar outra", reabre o modal no mesmo livro/capítulo.
   function cleanAutoNoteUrl(raw) {

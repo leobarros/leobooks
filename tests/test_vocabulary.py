@@ -382,11 +382,15 @@ def test_vocabulary_markdown_export_and_import(app, auth_client, book):
 
 
 def test_vocabulary_new_page_creates_word_for_selected_book(app, auth_client, book):
-    page = auth_client.get(f"/vocabulary/new?book_id={book['id']}")
-    assert page.status_code == 200
+    page = auth_client.get("/vocabulary")
     html = page.get_data(as_text=True)
-    assert "Guardar uma" in html
-    assert f'value="{book["id"]}" selected' in html or f'selected value="{book["id"]}"' in html
+    assert 'id="vocabularyModal"' in html
+    assert 'data-vocabulary-open' in html
+
+    page = auth_client.get(f"/vocabulary/new?book_id={book['id']}")
+    assert page.status_code == 302
+    assert "nova_palavra=1" in page.headers["Location"]
+    assert "tab=vocabulary" in page.headers["Location"]
 
     created = auth_client.post(
         f"/vocabulary/new?book_id={book['id']}",

@@ -12,7 +12,7 @@ from flask import Flask, g, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFError, CSRFProtect
 
 from config import Config
-from forms import NoteForm
+from forms import NoteForm, VocabularyForm
 from helpers import (
     admin_required,
     current_user,
@@ -94,6 +94,7 @@ def create_app(overrides: dict | None = None) -> Flask:
             "weekday": weekday_long(),
             "app_name": "LeoBooks",
             "quick_note_form": None,
+            "quick_vocabulary_form": None,
             "quick_books": [],
             "tag_catalog": [],
             "tag_suggestions": [],
@@ -110,10 +111,15 @@ def create_app(overrides: dict | None = None) -> Flask:
                 form.book_id.choices = [
                     (book.id, f"{book.title} — {book.authors}") for book in books
                 ]
+                vocabulary_form = VocabularyForm()
+                vocabulary_form.book_id.choices = [("", "Sem livro")] + [
+                    (book.id, f"{book.title} — {book.authors}") for book in books
+                ]
                 tags = list(user.tags)
                 context.update(
                     {
                         "quick_note_form": form,
+                        "quick_vocabulary_form": vocabulary_form,
                         "quick_books": books,
                         "tag_catalog": sorted(
                             {tag.name for tag in tags}, key=str.casefold

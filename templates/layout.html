@@ -22,6 +22,7 @@
 
 {% include "partials/_bottomnav.html" %}
 {% include "partials/_note_modal.html" %}
+{% if current_user %}{% include "partials/_vocabulary_modal.html" %}{% endif %}
 {% include "partials/_search_modal.html" %}
 {% include "partials/_confirm_modal.html" %}
 {% if current_user and not current_user.onboarding_completed %}

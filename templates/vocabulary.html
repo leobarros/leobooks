@@ -24,10 +24,10 @@
     {% endif %}
   </div>
   <div class="d-flex flex-wrap gap-2">
-    <a class="lb-btn lb-btn--primary"
-       href="{{ url_for('main.vocabulary_new', book_id=selected_book.id if selected_book else None) }}">
+    <button type="button" class="lb-btn lb-btn--primary" data-vocabulary-open
+            {% if selected_book %}data-book-id="{{ selected_book.id }}"{% endif %}>
       <i class="bi bi-plus-lg"></i> Nova palavra
-    </a>
+    </button>
     <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.vocabulary_export') }}">
       <i class="bi bi-download"></i> Exportar .md
     </a>
@@ -100,10 +100,10 @@
           <p class="lb-eyebrow">Nenhuma palavra ainda</p>
           <h2>{% if selected_book %}Nenhuma palavra deste livro ainda.{% else %}A primeira palavra está esperando.{% endif %}</h2>
           <p>{% if selected_book %}A primeira palavra deste livro pode começar agora.{% else %}Quando uma palavra interromper sua leitura, traga ela para cá.{% endif %}</p>
-          <a class="lb-btn lb-btn--primary"
-             href="{{ url_for('main.vocabulary_new', book_id=selected_book.id if selected_book else None) }}">
+          <button type="button" class="lb-btn lb-btn--primary" data-vocabulary-open
+                  {% if selected_book %}data-book-id="{{ selected_book.id }}"{% endif %}>
             <i class="bi bi-plus-lg"></i> Adicionar primeira palavra
-          </a>
+          </button>
         </div>
       </div>
     {% endif %}

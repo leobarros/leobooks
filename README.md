@@ -262,7 +262,7 @@ Em **Ajuda**, o LeoBooks reúne três métodos curtos:
 
 ### Palavras que ficaram
 
-Em **Vocabulário**, o botão **Nova palavra** abre uma página dedicada para guardar a palavra, a definição, o capítulo, a página e o contexto em que ela apareceu. A definição pode ser escrita à mão ou buscada no Wikcionário; você pode editá-la antes de salvar. A consulta envia apenas a palavra, e suas notas ficam locais.
+Em **Vocabulário**, o botão **Nova palavra** abre um popup para guardar a palavra, a definição, o capítulo, a página e o contexto em que ela apareceu. A definição pode ser escrita à mão ou buscada no Wikcionário; você pode editá-la antes de salvar. A consulta envia apenas a palavra, e suas notas ficam locais.
 
 Na página de um livro, a aba **Vocabulário** abre o caderno de palavras daquele livro, agrupado por capítulo e página. O item **Vocabulário** do menu continua mostrando o catálogo geral e permite filtrar por livro.
 
@@ -271,6 +271,8 @@ Cada palavra tem **Editar**, para corrigir ou ampliar o significado, o contexto,
 ![Caderno de vocabulário de um livro, agrupado por capítulo](docs/screenshots/vocabulario-livro.webp)
 
 ![Página de vocabulário com palavras e definições](docs/screenshots/vocabulario.webp)
+
+![Popup de nova palavra](docs/screenshots/vocabulario-modal.webp)
 
 ### Exportar e importar vocabulário
 

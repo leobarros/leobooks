@@ -187,10 +187,10 @@
         {{ word_count }} {% if word_count == 1 %}palavra{% else %}palavras{% endif %}
         {% if chapter_count %}· {{ chapter_count }} {% if chapter_count == 1 %}capítulo{% else %}capítulos{% endif %}{% endif %}
       </p>
-      <a class="lb-btn lb-btn--primary lb-btn--sm"
-         href="{{ url_for('main.vocabulary_new', book_id=book.id) }}">
+      <button type="button" class="lb-btn lb-btn--primary lb-btn--sm"
+              data-vocabulary-open data-book-id="{{ book.id }}">
         <i class="bi bi-plus-lg"></i> Nova palavra
-      </a>
+      </button>
     </div>
 
     {% if groups %}
@@ -228,10 +228,10 @@
         <span class="lb-empty__mark"><i class="bi bi-translate"></i></span>
         <h2 class="lb-empty__title">As palavras deste livro ainda estão esperando.</h2>
         <p>Quando uma palavra interromper a leitura, anote a definição e o capítulo em que ela apareceu.</p>
-        <a class="lb-btn lb-btn--primary"
-           href="{{ url_for('main.vocabulary_new', book_id=book.id) }}">
+        <button type="button" class="lb-btn lb-btn--primary"
+                data-vocabulary-open data-book-id="{{ book.id }}">
           <i class="bi bi-plus-lg"></i> Adicionar primeira palavra
-        </a>
+        </button>
       </div>
     {% endif %}
   </section>
