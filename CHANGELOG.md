@@ -2,6 +2,7 @@
 
 ## Não lançado
 
+- Removido o endereço `leobooks.local` das imagens de citação compartilhadas.
 - A lateral agora alterna citações de diferentes autores, com uma frase
   estável por dia.
 - Mensagens padrão de validação do WTForms e do navegador foram traduzidas

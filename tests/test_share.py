@@ -26,3 +26,12 @@ def test_review_share_button_carries_filename_context(app, auth_client):
     assert 'data-share-chapter="Capítulo XXI"' in html
     assert 'data-share-page="74"' in html
     assert "Compartilhar como imagem" in html
+
+
+def test_shared_quote_image_does_not_show_site_address():
+    from pathlib import Path
+
+    source = (Path(__file__).resolve().parent.parent / "static/js/app.js").read_text(
+        encoding="utf-8"
+    )
+    assert "leobooks.local" not in source

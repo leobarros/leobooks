@@ -1418,9 +1418,6 @@
     ctx.fillStyle = muted;
     ctx.font = "500 20px Inter, sans-serif";
     ctx.fillText("caderno de leitura", 132, height - 88);
-    ctx.textAlign = "right";
-    ctx.fillText("leobooks.local", width - 100, height - 88);
-    ctx.textAlign = "left";
 
     // marca d'água discreta
     ctx.save();
