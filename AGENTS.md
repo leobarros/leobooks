@@ -107,6 +107,23 @@ Quando a pausa for removida, mudanças em `packaging/`, `VERSION`, `app.py`,
 Os artefatos ficam em `dist/`. O `.deb` é validado em Debian 13 e o `.rpm` em
 Fedora 42; quando possível, teste a instalação e o serviço, não apenas o build.
 
+## Dados escritos pelo usuário e backup
+
+Toda alteração estrutural do app que crie ou modifique algo que o usuário
+escreve — tabela, campo, arquivo, importação ou novo fluxo de dados — **precisa
+entrar no backup**.
+
+Antes de concluir a mudança, garanta:
+
+- persistência no banco de dados;
+- migração para bancos existentes;
+- inclusão no backup completo e no manifesto de contagens;
+- restauração preservando os dados;
+- exportação/importação quando o dado for portátil;
+- testes cobrindo criação, backup e restauração.
+
+Se o dado não puder ser incluído no backup, a mudança não está concluída.
+
 ## Commits
 
 Faça o commit **depois** de validar a mudança localmente e no Docker. A

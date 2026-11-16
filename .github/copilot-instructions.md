@@ -190,3 +190,9 @@ Depois de validar localmente e no Docker, faça o commit com uma mensagem em
 português do Brasil, descritiva e com contexto suficiente para lembrar a
 mudança depois. Evite mensagens genéricas em inglês.
 
+## Dados do usuário e backup
+
+Toda alteração estrutural que crie ou altere dados escritos pelo usuário deve
+incluir migração, backup completo, restauração e testes. Nenhum dado digitado
+pelo usuário pode ficar fora do backup.
+
