@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- Implementado o **Caderno do livro**: página de vocabulário agrupada por
+  capítulo, integrada à navegação do livro e mantendo o catálogo global.
 - Adicionado **Editar** ao Vocabulário para corrigir ou ampliar significado,
   contexto, capítulo, página e livro relacionado.
 

@@ -718,6 +718,9 @@ def vocabulary_edit(word_id: str):
         db.session.commit()
         audit("vocabulary.edit", word_id=entry.id, book_id=entry.book_id)
         flash(f"“{entry.word}” atualizada no vocabulário.", "success")
+        next_target = safe_next_url(request.form.get("next") or request.args.get("next"))
+        if next_target:
+            return redirect(next_target)
         if entry.book_id:
             return redirect(url_for("main.vocabulary", book_id=entry.book_id))
         return redirect(url_for("main.vocabulary"))
@@ -1117,6 +1120,54 @@ def detail(book_id: str):
         notes=notes,
         type_filter=type_filter,
         counts=counts,
+    )
+
+
+@books_bp.route("/books/<book_id>/vocabulary")
+@login_required
+def vocabulary(book_id: str):
+    book = _owned_book(book_id)
+    _touch_book(book)
+    words = (
+        VocabularyWord.query.filter_by(
+            user_id=current_user().id, book_id=book.id
+        )
+        .order_by(
+            VocabularyWord.chapter.asc(),
+            VocabularyWord.page_number.asc(),
+            VocabularyWord.word.asc(),
+        )
+        .all()
+    )
+    words = sorted(
+        words,
+        key=lambda item: (
+            item.chapter or "~",
+            item.page_number if item.page_number is not None else 100001,
+            item.word.casefold(),
+        ),
+    )
+    groups: list[tuple[str, list[VocabularyWord]]] = []
+    for word in words:
+        label = word.chapter or "Sem capítulo"
+        if not groups or groups[-1][0] != label:
+            groups.append((label, [word]))
+        else:
+            groups[-1][1].append(word)
+    chapter_count = len({word.chapter for word in words if word.chapter})
+    last_word = max(
+        words,
+        key=lambda item: item.updated_at or item.created_at,
+        default=None,
+    )
+    return render_template(
+        "book_vocabulary.html",
+        book=book,
+        groups=groups,
+        words=words,
+        word_count=len(words),
+        chapter_count=chapter_count,
+        last_word=last_word,
     )
 
 

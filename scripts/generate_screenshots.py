@@ -330,6 +330,10 @@ def main() -> None:
         page.wait_for_timeout(500)
         shot(page, "livro")
 
+        page.goto(f"{BASE}/books/{ids['book_id']}/vocabulary", wait_until="networkidle")
+        page.wait_for_timeout(500)
+        shot(page, "vocabulario-livro")
+
         page.goto(f"{BASE}/", wait_until="networkidle")
         page.locator("[data-note-open]:visible").first.click()
         page.wait_for_selector("#noteModal.show")

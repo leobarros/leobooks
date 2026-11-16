@@ -173,7 +173,7 @@ def test_vocabulary_is_filtered_by_book_and_linked_from_book(app, auth_client, b
     assert book["title"] in html
 
     detail = auth_client.get(f"/books/{book['id']}").get_data(as_text=True)
-    assert f"/vocabulary?book_id={book['id']}" in detail
+    assert f"/books/{book['id']}/vocabulary" in detail
 
 
 def test_vocabulary_migration_adds_location_columns(app):
@@ -293,3 +293,32 @@ def test_vocabulary_edit_updates_meaning_and_location(app, auth_client, book):
         assert entry.definition == "Definição revisada e mais clara."
         assert entry.chapter == "4"
         assert entry.page_number == 77
+
+
+def test_book_vocabulary_page_groups_by_chapter(app, auth_client, book):
+    for word, chapter, page in (
+        ("virtude", "XXI", "74"),
+        ("fortuna", "XXI", "75"),
+        ("ardil", "XVIII", "63"),
+    ):
+        auth_client.post(
+            "/vocabulary",
+            data={
+                "word": word,
+                "definition": f"Definição de {word}.",
+                "book_id": book["id"],
+                "chapter": chapter,
+                "page_number": page,
+            },
+        )
+
+    page = auth_client.get(f"/books/{book['id']}/vocabulary")
+    assert page.status_code == 200
+    html = page.get_data(as_text=True)
+    assert "XXI" in html
+    assert "XVIII" in html
+    assert "virtude" in html
+    assert "fortuna" in html
+    assert "ardil" in html
+    assert "3 palavras" in html
+    assert "2 capítulos" in html

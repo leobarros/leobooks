@@ -26,6 +26,7 @@
 
     <form method="post" action="{{ url_for('main.vocabulary_edit', word_id=entry.id) }}">
       {{ form.hidden_tag() }}
+      <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
       <div class="lb-field">
         <label class="lb-label" for="editDefinition">Definição</label>
         {{ form.definition(class="form-control lb-input", id="editDefinition", rows="5") }}

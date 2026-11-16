@@ -1,0 +1,132 @@
+{% extends "layout.html" %}
+{% from "partials/_macros.html" import cover, progress, status_badge with context %}
+{% block title %}Vocabulário de {{ book.title }} · LeoBooks{% endblock %}
+
+{% block content %}
+<div class="lb-booktop">
+  <a class="lb-back" href="{{ url_for('main.library') }}">
+    <i class="bi bi-arrow-left"></i> Biblioteca
+  </a>
+</div>
+
+<header class="lb-bookhero">
+  <div class="lb-bookhero__cover">
+    {{ cover(book, 'lg') }}
+    <span class="lb-bookhero__shadow" aria-hidden="true"></span>
+  </div>
+
+  <div class="lb-bookhero__body">
+    <div class="lb-bookhero__meta">
+      {{ status_badge(book) }}
+      <span class="lb-media-badge"><i class="bi {{ book.media_icon }}"></i>{{ book.media_label }}</span>
+      <span class="lb-bookhero__dot" aria-hidden="true"></span>
+      <span>{{ word_count }} {% if word_count == 1 %}palavra{% else %}palavras{% endif %}</span>
+      {% if chapter_count %}
+        <span class="lb-bookhero__dot" aria-hidden="true"></span>
+        <span>{{ chapter_count }} {% if chapter_count == 1 %}capítulo{% else %}capítulos{% endif %}</span>
+      {% endif %}
+    </div>
+
+    <h1 class="lb-bookhero__title">{{ book.title }}</h1>
+    <p class="lb-bookhero__byline">
+      {{ book.authors }}
+      {% if book.publisher %}<span aria-hidden="true">·</span> {{ book.publisher }}{% endif %}
+    </p>
+
+    {{ progress(book, large=true) }}
+
+    <div class="lb-bookhero__actions">
+      <a class="lb-btn lb-btn--primary"
+         href="{{ url_for('main.vocabulary', book_id=book.id) }}#nova-palavra">
+        <i class="bi bi-plus-lg"></i> Nova palavra
+      </a>
+      <a class="lb-btn lb-btn--quiet" href="{{ url_for('books.detail', book_id=book.id) }}">
+        <i class="bi bi-journal-text"></i> Ver notas
+      </a>
+      <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.vocabulary', book_id=book.id) }}">
+        <i class="bi bi-translate"></i> Catálogo do livro
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="lb-tabs" aria-label="Seções do livro">
+  <a class="lb-tab" href="{{ url_for('books.detail', book_id=book.id) }}">Notas</a>
+  <a class="lb-tab is-active" href="{{ url_for('books.vocabulary', book_id=book.id) }}">
+    Vocabulário <span>{{ word_count }}</span>
+  </a>
+  <a class="lb-tab" href="{{ url_for('books.detail', book_id=book.id) }}#ficha">Ficha do livro</a>
+</nav>
+
+<div class="lb-detail-grid">
+  <section class="lb-notes" aria-label="Palavras deste livro">
+    {% if groups %}
+      {% for chapter, entries in groups %}
+        <section class="lb-panel">
+          <header class="lb-panel__head">
+            <h2 class="lb-panel__title">{{ chapter }}</h2>
+            <span class="lb-panel__folio">{{ entries|length }} {% if entries|length == 1 %}palavra{% else %}palavras{% endif %}</span>
+          </header>
+          {% for entry in entries %}
+            <div class="d-flex flex-wrap justify-content-between gap-3 py-3 border-top">
+              <div class="flex-grow-1">
+                <h3 class="lb-panel__title">{{ entry.word }}</h3>
+                <p class="mb-1">{{ entry.definition|replace('\n', ' · ') }}</p>
+                {% if entry.context %}
+                  <p class="lb-hint mb-1">{{ entry.context }}</p>
+                {% endif %}
+                <span class="lb-panel__folio">
+                  {% if entry.chapter %}{{ entry.chapter }}{% endif %}
+                  {% if entry.chapter and entry.page_number is not none %} · {% endif %}
+                  {% if entry.page_number is not none %}pág. {{ entry.page_number }}{% endif %}
+                </span>
+              </div>
+              <div class="d-flex align-items-start gap-2">
+                <a class="lb-panel__link"
+                   href="{{ url_for('main.vocabulary_edit', word_id=entry.id, next=url_for('books.vocabulary', book_id=book.id)) }}">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </section>
+      {% endfor %}
+    {% else %}
+      <div class="lb-empty lb-empty--wide">
+        <span class="lb-empty__mark"><i class="bi bi-translate"></i></span>
+        <h2 class="lb-empty__title">As palavras deste livro ainda estão esperando.</h2>
+        <p>Quando uma palavra interromper a leitura, anote a definição e o capítulo em que ela apareceu.</p>
+        <a class="lb-btn lb-btn--primary"
+           href="{{ url_for('main.vocabulary', book_id=book.id) }}#nova-palavra">
+          <i class="bi bi-plus-lg"></i> Adicionar primeira palavra
+        </a>
+      </div>
+    {% endif %}
+  </section>
+
+  <aside class="lb-rail lb-rail--detail">
+    <section class="lb-panel">
+      <header class="lb-panel__head">
+        <h2 class="lb-panel__title">Neste livro</h2>
+        <span class="lb-panel__folio">vocabulário</span>
+      </header>
+      <dl class="lb-facts">
+        <div><dt>Palavras</dt><dd>{{ word_count }}</dd></div>
+        <div><dt>Capítulos</dt><dd>{{ chapter_count }}</dd></div>
+        <div><dt>Última anotação</dt><dd>{% if last_word %}{{ last_word.updated_at|tempo_atras }}{% else %}—{% endif %}</dd></div>
+      </dl>
+      <a class="lb-btn lb-btn--ghost lb-btn--block mt-3"
+         href="{{ url_for('main.vocabulary', book_id=book.id) }}">
+        <i class="bi bi-translate"></i> Ver catálogo A–Z
+      </a>
+    </section>
+
+    <section class="lb-panel lb-panel--quiet">
+      <p class="lb-sidequote">
+        As palavras ficam no caderno deste livro, junto das notas e citações.
+        Você pode consultá-las pelo capítulo ou pelo catálogo geral.
+      </p>
+    </section>
+  </aside>
+</div>
+{% endblock %}
