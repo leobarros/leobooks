@@ -107,6 +107,17 @@ Quando a pausa for removida, mudanças em `packaging/`, `VERSION`, `app.py`,
 Os artefatos ficam em `dist/`. O `.deb` é validado em Debian 13 e o `.rpm` em
 Fedora 42; quando possível, teste a instalação e o serviço, não apenas o build.
 
+## Commits
+
+Faça o commit **depois** de validar a mudança localmente e no Docker. A
+mensagem deve ser escrita em **português do Brasil**, com sentido e contexto
+para ser lembrada depois.
+
+- Diga o que mudou e, quando ajudar, por que mudou.
+- Evite mensagens genéricas como `update`, `fix`, `changes` ou `wip`.
+- Exemplo: `integra o vocabulário à aba do livro`.
+- Não faça commit antes dos testes e da validação do fluxo real.
+
 ## Dados
 
 Nunca use o banco real de `instance/` ou `/var/lib/leobooks` em testes de

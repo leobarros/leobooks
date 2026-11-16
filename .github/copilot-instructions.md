@@ -183,3 +183,10 @@ leobooks/
     ├── test_books.py
     ├── test_markdown_sanitizer.py
     └── test_admin.py
+
+## Commits
+
+Depois de validar localmente e no Docker, faça o commit com uma mensagem em
+português do Brasil, descritiva e com contexto suficiente para lembrar a
+mudança depois. Evite mensagens genéricas em inglês.
+
