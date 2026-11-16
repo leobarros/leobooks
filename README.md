@@ -328,6 +328,22 @@ o banco.
   <img src="docs/screenshots/mobile-nota.webp" alt="Nova nota no celular, com Mariana" width="300">
 </p>
 
+
+### Observabilidade
+
+O app registra **startup**, **uma linha JSON por requisição** e o estado do banco.
+O healthcheck do Docker continua em `/healthz`; o diagnóstico completo fica em
+`/status`:
+
+```bash
+make status
+# ou
+curl -fsS http://127.0.0.1:5059/status | python -m json.tool
+```
+
+O `/status` informa versão, ambiente, uptime e saúde do banco. Healthchecks e
+arquivos estáticos não poluem o log de acesso.
+
 ## Dúvidas frequentes
 
 **Onde ficam meus dados?**
@@ -518,7 +534,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **122 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **125 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 

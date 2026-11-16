@@ -4,6 +4,10 @@
     gunicorn -w 2 -b 127.0.0.1:5057 wsgi:app
 """
 
+from utils.observability import configure_server_logging
+
+configure_server_logging()
+
 from app import app, log_app_start
 
 log_app_start()

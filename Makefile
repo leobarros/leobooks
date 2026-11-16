@@ -4,6 +4,7 @@ COMPOSE ?= docker compose
 SERVICE ?= leobooks
 HOST_PORT ?= 5059
 HEALTH_URL ?= http://127.0.0.1:$(HOST_PORT)/healthz
+STATUS_URL ?= http://127.0.0.1:$(HOST_PORT)/status
 REGISTRY ?= docker.io
 IMAGE_NAME ?= nickolback/leobooks
 IMAGE_TAG ?= latest
@@ -19,7 +20,7 @@ PIP := $(VENV)/bin/pip
         pull docker-pull docker-build up docker-up up-build docker-up-build \
         login push \
         down docker-down stop docker-stop restart docker-restart \
-        ps docker-ps logs docker-logs shell health image version clean
+        ps docker-ps logs docker-logs shell health status image version clean
 
 help:
 	@echo "LeoBooks — comandos"
@@ -27,6 +28,7 @@ help:
 	@echo "  make local              sobe o projeto local com ./run.sh (5057)"
 	@echo "  make test               roda a suíte pytest"
 	@echo "  make verify             pytest + build e healthcheck do Docker"
+	@echo "  make status             estado operacional em JSON"
 	@echo ""
 	@echo "  make pull               baixa a imagem mais recente do Docker Hub"
 	@echo "  make up                 pull + docker compose up -d + healthcheck"
@@ -59,7 +61,6 @@ $(PYTHON):
 	$(PIP) install -r requirements.txt
 
 local: $(PYTHON)
-	@echo "LeoBooks local: http://127.0.0.1:5057"
 	./run.sh
 
 run: local
@@ -126,6 +127,9 @@ docker-logs:
 
 shell:
 	$(COMPOSE) exec $(SERVICE) sh
+
+status:
+	@curl -fsS "$(STATUS_URL)" | $(PYTHON) -m json.tool
 
 health:
 	@ok=0; \

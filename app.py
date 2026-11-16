@@ -23,6 +23,7 @@ from helpers import (
 from models import BOOK_STATUSES, NOTE_TYPES, Book, Tag, db
 from routes import auth_bp, books_bp, main_bp, notes_bp, settings_bp
 from utils.audit import audit, configure_audit_logging
+from utils.observability import app_version, environment_name
 from utils.ocr import ocr_available
 
 csrf = CSRFProtect()
@@ -36,6 +37,9 @@ def create_app(overrides: dict | None = None) -> Flask:
 
     # --- Logs estruturados -------------------------------------------------
     configure_audit_logging(app)
+    app.config.setdefault("PROCESS_STARTED_AT", time.time())
+    app.config.setdefault("APP_VERSION", app_version())
+    app.config.setdefault("ENVIRONMENT", environment_name())
 
     # --- Diretórios persistentes ------------------------------------------
     # Não use app.instance_path: em instalações nativas /opt é somente leitura.
@@ -157,6 +161,21 @@ def create_app(overrides: dict | None = None) -> Flask:
             )
         return response
 
+    @app.after_request
+    def _log_http_request(response):
+        """Uma linha JSON por requisição, sem poluir com estáticos/healthcheck."""
+        if request.path == "/healthz" or request.path.startswith("/static/"):
+            return response
+        status = response.status_code
+        audit(
+            "http.request",
+            outcome="success" if status < 400 else "failure",
+            severity="error" if status >= 500 else ("warning" if status >= 400 else "info"),
+            status=status,
+            endpoint=request.endpoint,
+        )
+        return response
+
     # --- Páginas de erro ---------------------------------------------------
     def _error_page(code: int, title: str, message: str):
         return (
@@ -244,9 +263,27 @@ def create_app(overrides: dict | None = None) -> Flask:
 
 def log_app_start() -> None:
     """Registra a inicialização efetiva do servidor (não em CLI/testes)."""
+    database_ok = True
+    from sqlalchemy import text
+
+    try:
+        with app.app_context():
+            db.session.execute(text("SELECT 1"))
+    except Exception:  # noqa: BLE001 - log de inicialização não pode derrubar o app
+        database_ok = False
+        try:
+            with app.app_context():
+                db.session.rollback()
+        except Exception:  # noqa: BLE001 - melhor logar sem banco do que não subir
+            pass
     audit(
         "app.start",
+        version=app.config.get("APP_VERSION") or app_version(),
+        environment=app.config.get("ENVIRONMENT") or environment_name(),
         database=str(app.config.get("SQLALCHEMY_DATABASE_URI", "")),
+        database_ready=database_ok,
+        health_url=f"http://{app.config.get('HOST')}:{app.config.get('PORT')}/healthz",
+        status_url=f"http://{app.config.get('HOST')}:{app.config.get('PORT')}/status",
         host=app.config.get("HOST"),
         port=app.config.get("PORT"),
         debug=bool(app.config.get("DEBUG")),

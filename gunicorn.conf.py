@@ -1,8 +1,8 @@
 """Configuração do Gunicorn para o container.
 
-O endpoint /healthz é chamado pelo Docker a cada 5 minutos. Ele não representa
-uma ação de usuário e não deve poluir o access log; erros do próprio health
-continuam visíveis no log de erro do container.
+O access log HTTP é emitido pela aplicação em JSON (incluindo request_id,
+duração e status). O Docker não habilita o access log tradicional do Gunicorn
+para não duplicar cada requisição; erros do servidor continuam no error log.
 """
 
 from gunicorn.glogging import Logger

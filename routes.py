@@ -11,6 +11,7 @@ import json
 import shutil
 import sqlite3
 import tempfile
+import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -31,7 +32,7 @@ from flask import (
     session,
     url_for,
 )
-from sqlalchemy import case, func, or_
+from sqlalchemy import case, func, or_, text
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from config import Config
@@ -77,6 +78,7 @@ from models import (
 )
 from utils import dictionary
 from utils.audit import audit
+from utils.observability import app_version, environment_name
 from utils.backup import (
     BackupError,
     build_full_backup,
@@ -2013,3 +2015,29 @@ def help_page():
 @main_bp.route("/healthz")
 def healthz():
     return Response("ok", mimetype="text/plain")
+
+
+@main_bp.route("/status")
+def system_status():
+    """Estado operacional legível por humanos e por automação."""
+    database_ok = True
+    try:
+        db.session.execute(text("SELECT 1"))
+    except Exception:  # noqa: BLE001 - status precisa responder mesmo com banco fora
+        database_ok = False
+        db.session.rollback()
+    started = current_app.config.get("PROCESS_STARTED_AT") or time.time()
+    payload = {
+        "service": "leobooks",
+        "status": "ok" if database_ok else "degraded",
+        "version": current_app.config.get("APP_VERSION") or app_version(),
+        "environment": current_app.config.get("ENVIRONMENT") or environment_name(),
+        "uptime_seconds": round(time.time() - started, 1),
+        "checks": {
+            "database": {"status": "ok" if database_ok else "error"},
+        },
+        "timestamp": datetime.now(timezone.utc)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z"),
+    }
+    return jsonify(payload), 200 if database_ok else 503

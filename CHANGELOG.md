@@ -2,6 +2,10 @@
 
 ## Não lançado
 
+- Novo `/status` em JSON com versão, ambiente, uptime e saúde do banco.
+- Log HTTP estruturado por requisição; healthcheck e estáticos ficam fora.
+- Startup com resumo operacional e filtro para o ruído normal da fila do
+  Waitress.
 - Vocabulário ganhou **capítulo** e **página** da palavra, com migração para
   bancos existentes e exibição no cartão.
 - Vocabulário filtrado por livro e novo botão **Vocabulário** na página do

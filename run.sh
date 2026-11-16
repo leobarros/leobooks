@@ -12,4 +12,13 @@ if [ ! -x ".venv/bin/waitress-serve" ]; then
 fi
 
 export MALLOC_ARENA_MAX="${MALLOC_ARENA_MAX:-2}"
+VERSION="$(tr -d '[:space:]' < VERSION 2>/dev/null || echo dev)"
+BASE_URL="http://${HOST}:${PORT}"
+echo "LeoBooks ${VERSION} · ambiente local"
+echo "  escuta   ${BASE_URL}"
+echo "  health   ${BASE_URL}/healthz"
+echo "  status   ${BASE_URL}/status"
+echo "  banco    ${LEOBOOKS_DATABASE:-${LEOBOOKS_INSTANCE:-instance}/leobooks.db}"
+echo "  logs     startup + acesso JSON em stdout"
+echo ""
 exec .venv/bin/waitress-serve --listen="${HOST}:${PORT}" --threads=4 wsgi:app

@@ -199,3 +199,49 @@ def test_vocabulary_migration_adds_location_columns(app):
             for column in inspect(db.engine).get_columns("vocabulary_words")
         }
         assert {"chapter", "page_number"} <= columns
+
+
+def test_status_endpoint_reports_service_health(client):
+    response = client.get("/status")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["service"] == "leobooks"
+    assert data["status"] == "ok"
+    assert data["checks"]["database"]["status"] == "ok"
+    assert data["version"]
+    assert data["environment"]
+    assert data["uptime_seconds"] >= 0
+
+
+def test_waitress_queue_filter_suppresses_routine_depth():
+    import logging
+
+    from utils.observability import QueueDepthFilter
+
+    queue_filter = QueueDepthFilter()
+    routine = logging.LogRecord(
+        "waitress.queue", logging.WARNING, "", 0, "Task queue depth is 2", (), None
+    )
+    deep = logging.LogRecord(
+        "waitress.queue", logging.WARNING, "", 0, "Task queue depth is 12", (), None
+    )
+    assert not queue_filter.filter(routine)
+    assert queue_filter.filter(deep)
+
+
+def test_http_request_emits_structured_access_event(client, monkeypatch):
+    import app as app_module
+
+    events = []
+    monkeypatch.setattr(
+        app_module,
+        "audit",
+        lambda action, **fields: events.append((action, fields)),
+    )
+    response = client.get("/login")
+    assert response.status_code == 200
+    access = [fields for action, fields in events if action == "http.request"]
+    assert access
+    assert access[-1]["status"] == 200
+    assert access[-1]["endpoint"] == "auth.login"
+    assert access[-1]["outcome"] == "success"
