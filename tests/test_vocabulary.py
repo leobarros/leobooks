@@ -173,7 +173,7 @@ def test_vocabulary_is_filtered_by_book_and_linked_from_book(app, auth_client, b
     assert book["title"] in html
 
     detail = auth_client.get(f"/books/{book['id']}").get_data(as_text=True)
-    assert f"/books/{book['id']}/vocabulary" in detail
+    assert f"/books/{book['id']}?tab=vocabulary" in detail
 
 
 def test_vocabulary_migration_adds_location_columns(app):
@@ -312,7 +312,13 @@ def test_book_vocabulary_page_groups_by_chapter(app, auth_client, book):
             },
         )
 
-    page = auth_client.get(f"/books/{book['id']}/vocabulary")
+    legacy = auth_client.get(
+        f"/books/{book['id']}/vocabulary", follow_redirects=False
+    )
+    assert legacy.status_code == 302
+    assert "tab=vocabulary" in legacy.headers["Location"]
+
+    page = auth_client.get(f"/books/{book['id']}?tab=vocabulary")
     assert page.status_code == 200
     html = page.get_data(as_text=True)
     assert "XXI" in html

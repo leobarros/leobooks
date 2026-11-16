@@ -330,7 +330,7 @@ def main() -> None:
         page.wait_for_timeout(500)
         shot(page, "livro")
 
-        page.goto(f"{BASE}/books/{ids['book_id']}/vocabulary", wait_until="networkidle")
+        page.goto(f"{BASE}/books/{ids['book_id']}?tab=vocabulary", wait_until="networkidle")
         page.wait_for_timeout(500)
         shot(page, "vocabulario-livro")
 

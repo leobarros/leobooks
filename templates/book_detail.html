@@ -155,7 +155,7 @@
               data-book-id="{{ book.id }}" data-note-type="QUOTE">
         <i class="bi bi-feather"></i> Adicionar nota a este livro
       </button>
-      <a class="lb-btn lb-btn--quiet" href="{{ url_for('books.vocabulary', book_id=book.id) }}">
+      <a class="lb-btn lb-btn--quiet" href="{{ url_for('books.detail', book_id=book.id, tab='vocabulary') }}">
         <i class="bi bi-translate"></i> Vocabulário
       </a>
       <a class="lb-btn lb-btn--ghost" href="{{ url_for('settings.export_book', book_id=book.id) }}">
@@ -165,20 +165,80 @@
   </div>
 </header>
 
-<nav class="lb-tabs" aria-label="Filtrar notas por tipo">
-  <a class="lb-tab {{ 'is-active' if type_filter == 'ALL' }}"
+<nav class="lb-tabs" aria-label="Seções e filtros do livro">
+  <a class="lb-tab {{ 'is-active' if not tab and type_filter == 'ALL' }}"
      href="{{ url_for('books.detail', book_id=book.id) }}">
     Todas <span>{{ counts.ALL }}</span>
   </a>
   {% for key, meta in note_types.items() %}
-    <a class="lb-tab lb-tab--{{ meta.tone }} {{ 'is-active' if type_filter == key }}"
+    <a class="lb-tab lb-tab--{{ meta.tone }} {{ 'is-active' if not tab and type_filter == key }}"
        href="{{ url_for('books.detail', book_id=book.id, type=key) }}">
       <i class="bi {{ meta.icon }}"></i> {{ meta.plural }} <span>{{ counts[key] }}</span>
     </a>
   {% endfor %}
+  <a class="lb-tab {{ 'is-active' if tab == 'vocabulary' }}"
+     href="{{ url_for('books.detail', book_id=book.id, tab='vocabulary') }}">
+    <i class="bi bi-translate"></i> Vocabulário <span>{{ word_count }}</span>
+  </a>
 </nav>
 
 <div class="lb-detail-grid">
+  {% if tab == 'vocabulary' %}
+  <section class="lb-notes" aria-label="Vocabulário do livro">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <p class="lb-hint mb-0">
+        {{ word_count }} {% if word_count == 1 %}palavra{% else %}palavras{% endif %}
+        {% if chapter_count %}· {{ chapter_count }} {% if chapter_count == 1 %}capítulo{% else %}capítulos{% endif %}{% endif %}
+      </p>
+      <a class="lb-btn lb-btn--primary lb-btn--sm"
+         href="{{ url_for('main.vocabulary', book_id=book.id) }}#nova-palavra">
+        <i class="bi bi-plus-lg"></i> Nova palavra
+      </a>
+    </div>
+
+    {% if groups %}
+      {% for chapter, entries in groups %}
+        <section class="lb-panel">
+          <header class="lb-panel__head">
+            <h2 class="lb-panel__title">{{ chapter }}</h2>
+            <span class="lb-panel__folio">{{ entries|length }} {% if entries|length == 1 %}palavra{% else %}palavras{% endif %}</span>
+          </header>
+          {% for entry in entries %}
+            <div class="d-flex flex-wrap justify-content-between gap-3 py-3 border-top">
+              <div class="flex-grow-1">
+                <h3 class="lb-panel__title">{{ entry.word }}</h3>
+                <p class="mb-1">{{ entry.definition|replace('
+', ' · ') }}</p>
+                {% if entry.context %}
+                  <p class="lb-hint mb-1">{{ entry.context }}</p>
+                {% endif %}
+                <span class="lb-panel__folio">
+                  {% if entry.chapter %}{{ entry.chapter }}{% endif %}
+                  {% if entry.chapter and entry.page_number is not none %} · {% endif %}
+                  {% if entry.page_number is not none %}pág. {{ entry.page_number }}{% endif %}
+                </span>
+              </div>
+              <a class="lb-panel__link"
+                 href="{{ url_for('main.vocabulary_edit', word_id=entry.id, next=url_for('books.detail', book_id=book.id, tab='vocabulary')) }}">
+                <i class="bi bi-pencil"></i> Editar
+              </a>
+            </div>
+          {% endfor %}
+        </section>
+      {% endfor %}
+    {% else %}
+      <div class="lb-empty lb-empty--wide">
+        <span class="lb-empty__mark"><i class="bi bi-translate"></i></span>
+        <h2 class="lb-empty__title">As palavras deste livro ainda estão esperando.</h2>
+        <p>Quando uma palavra interromper a leitura, anote a definição e o capítulo em que ela apareceu.</p>
+        <a class="lb-btn lb-btn--primary"
+           href="{{ url_for('main.vocabulary', book_id=book.id) }}#nova-palavra">
+          <i class="bi bi-plus-lg"></i> Adicionar primeira palavra
+        </a>
+      </div>
+    {% endif %}
+  </section>
+  {% else %}
   <section class="lb-notes" aria-label="Notas do livro">
     {% for note in notes %}
       {{ note_card(note) }}
@@ -213,8 +273,26 @@
       </div>
     {% endif %}
   </section>
+  {% endif %}
 
   <aside class="lb-rail lb-rail--detail" id="ficha">
+    {% if tab == 'vocabulary' %}
+      <section class="lb-panel">
+        <header class="lb-panel__head">
+          <h2 class="lb-panel__title">Neste livro</h2>
+          <span class="lb-panel__folio">vocabulário</span>
+        </header>
+        <dl class="lb-facts">
+          <div><dt>Palavras</dt><dd>{{ word_count }}</dd></div>
+          <div><dt>Capítulos</dt><dd>{{ chapter_count }}</dd></div>
+          <div><dt>Última anotação</dt><dd>{% if last_word %}{{ last_word.updated_at|tempo_atras }}{% else %}—{% endif %}</dd></div>
+        </dl>
+        <a class="lb-btn lb-btn--ghost lb-btn--block mt-3"
+           href="{{ url_for('main.vocabulary', book_id=book.id) }}">
+          <i class="bi bi-translate"></i> Ver catálogo A–Z
+        </a>
+      </section>
+    {% endif %}
     <section class="lb-panel">
       <header class="lb-panel__head">
         <h2 class="lb-panel__title">Ficha do livro</h2>

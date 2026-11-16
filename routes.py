@@ -1095,39 +1095,8 @@ def cover_lookup():
     )
 
 
-@books_bp.route("/books/<book_id>")
-@login_required
-def detail(book_id: str):
-    book = _owned_book(book_id)
-    _touch_book(book)
-    type_filter = (request.args.get("type") or "ALL").upper()
-    if type_filter not in NOTE_TYPES:
-        type_filter = "ALL"
-
-    notes = book.notes
-    if type_filter != "ALL":
-        notes = [note for note in notes if note.type == type_filter]
-
-    counts = {
-        "ALL": len(book.notes),
-        "QUOTE": book.quote_count,
-        "SUMMARY": book.summary_count,
-        "INSIGHT": book.insight_count,
-    }
-    return render_template(
-        "book_detail.html",
-        book=book,
-        notes=notes,
-        type_filter=type_filter,
-        counts=counts,
-    )
-
-
-@books_bp.route("/books/<book_id>/vocabulary")
-@login_required
-def vocabulary(book_id: str):
-    book = _owned_book(book_id)
-    _touch_book(book)
+def _book_vocabulary(book: Book) -> tuple[list[tuple[str, list[VocabularyWord]]], list[VocabularyWord]]:
+    """Agrupa as palavras do livro por capítulo, na ordem de leitura."""
     words = (
         VocabularyWord.query.filter_by(
             user_id=current_user().id, book_id=book.id
@@ -1154,21 +1123,59 @@ def vocabulary(book_id: str):
             groups.append((label, [word]))
         else:
             groups[-1][1].append(word)
-    chapter_count = len({word.chapter for word in words if word.chapter})
+    return groups, words
+
+
+@books_bp.route("/books/<book_id>")
+@login_required
+def detail(book_id: str):
+    book = _owned_book(book_id)
+    _touch_book(book)
+    tab = (request.args.get("tab") or "").strip().lower()
+    if tab != "vocabulary":
+        tab = ""
+    type_filter = (request.args.get("type") or "ALL").upper()
+    if type_filter not in NOTE_TYPES:
+        type_filter = "ALL"
+
+    notes = book.notes
+    if type_filter != "ALL":
+        notes = [note for note in notes if note.type == type_filter]
+
+    groups, book_words = _book_vocabulary(book)
+    chapter_count = len({word.chapter for word in book_words if word.chapter})
     last_word = max(
-        words,
+        book_words,
         key=lambda item: item.updated_at or item.created_at,
         default=None,
     )
+    counts = {
+        "ALL": len(book.notes),
+        "QUOTE": book.quote_count,
+        "SUMMARY": book.summary_count,
+        "INSIGHT": book.insight_count,
+    }
     return render_template(
-        "book_vocabulary.html",
+        "book_detail.html",
         book=book,
+        notes=notes,
+        type_filter=type_filter,
+        counts=counts,
+        tab=tab,
         groups=groups,
-        words=words,
-        word_count=len(words),
+        book_words=book_words,
+        word_count=len(book_words),
         chapter_count=chapter_count,
         last_word=last_word,
     )
+
+
+@books_bp.route("/books/<book_id>/vocabulary")
+@login_required
+def vocabulary(book_id: str):
+    """Rota antiga mantida como redirecionamento para a aba do livro."""
+    _owned_book(book_id)
+    return redirect(url_for("books.detail", book_id=book_id, tab="vocabulary"))
 
 
 @books_bp.route("/books/<book_id>/progress", methods=["POST"])
