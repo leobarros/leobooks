@@ -328,3 +328,54 @@ def test_book_vocabulary_page_groups_by_chapter(app, auth_client, book):
     assert "ardil" in html
     assert "3 palavras" in html
     assert "2 capítulos" in html
+
+
+def test_vocabulary_markdown_export_and_import(app, auth_client, book):
+    from io import BytesIO
+
+    auth_client.post(
+        "/vocabulary",
+        data={
+            "word": "virtude",
+            "definition": "Definição original.",
+            "book_id": book["id"],
+            "chapter": "2",
+            "page_number": "20",
+        },
+    )
+    exported = auth_client.get("/vocabulary/export.md")
+    assert exported.status_code == 200
+    text = exported.get_data(as_text=True)
+    assert "leobooks-vocabulary:v1" in text
+    assert "| Palavra | Definição | Contexto | Livro | Capítulo | Página |" in text
+    assert "virtude" in text
+    assert book["title"] in text
+    assert "attachment" in exported.headers["Content-Disposition"]
+
+    markdown = f"""# Vocabulário — LeoBooks
+
+<!-- leobooks-vocabulary:v1 -->
+
+| Palavra | Definição | Contexto | Livro | Capítulo | Página |
+| --- | --- | --- | --- | --- | --- |
+| virtude | Definição duplicada. |  | {book['title']} | 2 | 20 |
+| fortuna | O que não está sob controle humano. | O acaso. | {book['title']} | 3 | 30 |
+| exílio | Afastamento da própria terra. |  | Livro Futuro | 1 | 9 |
+"""
+    imported = auth_client.post(
+        "/vocabulary/import",
+        data={"file": (BytesIO(markdown.encode()), "vocabulario.md")},
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert imported.status_code == 200
+    html = imported.get_data(as_text=True)
+    assert "Importação concluída: 2 nova(s)" in html
+    assert "1 já existente" in html
+    assert "1 sem livro correspondente" in html
+    with app.app_context():
+        words = {word.word: word for word in VocabularyWord.query.all()}
+        assert set(words) == {"virtude", "fortuna", "exílio"}
+        assert words["virtude"].definition == "Definição original."
+        assert words["fortuna"].book_id == book["id"]
+        assert words["exílio"].book_id is None

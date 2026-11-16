@@ -48,6 +48,7 @@ from forms import (
     RestoreForm,
     VocabularyEditForm,
     VocabularyForm,
+    VocabularyImportForm,
 )
 from helpers import (
     admin_required,
@@ -80,6 +81,11 @@ from models import (
 from utils import dictionary
 from utils.audit import audit
 from utils.observability import app_version, environment_name
+from utils.vocabulary_markdown import (
+    VocabularyMarkdownError,
+    parse_vocabulary_markdown,
+    render_vocabulary_markdown,
+)
 from utils.backup import (
     BackupError,
     build_full_backup,
@@ -680,6 +686,7 @@ def vocabulary():
     return render_template(
         "vocabulary.html",
         form=form,
+        import_form=VocabularyImportForm(),
         words=words,
         query_text=query_text,
         selected_book=selected_book,
@@ -731,6 +738,93 @@ def vocabulary_edit(word_id: str):
         form=form,
         entry=entry,
     )
+
+
+@main_bp.route("/vocabulary/export.md")
+@login_required
+def vocabulary_export():
+    user = current_user()
+    words = (
+        VocabularyWord.query.filter_by(user_id=user.id)
+        .order_by(VocabularyWord.word.asc())
+        .all()
+    )
+    payload = render_vocabulary_markdown(words)
+    audit("vocabulary.export", format="markdown", words=len(words))
+    return send_file(
+        io.BytesIO(payload.encode("utf-8")),
+        mimetype="text/markdown; charset=utf-8",
+        as_attachment=True,
+        download_name="leobooks_vocabulario.md",
+    )
+
+
+@main_bp.route("/vocabulary/import", methods=["POST"])
+@login_required
+def vocabulary_import():
+    form = VocabularyImportForm()
+    if not form.validate_on_submit():
+        flash(_first_error(form), "danger")
+        return redirect(url_for("main.vocabulary"))
+
+    try:
+        raw = form.file.data.read().decode("utf-8-sig")
+        _version, entries = parse_vocabulary_markdown(raw)
+    except UnicodeDecodeError:
+        flash("O arquivo precisa estar em UTF-8.", "danger")
+        return redirect(url_for("main.vocabulary"))
+    except VocabularyMarkdownError as exc:
+        flash(str(exc), "danger")
+        return redirect(url_for("main.vocabulary"))
+
+    user = current_user()
+    books = Book.query.filter_by(user_id=user.id).all()
+    by_title = {book.title.casefold(): book for book in books}
+    existing = {
+        word.word_key
+        for word in VocabularyWord.query.filter_by(user_id=user.id).all()
+    }
+    imported = 0
+    skipped = 0
+    without_book = 0
+    for entry in entries:
+        word = " ".join(entry["word"].split()).strip()[:80]
+        key = strip_accents(word).casefold()
+        if not word or not entry["definition"].strip() or key in existing:
+            skipped += 1
+            continue
+        book = by_title.get((entry["book"] or "").casefold())
+        if entry["book"] and book is None:
+            without_book += 1
+        db.session.add(
+            VocabularyWord(
+                user_id=user.id,
+                book_id=book.id if book else None,
+                word=word,
+                word_key=key,
+                definition=entry["definition"].strip()[:4000],
+                context=(entry["context"] or "").strip()[:1000] or None,
+                chapter=(entry["chapter"] or "").strip()[:100] or None,
+                page_number=entry["page_number"],
+            )
+        )
+        existing.add(key)
+        imported += 1
+    db.session.commit()
+    audit(
+        "vocabulary.import",
+        format="markdown",
+        imported=imported,
+        skipped=skipped,
+        without_book=without_book,
+    )
+    message = f"Importação concluída: {imported} nova(s)"
+    if skipped:
+        message += f", {skipped} já existente(s) ou inválida(s)"
+    if without_book:
+        message += f", {without_book} sem livro correspondente"
+    flash(message + ".", "success" if imported else "info")
+    return redirect(url_for("main.vocabulary"))
 
 
 @main_bp.route("/vocabulary/lookup")

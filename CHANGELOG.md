@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- Adicionados exportação e importação do vocabulário em Markdown, com formato
+  versionado, casamento de livros por título e importação idempotente.
 - O vocabulário agora aparece no manifesto do backup, nas exportações
   Markdown/JSON e é preservado na restauração. Backups antigos sem a tabela
   continuam aceitos; a tabela é criada após a restauração.

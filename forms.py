@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileAllowed, FileField
+from flask_wtf.file import FileAllowed, FileField, FileRequired
 from wtforms import (
     BooleanField,
     IntegerField,
@@ -252,6 +252,16 @@ class VocabularyForm(FlaskForm):
         validators=[Optional(), NumberRange(min=0, max=100000)],
     )
     book_id = SelectField("Livro", choices=[], coerce=str, validators=[Optional()])
+
+
+class VocabularyImportForm(FlaskForm):
+    file = FileField(
+        "Arquivo Markdown",
+        validators=[
+            FileRequired("Escolha um arquivo .md."),
+            FileAllowed(["md", "markdown"], "Use um arquivo .md exportado pelo LeoBooks."),
+        ],
+    )
 
 
 class VocabularyEditForm(FlaskForm):

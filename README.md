@@ -272,6 +272,23 @@ Cada palavra tem **Editar**, para corrigir ou ampliar o significado, o contexto,
 
 ![Página de vocabulário com palavras e definições](docs/screenshots/vocabulario.webp)
 
+### Exportar e importar vocabulário
+
+Em **Vocabulário → Exportar .md**, o LeoBooks gera uma tabela Markdown com
+palavra, definição, contexto, livro, capítulo e página. O arquivo inclui a
+marcação `leobooks-vocabulary:v1`.
+
+Em outro LeoBooks, use **Importar vocabulário** na mesma página. O import:
+
+- casa o livro pelo título;
+- ignora palavras já existentes;
+- informa livros não encontrados;
+- aceita o formato v1, inclusive arquivos de versões posteriores que mantenham
+  as mesmas colunas.
+
+O arquivo é portátil e não depende do banco local.
+
+
 
 ### 3. Acompanhe seu ritmo
 
@@ -538,7 +555,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **128 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **129 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 

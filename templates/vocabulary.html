@@ -23,6 +23,9 @@
       </p>
     {% endif %}
   </div>
+  <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.vocabulary_export') }}">
+    <i class="bi bi-download"></i> Exportar .md
+  </a>
 </header>
 
 <div class="lb-settings__content">
@@ -150,6 +153,27 @@
         </div>
       </div>
     {% endif %}
+  </section>
+
+  <section class="lb-setting-card" id="importar">
+    <header class="lb-setting-card__head">
+      <span class="lb-setting-card__num">03</span>
+      <div>
+        <h2>Importar vocabulário</h2>
+        <p>Traga palavras exportadas de outro LeoBooks. O livro é associado pelo título.</p>
+      </div>
+    </header>
+    <form method="post" action="{{ url_for('main.vocabulary_import') }}" enctype="multipart/form-data">
+      {{ import_form.hidden_tag() }}
+      <div class="lb-field">
+        <label class="lb-label" for="vocabularyFile">Arquivo Markdown</label>
+        {{ import_form.file(class="form-control lb-input", id="vocabularyFile", accept=".md,.markdown,text/markdown") }}
+      </div>
+      <button type="submit" class="lb-btn lb-btn--primary">
+        <i class="bi bi-upload"></i> Importar vocabulário
+      </button>
+      <p class="lb-hint">Palavras já existentes são ignoradas. Livros ausentes são informados, e a palavra fica sem vínculo para você ajustar depois.</p>
+    </form>
   </section>
 
   <p class="lb-hint">
