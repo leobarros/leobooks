@@ -26,7 +26,7 @@
   <div class="d-flex flex-wrap gap-2">
     <button type="button" class="lb-btn lb-btn--primary" data-vocabulary-open
             {% if selected_book %}data-book-id="{{ selected_book.id }}"{% endif %}>
-      <i class="bi bi-plus-lg"></i> Nova palavra
+      <i class="bi bi-feather"></i> Nova palavra
     </button>
     <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.vocabulary_export') }}">
       <i class="bi bi-download"></i> Exportar .md
