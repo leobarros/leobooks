@@ -22,6 +22,43 @@
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
   /* ----------------------------------------------------------------------
+     Validação nativa em português
+     ---------------------------------------------------------------------- */
+  function ptbrValidityMessage(field) {
+    const validity = field.validity;
+    if (validity.valueMissing) return "Preencha este campo.";
+    if (validity.typeMismatch) return "Informe um valor válido.";
+    if (validity.patternMismatch) return "Use o formato solicitado.";
+    if (validity.tooLong) return `Use no máximo ${field.maxLength} caracteres.`;
+    if (validity.tooShort) return `Use pelo menos ${field.minLength} caracteres.`;
+    if (validity.rangeUnderflow) return `Informe um valor maior ou igual a ${field.min}.`;
+    if (validity.rangeOverflow) return `Informe um valor menor ou igual a ${field.max}.`;
+    if (validity.stepMismatch) return "Informe um valor válido.";
+    if (validity.badInput) return "Informe um valor válido.";
+    return "Verifique este campo.";
+  }
+
+  document.addEventListener(
+    "invalid",
+    (event) => {
+      if (event.target instanceof HTMLInputElement ||
+          event.target instanceof HTMLSelectElement ||
+          event.target instanceof HTMLTextAreaElement) {
+        event.target.setCustomValidity(ptbrValidityMessage(event.target));
+      }
+    },
+    true
+  );
+  ["input", "change"].forEach((eventName) => {
+    document.addEventListener(eventName, (event) => {
+      const target = event.target;
+      if (target && typeof target.setCustomValidity === "function") {
+        target.setCustomValidity("");
+      }
+    }, true);
+  });
+
+  /* ----------------------------------------------------------------------
      Avisos
      ---------------------------------------------------------------------- */
   const toastHost = $("#lb-toasts");
@@ -683,7 +720,11 @@
       }
     } catch (error) {
       if (dictStatus) dictStatus.textContent = "Não foi possível buscar; escreva a definição.";
-      notify(error.message || "Falha ao consultar o dicionário.", "warning");
+      const message = error instanceof Error && error.message
+        && !/failed to fetch|networkerror|load failed/i.test(error.message)
+        ? error.message
+        : "Falha ao consultar o dicionário. Verifique a conexão.";
+      notify(message, "warning");
     } finally {
       dictLookup.disabled = false;
       dictLookup.innerHTML = original;

@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- Mensagens padrão de validação do WTForms e do navegador foram traduzidas
+  para português do Brasil.
 - A criação de palavra agora abre em popup na própria página, com o mesmo
   fluxo de formulário usado nas notas.
 - Adicionados exportação e importação do vocabulário em Markdown, com formato

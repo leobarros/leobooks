@@ -52,7 +52,45 @@ def optional_url(form, field):  # noqa: ANN001
         raise ValidationError("A URL deve começar com http:// ou https://.")
 
 
-class LoginForm(FlaskForm):
+class PTBRForm(FlaskForm):
+    """Formulário com as mensagens padrão do WTForms em português do Brasil."""
+
+    _TRANSLATIONS = (
+        (r"^This field is required\.$", "Preencha este campo."),
+        (r"^Not a valid integer value\.$", "Informe um número inteiro válido."),
+        (r"^Not a valid decimal value\.$", "Informe um número válido."),
+        (r"^Not a valid choice\.$", "Selecione uma opção válida."),
+        (r"^Invalid input\.$", "Valor inválido."),
+        (r"^Invalid email address\.$", "Informe um e-mail válido."),
+        (r"^Not a valid email address\.$", "Informe um e-mail válido."),
+        (r"^File required\.$", "Escolha um arquivo."),
+        (r"^Invalid file type\.$", "Tipo de arquivo inválido."),
+        (r"^Field must be at least (\d+) characters long\.$", r"Use pelo menos \1 caracteres."),
+        (r"^Field must be at most (\d+) characters long\.$", r"Use no máximo \1 caracteres."),
+        (r"^Field must be between (\d+) and (\d+) characters long\.$", r"Use entre \1 e \2 caracteres."),
+        (r"^Number must be at least (.+?)\.$", r"Informe um número maior ou igual a \1."),
+        (r"^Number must be at most (.+?)\.$", r"Informe um número menor ou igual a \1."),
+        (r"^Number must be between (.+?) and (.+?)\.$", r"Informe um número entre \1 e \2."),
+        (r"^Not a valid date\.$", "Informe uma data válida."),
+        (r"^Not a valid datetime\.$", "Informe uma data e hora válidas."),
+    )
+
+    @classmethod
+    def _em_portugues(cls, message: str) -> str:
+        for pattern, replacement in cls._TRANSLATIONS:
+            translated = re.sub(pattern, replacement, message)
+            if translated != message:
+                return translated
+        return message
+
+    def validate(self, extra_validators=None):
+        valid = super().validate(extra_validators=extra_validators)
+        for field in self:
+            field.errors = [self._em_portugues(error) for error in field.errors]
+        return valid
+
+
+class LoginForm(PTBRForm):
     email = StringField(
         "E-mail", validators=[DataRequired("Informe seu e-mail."), Length(max=255)]
     )
@@ -66,7 +104,7 @@ class LoginForm(FlaskForm):
     remember = BooleanField("Continuar conectado", default=True)
 
 
-class RegisterForm(FlaskForm):
+class RegisterForm(PTBRForm):
     name = StringField(
         "Como podemos chamar você?",
         validators=[DataRequired("Diga seu nome."), Length(min=2, max=120)],
@@ -88,7 +126,7 @@ class RegisterForm(FlaskForm):
     )
 
 
-class BookForm(FlaskForm):
+class BookForm(PTBRForm):
     title = StringField(
         "Título", validators=[DataRequired("Informe o título."), Length(max=255)]
     )
@@ -154,7 +192,7 @@ class BookForm(FlaskForm):
             raise ValidationError("A página atual não pode passar do total de páginas.")
 
 
-class NoteForm(FlaskForm):
+class NoteForm(PTBRForm):
     book_id = SelectField(
         "Livro", validators=[DataRequired("Escolha o livro.")], choices=[]
     )
@@ -182,7 +220,7 @@ class NoteForm(FlaskForm):
     )
 
 
-class NewUserForm(FlaskForm):
+class NewUserForm(PTBRForm):
     name = StringField(
         "Nome", validators=[DataRequired("Informe o nome."), Length(min=2, max=120)]
     )
@@ -202,7 +240,7 @@ class NewUserForm(FlaskForm):
     is_admin = BooleanField("Conceder acesso de administrador", default=False)
 
 
-class ProfileForm(FlaskForm):
+class ProfileForm(PTBRForm):
     name = StringField(
         "Nome", validators=[DataRequired("Informe seu nome."), Length(min=2, max=120)]
     )
@@ -211,7 +249,7 @@ class ProfileForm(FlaskForm):
     )
 
 
-class PasswordForm(FlaskForm):
+class PasswordForm(PTBRForm):
     current_password = PasswordField(
         "Senha atual", validators=[DataRequired("Informe a senha atual.")]
     )
@@ -227,7 +265,7 @@ class PasswordForm(FlaskForm):
     )
 
 
-class VocabularyForm(FlaskForm):
+class VocabularyForm(PTBRForm):
     word = StringField(
         "Palavra",
         validators=[DataRequired("Escreva a palavra."), Length(max=80)],
@@ -254,7 +292,7 @@ class VocabularyForm(FlaskForm):
     book_id = SelectField("Livro", choices=[], coerce=str, validators=[Optional()])
 
 
-class VocabularyImportForm(FlaskForm):
+class VocabularyImportForm(PTBRForm):
     file = FileField(
         "Arquivo Markdown",
         validators=[
@@ -264,7 +302,7 @@ class VocabularyImportForm(FlaskForm):
     )
 
 
-class VocabularyEditForm(FlaskForm):
+class VocabularyEditForm(PTBRForm):
     definition = TextAreaField(
         "Definição",
         validators=[
@@ -287,7 +325,7 @@ class VocabularyEditForm(FlaskForm):
     book_id = SelectField("Livro", choices=[], coerce=str, validators=[Optional()])
 
 
-class DeleteAccountForm(FlaskForm):
+class DeleteAccountForm(PTBRForm):
     password = PasswordField(
         "Confirme sua senha", validators=[DataRequired("Informe sua senha.")]
     )
@@ -301,7 +339,7 @@ class DeleteAccountForm(FlaskForm):
             raise ValidationError("Digite exatamente a palavra EXCLUIR.")
 
 
-class RestoreForm(FlaskForm):
+class RestoreForm(PTBRForm):
     backup = FileField(
         "Arquivo de backup",
         validators=[
@@ -314,7 +352,7 @@ class RestoreForm(FlaskForm):
     )
 
 
-class ThemeForm(FlaskForm):
+class ThemeForm(PTBRForm):
     theme = SelectField(
         "Tema",
         choices=[("light", "Claro"), ("dark", "Escuro")],
