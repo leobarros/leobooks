@@ -201,24 +201,23 @@
             <span class="lb-panel__folio">{{ entries|length }} {% if entries|length == 1 %}palavra{% else %}palavras{% endif %}</span>
           </header>
           {% for entry in entries %}
-            <div class="d-flex flex-wrap justify-content-between gap-3 py-3 border-top">
-              <div class="flex-grow-1">
-                <h3 class="lb-panel__title">{{ entry.word }}</h3>
-                <p class="mb-1">{{ entry.definition|replace('
-', ' · ') }}</p>
-                {% if entry.context %}
-                  <p class="lb-hint mb-1">{{ entry.context }}</p>
-                {% endif %}
-                <span class="lb-panel__folio">
-                  {% if entry.chapter %}{{ entry.chapter }}{% endif %}
-                  {% if entry.chapter and entry.page_number is not none %} · {% endif %}
-                  {% if entry.page_number is not none %}pág. {{ entry.page_number }}{% endif %}
-                </span>
+            <div class="py-3 border-top">
+              <div class="d-flex justify-content-between align-items-start gap-3">
+                <h3 class="lb-panel__title mb-0">{{ entry.word }}</h3>
+                <a class="lb-panel__link flex-shrink-0"
+                   href="{{ url_for('main.vocabulary_edit', word_id=entry.id, next=url_for('books.detail', book_id=book.id, tab='vocabulary')) }}">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
               </div>
-              <a class="lb-panel__link"
-                 href="{{ url_for('main.vocabulary_edit', word_id=entry.id, next=url_for('books.detail', book_id=book.id, tab='vocabulary')) }}">
-                <i class="bi bi-pencil"></i> Editar
-              </a>
+              <p class="mb-1 mt-2">{{ entry.definition|replace('\n', ' · ') }}</p>
+              {% if entry.context %}
+                <p class="lb-hint mb-1">{{ entry.context }}</p>
+              {% endif %}
+              <span class="lb-panel__folio">
+                {% if entry.chapter %}{{ entry.chapter }}{% endif %}
+                {% if entry.chapter and entry.page_number is not none %} · {% endif %}
+                {% if entry.page_number is not none %}pág. {{ entry.page_number }}{% endif %}
+              </span>
             </div>
           {% endfor %}
         </section>

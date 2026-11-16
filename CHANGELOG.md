@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- Corrigido o alinhamento do botão **Editar** no vocabulário do livro, que
+  agora fica no topo direito mesmo com definições longas.
 - Removido o endereço `leobooks.local` das imagens de citação compartilhadas.
 - A lateral agora alterna citações de diferentes autores, com uma frase
   estável por dia.
