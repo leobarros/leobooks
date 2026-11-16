@@ -2829,6 +2829,10 @@ textarea.lb-input { min-height: 110px; resize: vertical; }
 }
 .lb-modal__foot-actions { display: flex; align-items: center; gap: 8px; }
 .lb-hint--kbd { display: inline-flex; align-items: center; gap: 5px; margin: 0; }
+
+/* Popups de escrita: um pouco mais largos para acomodar os formulários. */
+.lb-modal--note .modal-dialog,
+#vocabularyModal .modal-dialog { max-width: 560px; }
 /* O modal de nota mantém o mesmo tamanho do vocabulário; o atalho não cabe
    ao lado de três ações e é redundante com o botão Salvar. */
 .lb-modal--note .lb-modal__foot .lb-hint--kbd { display: none; }
