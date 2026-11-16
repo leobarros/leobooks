@@ -95,10 +95,24 @@ def test_change_password_rules_and_login(app, auth_client):
 
 def test_exports_markdown_and_json(auth_client, book):
     create_note(auth_client, book["id"], content="Trecho exportável", tags="atenção")
+    auth_client.post(
+        "/vocabulary",
+        data={
+            "word": "virtude",
+            "definition": "Disposição firme para o bem.",
+            "context": "Uma palavra exportável.",
+            "chapter": "2",
+            "page_number": "33",
+            "book_id": book["id"],
+        },
+    )
     markdown = auth_client.get("/export/notes.md")
     assert markdown.status_code == 200
     assert "text/markdown" in markdown.mimetype
-    assert "Trecho exportável" in markdown.get_data(as_text=True)
+    markdown_text = markdown.get_data(as_text=True)
+    assert "Trecho exportável" in markdown_text
+    assert "Vocabulário" in markdown_text
+    assert "virtude" in markdown_text
     assert "attachment" in markdown.headers["Content-Disposition"]
 
     payload = auth_client.get("/export/notes.json")
@@ -106,11 +120,15 @@ def test_exports_markdown_and_json(auth_client, book):
     data = json.loads(payload.get_data(as_text=True))
     assert data["app"] == "LeoBooks"
     assert data["books"][0]["notes"][0]["content"] == "Trecho exportável"
+    assert data["books"][0]["vocabulary"][0]["word"] == "virtude"
+    assert data["books"][0]["vocabulary"][0]["page_number"] == 33
     assert "password" not in json.dumps(data)
 
     per_book = auth_client.get(f"/export/books/{book['id']}.md")
     assert per_book.status_code == 200
-    assert "Trecho exportável" in per_book.get_data(as_text=True)
+    per_book_text = per_book.get_data(as_text=True)
+    assert "Trecho exportável" in per_book_text
+    assert "virtude" in per_book_text
 
 
 def test_backup_download_is_complete_zip(auth_client):

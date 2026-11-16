@@ -2,6 +2,9 @@
 
 ## Não lançado
 
+- O vocabulário agora aparece no manifesto do backup, nas exportações
+  Markdown/JSON e é preservado na restauração. Backups antigos sem a tabela
+  continuam aceitos; a tabela é criada após a restauração.
 - Implementado o **Caderno do livro**: página de vocabulário agrupada por
   capítulo, integrada à navegação do livro e mantendo o catálogo global.
 - Adicionado **Editar** ao Vocabulário para corrigir ou ampliar significado,

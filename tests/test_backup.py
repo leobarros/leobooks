@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import io
+import json
 import zipfile
 from pathlib import Path
 
 from PIL import Image
 
-from models import Book, Note, db
+from models import Book, Note, VocabularyWord, db
 
 
 def png_bytes(size=(30, 40), color="forestgreen"):
@@ -59,6 +60,20 @@ def test_full_backup_restores_database_and_assets(app, auth_client):
         image = note.image_filename
         assert image
 
+    word_response = auth_client.post(
+        "/vocabulary",
+        data={
+            "word": "virtude",
+            "definition": "Disposição firme para o bem.",
+            "context": "Uma palavra para guardar.",
+            "chapter": "2",
+            "page_number": "33",
+            "book_id": book_id,
+        },
+        follow_redirects=True,
+    )
+    assert word_response.status_code == 200
+
     backup_response = auth_client.get("/settings/backup")
     assert backup_response.status_code == 200
     backup_data = backup_response.data
@@ -68,6 +83,8 @@ def test_full_backup_restores_database_and_assets(app, auth_client):
         assert "manifest.json" in names
         assert f"covers/{cover}" in names
         assert f"uploads/{image}" in names
+        manifest = json.loads(archive.read("manifest.json"))
+        assert manifest["counts"]["vocabulary_words"] == 1
 
     cover_path = Path(app.config["COVER_FOLDER"]) / cover
     image_path = Path(app.config["UPLOAD_FOLDER"]) / image
@@ -98,6 +115,10 @@ def test_full_backup_restores_database_and_assets(app, auth_client):
         note = Note.query.one()
         assert note.content == "Uma nota com foto."
         assert (Path(app.config["UPLOAD_FOLDER"]) / image).exists()
+        word = VocabularyWord.query.one()
+        assert word.word == "virtude"
+        assert word.chapter == "2"
+        assert word.page_number == 33
 
 
 def test_restore_accepts_zip_larger_than_normal_upload_limit(auth_client):

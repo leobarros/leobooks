@@ -514,5 +514,18 @@ class VocabularyWord(db.Model):
             parts.append(f"pág. {self.page_number}")
         return " · ".join(parts)
 
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "book_id": self.book_id,
+            "word": self.word,
+            "definition": self.definition,
+            "context": self.context,
+            "chapter": self.chapter,
+            "page_number": self.page_number,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
     def __repr__(self) -> str:  # pragma: no cover
         return f"<VocabularyWord {self.word!r}>"

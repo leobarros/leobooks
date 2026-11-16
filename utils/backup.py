@@ -58,10 +58,23 @@ def _snapshot_database(source: Path, destination: Path) -> None:
 
 
 def _counts(connection: sqlite3.Connection) -> dict[str, int]:
-    return {
-        table: connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-        for table in ("users", "books", "notes", "tags", "note_tags")
-    }
+    counts = {}
+    for table in (
+        "users",
+        "books",
+        "notes",
+        "tags",
+        "note_tags",
+        "vocabulary_words",
+    ):
+        try:
+            counts[table] = connection.execute(
+                f"SELECT COUNT(*) FROM {table}"
+            ).fetchone()[0]
+        except sqlite3.OperationalError:
+            # Backups antigos podem não ter a tabela de vocabulário.
+            counts[table] = 0
+    return counts
 
 
 def _iter_assets(directory: Path, prefix: str) -> Iterable[tuple[Path, str]]:

@@ -20,7 +20,7 @@ ligada à página, ao capítulo e às tags que você escolher.
 - **Livro físico ou digital**, cada um com sua própria forma de progresso.
 - **Tags que atravessam livros**, busca sem acentos e revisão de citações.
 - **Tema claro ou madrugada**, para ler e anotar em qualquer hora.
-- **Dados no seu servidor**, com exportação e backup completo em um arquivo ZIP.
+- **Dados no seu servidor**, com exportação e backup completo — incluindo vocabulário — em um arquivo ZIP.
 - **Aplicativo GTK no GNOME** ou acesso pelo navegador em outros dispositivos.
 
 ![Biblioteca do LeoBooks com capas e filtros](docs/screenshots/biblioteca.webp)
@@ -312,7 +312,7 @@ Em **Ajustes → Dados e backup**, a administradora baixa **um único arquivo
 
 ```text
 leobooks_backup_AAAAMMDD_HHMMSS.zip
-├── leobooks.db       # banco SQLite consistente
+├── leobooks.db       # banco SQLite consistente (inclui o vocabulário)
 ├── covers/           # capas
 ├── uploads/          # fotos das notas
 └── manifest.json     # formato, contagens e checksums

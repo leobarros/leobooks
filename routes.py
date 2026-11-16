@@ -319,6 +319,7 @@ def _reading_stats(user: User, note_dates=None) -> dict:
         "insights": int(note_stats[3] or 0),
         "pages": int(book_stats[3] or 0),
         "tags": Tag.query.filter_by(user_id=user.id).count(),
+        "vocabulary": VocabularyWord.query.filter_by(user_id=user.id).count(),
         "streak": reading_streak_dates(note_dates or []),
     }
 
@@ -1745,6 +1746,7 @@ def backup():
             backup_bytes=size,
             books=manifest["counts"].get("books", 0),
             notes=manifest["counts"].get("notes", 0),
+            words=manifest["counts"].get("vocabulary_words", 0),
         )
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         response = send_file(
@@ -1834,6 +1836,9 @@ def _full_restore(upload, db_path: Path, stamp: str) -> tuple[bool, str]:
         shutil.move(str(source_uploads), str(uploads_dir))
         uploads_installed = True
         _install_database(source_db, db_path)
+        # Backups antigos podem não ter a tabela de vocabulário.
+        with current_app.app_context():
+            db.create_all()
 
         # Só remove a cópia antiga depois de o novo estado estar completo.
         if old_covers is not None:
@@ -1888,6 +1893,8 @@ def _legacy_restore(upload, db_path: Path, stamp: str) -> tuple[bool, str]:
         safety = backup_dir / f"antes_da_restauracao_{stamp}.db"
         _snapshot_current_database(db_path, safety)
         _install_database(Path(temp_name), db_path)
+        with current_app.app_context():
+            db.create_all()
         return True, "Backup antigo do banco restaurado. Capas e fotos atuais foram mantidas."
     finally:
         Path(temp_name).unlink(missing_ok=True)
@@ -1993,6 +2000,15 @@ def _notes_markdown(user: User, books: list[Book]) -> str:
         "",
     ]
     for book in sorted(books, key=lambda item: item.title.lower()):
+        words = (
+            VocabularyWord.query.filter_by(user_id=user.id, book_id=book.id)
+            .order_by(
+                VocabularyWord.chapter.asc(),
+                VocabularyWord.page_number.asc(),
+                VocabularyWord.word.asc(),
+            )
+            .all()
+        )
         if book.is_digital:
             progress_text = f"{book.progress_percent}% no livro digital"
             if book.total_pages:
@@ -2007,7 +2023,7 @@ def _notes_markdown(user: User, books: list[Book]) -> str:
                 "",
             ]
         )
-        if not book.notes:
+        if not book.notes and not words:
             lines.extend(["_Sem notas registradas._", ""])
             continue
         for note in sorted(book.notes, key=lambda item: item.created_at or datetime.min):
@@ -2021,6 +2037,14 @@ def _notes_markdown(user: User, books: list[Book]) -> str:
             if note.tags:
                 lines.append(" ".join(f"#{tag.name.replace(' ', '-')}" for tag in note.tags))
                 lines.append("")
+        if words:
+            lines.extend(["### Vocabulário", ""])
+            for word in words:
+                location = f" — {word.location_label}" if word.location_label else ""
+                lines.append(f"- **{word.word}**{location}: {word.definition}")
+                if word.context:
+                    lines.append(f"  > {word.context}")
+            lines.append("")
         lines.extend(["---", ""])
     return "\n".join(lines).strip() + "\n"
 
@@ -2035,6 +2059,7 @@ def export_markdown():
         format="markdown",
         books=len(user.books),
         notes=sum(len(book.notes) for book in user.books),
+        words=VocabularyWord.query.filter_by(user_id=user.id).count(),
     )
     return send_file(
         io.BytesIO(payload),
@@ -2065,6 +2090,12 @@ def export_json():
                 "percent_complete": book.percent_complete if book.is_digital else None,
                 "status": book.status,
                 "notes": [note.to_dict() for note in book.notes],
+                "vocabulary": [
+                    word.to_dict()
+                    for word in VocabularyWord.query.filter_by(
+                        user_id=user.id, book_id=book.id
+                    ).order_by(VocabularyWord.word.asc())
+                ],
             }
             for book in user.books
         ],
@@ -2076,6 +2107,7 @@ def export_json():
         format="json",
         books=len(user.books),
         notes=sum(len(book.notes) for book in user.books),
+        words=VocabularyWord.query.filter_by(user_id=user.id).count(),
     )
     return send_file(
         io.BytesIO(data),
@@ -2096,6 +2128,9 @@ def export_book(book_id: str):
         book_id=book.id,
         title=book.title,
         notes=len(book.notes),
+        words=VocabularyWord.query.filter_by(
+            user_id=current_user().id, book_id=book.id
+        ).count(),
     )
     safe_title = "".join(
         char if char.isalnum() or char in "-_" else "-" for char in book.title.lower()

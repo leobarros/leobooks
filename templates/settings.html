@@ -183,7 +183,7 @@
         {% if current_user.is_admin %}
           <a class="lb-datalink" href="{{ url_for('settings.backup') }}">
             <i class="bi bi-box-seam"></i>
-            <span><strong>Baixar backup completo</strong><small>Banco + capas + fotos (.zip)</small></span>
+            <span><strong>Baixar backup completo</strong><small>Banco + capas + fotos + vocabulário (.zip)</small></span>
             <i class="bi bi-download lb-datalink__arrow"></i>
           </a>
         {% endif %}
@@ -193,7 +193,7 @@
         {% if current_user.is_admin %}
           <div class="lb-datapanel">
             <h3>Restaurar backup <span class="lb-adminbadge">admin</span></h3>
-            <p>Envie o <code>.zip</code> completo gerado pelo LeoBooks: banco, capas, fotos e manifesto em um único arquivo. Tudo é validado antes da troca e uma cópia de segurança do estado atual é guardada. Backups antigos <code>.db</code> também são aceitos.</p>
+            <p>Envie o <code>.zip</code> completo gerado pelo LeoBooks: banco, capas, fotos, vocabulário e manifesto em um único arquivo. Tudo é validado antes da troca e uma cópia de segurança do estado atual é guardada. Backups antigos <code>.db</code> também são aceitos.</p>
             <form method="post" action="{{ url_for('settings.restore') }}" enctype="multipart/form-data"
                   data-confirm="Restaurar este backup? Sua sessão será encerrada e o banco atual será substituído.">
               {{ restore_form.hidden_tag() }}
@@ -222,6 +222,7 @@
               <div><dt>Banco</dt><dd><code>{{ db_path }}</code></dd></div>
             {% endif %}
             <div><dt>Notas</dt><dd>{{ stats.notes }}</dd></div>
+            <div><dt>Palavras</dt><dd>{{ stats.vocabulary }}</dd></div>
             <div><dt>Livros</dt><dd>{{ stats.books }}</dd></div>
             <div><dt>OCR</dt><dd>{{ 'disponível' if ocr_ready else 'não instalado' }}</dd></div>
           </dl>
