@@ -8,7 +8,12 @@ from models import VocabularyWord, db
 def test_vocabulary_create_search_and_delete(app, auth_client, book):
     page = auth_client.get("/vocabulary")
     assert page.status_code == 200
-    assert "Palavras que" in page.get_data(as_text=True)
+    html = page.get_data(as_text=True)
+    assert "Palavras que" in html
+    assert "Nenhum arquivo escolhido" in html
+    assert "Escolher arquivo do vocabulário" in html
+    assert "Browse" not in html
+    assert "No file selected" not in html
 
     created = auth_client.post(
         "/vocabulary",

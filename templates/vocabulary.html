@@ -120,8 +120,12 @@
     <form method="post" action="{{ url_for('main.vocabulary_import') }}" enctype="multipart/form-data">
       {{ import_form.hidden_tag() }}
       <div class="lb-field">
-        <label class="lb-label" for="vocabularyFile">Arquivo Markdown</label>
-        {{ import_form.file(class="form-control lb-input", id="vocabularyFile", accept=".md,.markdown,text/markdown") }}
+        <label class="lb-filelabel" for="vocabularyFile">
+          <i class="bi bi-file-earmark-arrow-up"></i>
+          <span class="lb-filelabel__name is-empty" data-file-name>Nenhum arquivo escolhido</span>
+          <small>Escolher arquivo do vocabulário</small>
+          {{ import_form.file(class="lb-filelabel__input", id="vocabularyFile", accept=".md,.markdown,text/markdown", data_file_input="") }}
+        </label>
       </div>
       <button type="submit" class="lb-btn lb-btn--primary">
         <i class="bi bi-upload"></i> Importar vocabulário
