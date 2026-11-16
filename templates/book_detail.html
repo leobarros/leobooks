@@ -155,9 +155,6 @@
               data-book-id="{{ book.id }}" data-note-type="QUOTE">
         <i class="bi bi-feather"></i> Adicionar nota a este livro
       </button>
-      <a class="lb-btn lb-btn--quiet" href="{{ url_for('books.detail', book_id=book.id, tab='vocabulary') }}">
-        <i class="bi bi-translate"></i> Vocabulário
-      </a>
       <a class="lb-btn lb-btn--ghost" href="{{ url_for('settings.export_book', book_id=book.id) }}">
         <i class="bi bi-download"></i> Exportar .md
       </a>

@@ -264,7 +264,7 @@ Em **Ajuda**, o LeoBooks reúne três métodos curtos:
 
 Em **Vocabulário**, guarde a palavra, a definição, o capítulo, a página e o contexto em que ela apareceu. A definição pode ser escrita à mão ou buscada no Wikcionário; você pode editá-la antes de salvar. A consulta envia apenas a palavra, e suas notas ficam locais.
 
-Na página de um livro, o botão **Vocabulário** abre o caderno de palavras daquele livro, agrupado por capítulo e página. O item **Vocabulário** do menu continua mostrando o catálogo geral e permite filtrar por livro.
+Na página de um livro, a aba **Vocabulário** abre o caderno de palavras daquele livro, agrupado por capítulo e página. O item **Vocabulário** do menu continua mostrando o catálogo geral e permite filtrar por livro.
 
 Cada palavra tem **Editar**, para corrigir ou ampliar o significado, o contexto, o capítulo, a página e o livro relacionado.
 
