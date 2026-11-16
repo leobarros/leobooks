@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- Arte ASCII do LeoBooks com o subtítulo **Criado por Leo Sales** no início
+  do startup local e do container.
 - Novo `/status` em JSON com versão, ambiente, uptime e saúde do banco.
 - Log HTTP estruturado por requisição; healthcheck e estáticos ficam fora.
 - Startup com resumo operacional e filtro para o ruído normal da fila do

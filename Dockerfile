@@ -43,6 +43,9 @@ RUN if [ "${INSTALL_OCR}" = "true" ]; then \
         && pip install --no-cache-dir pytesseract; \
     fi
 
+COPY docker-entrypoint.sh /usr/local/bin/leobooks-entrypoint
+RUN chmod +x /usr/local/bin/leobooks-entrypoint
+
 COPY --chown=leobooks:leobooks . .
 
 RUN mkdir -p /app/instance \
@@ -54,6 +57,8 @@ EXPOSE 5057
 
 HEALTHCHECK --interval=5m --timeout=5s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5057/healthz', timeout=3)" || exit 1
+
+ENTRYPOINT ["/usr/local/bin/leobooks-entrypoint"]
 
 CMD ["gunicorn", \
      "--config", "gunicorn.conf.py", \

@@ -245,3 +245,11 @@ def test_http_request_emits_structured_access_event(client, monkeypatch):
     assert access[-1]["status"] == 200
     assert access[-1]["endpoint"] == "auth.login"
     assert access[-1]["outcome"] == "success"
+
+
+def test_startup_art_has_brand_and_author():
+    from utils.observability import startup_art
+
+    art = startup_art()
+    assert "L E O B O O K S" in art
+    assert "Criado por Leo Sales" in art

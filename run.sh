@@ -6,6 +6,11 @@ cd "$(dirname "$0")"
 HOST="${LEOBOOKS_HOST:-${HOST:-127.0.0.1}}"
 PORT="${LEOBOOKS_PORT:-${PORT:-5057}}"
 
+if [ -f assets/ascii-logo.txt ]; then
+  cat assets/ascii-logo.txt
+  printf '\n'
+fi
+
 if [ ! -x ".venv/bin/waitress-serve" ]; then
   echo "Ambiente não encontrado. Rode: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt" >&2
   exit 1

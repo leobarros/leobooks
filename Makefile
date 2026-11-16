@@ -61,7 +61,7 @@ $(PYTHON):
 	$(PIP) install -r requirements.txt
 
 local: $(PYTHON)
-	./run.sh
+	@./run.sh
 
 run: local
 

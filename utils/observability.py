@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 
 VERSION_FILE = Path(__file__).resolve().parent.parent / "VERSION"
+ART_FILE = Path(__file__).resolve().parent.parent / "assets" / "ascii-logo.txt"
 QUEUE_WARNING = re.compile(r"^Task queue depth is (\d+)$")
 QUEUE_ALERT_DEPTH = 10
 
@@ -17,6 +18,13 @@ def app_version() -> str:
         return VERSION_FILE.read_text(encoding="utf-8").strip() or "dev"
     except OSError:
         return "dev"
+
+
+def startup_art() -> str:
+    try:
+        return ART_FILE.read_text(encoding="utf-8").rstrip()
+    except OSError:
+        return "LeoBooks"
 
 
 def environment_name() -> str:

@@ -23,7 +23,7 @@ from helpers import (
 from models import BOOK_STATUSES, NOTE_TYPES, Book, Tag, db
 from routes import auth_bp, books_bp, main_bp, notes_bp, settings_bp
 from utils.audit import audit, configure_audit_logging
-from utils.observability import app_version, environment_name
+from utils.observability import app_version, environment_name, startup_art
 from utils.ocr import ocr_available
 
 csrf = CSRFProtect()
@@ -453,6 +453,7 @@ app = create_app()
 
 
 if __name__ == "__main__":
+    print(startup_art())
     port = int(app.config["PORT"])
     host = app.config["HOST"]
     log_app_start()
