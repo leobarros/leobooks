@@ -251,5 +251,5 @@ def test_startup_art_has_brand_and_author():
     from utils.observability import startup_art
 
     art = startup_art()
-    assert "L E O B O O K S" in art
+    assert "LeoBooks" in art
     assert "Criado por Leo Sales" in art
