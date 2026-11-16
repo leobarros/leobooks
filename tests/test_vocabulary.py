@@ -254,3 +254,42 @@ def test_startup_art_has_brand_and_author():
     assert "LeoBooks" in art
     assert "Criado por Leo Sales" in art
     assert "▄" in art
+
+
+def test_vocabulary_edit_updates_meaning_and_location(app, auth_client, book):
+    auth_client.post(
+        "/vocabulary",
+        data={
+            "word": "virtude",
+            "definition": "Definição antiga.",
+            "book_id": book["id"],
+        },
+    )
+    with app.app_context():
+        entry = VocabularyWord.query.one()
+        word_id = entry.id
+
+    page = auth_client.get(f"/vocabulary/{word_id}/edit")
+    assert page.status_code == 200
+    assert "Definição antiga." in page.get_data(as_text=True)
+
+    updated = auth_client.post(
+        f"/vocabulary/{word_id}/edit",
+        data={
+            "definition": "Definição revisada e mais clara.",
+            "context": "A palavra apareceu no capítulo novo.",
+            "chapter": "4",
+            "page_number": "77",
+            "book_id": book["id"],
+        },
+        follow_redirects=True,
+    )
+    html = updated.get_data(as_text=True)
+    assert updated.status_code == 200
+    assert "Definição revisada e mais clara." in html
+    assert "Cap. 4 · pág. 77" in html
+    with app.app_context():
+        entry = VocabularyWord.query.one()
+        assert entry.definition == "Definição revisada e mais clara."
+        assert entry.chapter == "4"
+        assert entry.page_number == 77

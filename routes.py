@@ -46,6 +46,7 @@ from forms import (
     ProfileForm,
     RegisterForm,
     RestoreForm,
+    VocabularyEditForm,
     VocabularyForm,
 )
 from helpers import (
@@ -681,6 +682,50 @@ def vocabulary():
         words=words,
         query_text=query_text,
         selected_book=selected_book,
+    )
+
+
+@main_bp.route("/vocabulary/<word_id>/edit", methods=["GET", "POST"])
+@login_required
+def vocabulary_edit(word_id: str):
+    entry = VocabularyWord.query.filter_by(
+        id=word_id, user_id=current_user().id
+    ).first_or_404()
+    books = (
+        Book.query.filter_by(user_id=current_user().id)
+        .order_by(*_book_usage_order())
+        .all()
+    )
+    form = VocabularyEditForm(obj=entry)
+    form.book_id.choices = [("", "Sem livro")] + [
+        (book.id, f"{book.title} — {book.authors}") for book in books
+    ]
+
+    if request.method == "POST" and form.errors:
+        flash(_first_error(form), "danger")
+
+    if form.validate_on_submit():
+        book = None
+        if form.book_id.data:
+            book = Book.query.filter_by(
+                id=form.book_id.data, user_id=current_user().id
+            ).first()
+        entry.definition = (form.definition.data or "").strip()
+        entry.context = (form.context.data or "").strip() or None
+        entry.chapter = (form.chapter.data or "").strip() or None
+        entry.page_number = form.page_number.data
+        entry.book_id = book.id if book else None
+        db.session.commit()
+        audit("vocabulary.edit", word_id=entry.id, book_id=entry.book_id)
+        flash(f"“{entry.word}” atualizada no vocabulário.", "success")
+        if entry.book_id:
+            return redirect(url_for("main.vocabulary", book_id=entry.book_id))
+        return redirect(url_for("main.vocabulary"))
+
+    return render_template(
+        "vocabulary_edit.html",
+        form=form,
+        entry=entry,
     )
 
 

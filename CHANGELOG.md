@@ -2,6 +2,9 @@
 
 ## Não lançado
 
+- Adicionado **Editar** ao Vocabulário para corrigir ou ampliar significado,
+  contexto, capítulo, página e livro relacionado.
+
 - Arte ASCII do LeoBooks com o subtítulo **Criado por Leo Sales** no início
   do startup local e do container.
 - Novo `/status` em JSON com versão, ambiente, uptime e saúde do banco.

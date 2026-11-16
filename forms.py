@@ -254,6 +254,29 @@ class VocabularyForm(FlaskForm):
     book_id = SelectField("Livro", choices=[], coerce=str, validators=[Optional()])
 
 
+class VocabularyEditForm(FlaskForm):
+    definition = TextAreaField(
+        "Definição",
+        validators=[
+            DataRequired("Escreva ou busque uma definição."),
+            Length(max=4000),
+        ],
+    )
+    context = TextAreaField(
+        "Onde encontrou",
+        validators=[Optional(), Length(max=1000)],
+    )
+    chapter = StringField(
+        "Capítulo",
+        validators=[Optional(), Length(max=100)],
+    )
+    page_number = IntegerField(
+        "Página",
+        validators=[Optional(), NumberRange(min=0, max=100000)],
+    )
+    book_id = SelectField("Livro", choices=[], coerce=str, validators=[Optional()])
+
+
 class DeleteAccountForm(FlaskForm):
     password = PasswordField(
         "Confirme sua senha", validators=[DataRequired("Informe sua senha.")]

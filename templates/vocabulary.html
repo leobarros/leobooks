@@ -124,13 +124,19 @@
             {% endif %}
             <footer class="d-flex flex-wrap align-items-center justify-content-between gap-2">
               <span class="lb-hint">Guardada em {{ entry.created_at|data_curta }}</span>
-              <form method="post" action="{{ url_for('main.vocabulary_delete', word_id=entry.id) }}"
-                    data-confirm="Remover esta palavra do vocabulário?">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="lb-btn lb-btn--quiet lb-btn--sm">
-                  <i class="bi bi-trash3"></i> Remover
-                </button>
-              </form>
+              <div class="d-flex flex-wrap gap-2">
+                <a class="lb-btn lb-btn--quiet lb-btn--sm"
+                   href="{{ url_for('main.vocabulary_edit', word_id=entry.id) }}">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+                <form method="post" action="{{ url_for('main.vocabulary_delete', word_id=entry.id) }}"
+                      data-confirm="Remover esta palavra do vocabulário?">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="lb-btn lb-btn--quiet lb-btn--sm">
+                    <i class="bi bi-trash3"></i> Remover
+                  </button>
+                </form>
+              </div>
             </footer>
           </div>
         </article>

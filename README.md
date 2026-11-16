@@ -266,6 +266,8 @@ Em **Vocabulário**, guarde a palavra, a definição, o capítulo, a página e o
 
 Na página de um livro, o botão **Vocabulário** abre suas palavras já filtradas por aquele livro e pré-seleciona o livro no formulário. O item **Vocabulário** do menu continua mostrando todos os livros.
 
+Cada palavra tem **Editar**, para corrigir ou ampliar o significado, o contexto, o capítulo, a página e o livro relacionado.
+
 ![Página de vocabulário com palavras e definições](docs/screenshots/vocabulario.webp)
 
 
@@ -534,7 +536,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **126 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **127 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 
