@@ -107,6 +107,23 @@ Quando a pausa for removida, mudanças em `packaging/`, `VERSION`, `app.py`,
 Os artefatos ficam em `dist/`. O `.deb` é validado em Debian 13 e o `.rpm` em
 Fedora 42; quando possível, teste a instalação e o serviço, não apenas o build.
 
+## Idioma da interface
+
+Toda informação que apareça para o usuário deve estar em **português do
+Brasil (PT-BR)**:
+
+- títulos, rótulos, botões, menus, placeholders e textos de ajuda;
+- alertas, confirmações, notificações e mensagens de erro;
+- sugestões de formulário, dicas e estados vazios;
+- mensagens de validação do servidor e do navegador.
+
+Termos técnicos consagrados (Markdown, JSON, ZIP, OCR, ISBN, por exemplo)
+podem permanecer, desde que não substituam uma instrução ou mensagem que
+deveria estar em português.
+
+Ao criar ou alterar uma mensagem visível, valide também o texto no navegador,
+inclusive com validação nativa e locale diferente de PT-BR.
+
 ## Dados escritos pelo usuário e backup
 
 Toda alteração estrutural do app que crie ou modifique algo que o usuário

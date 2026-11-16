@@ -196,3 +196,10 @@ Toda alteração estrutural que crie ou altere dados escritos pelo usuário deve
 incluir migração, backup completo, restauração e testes. Nenhum dado digitado
 pelo usuário pode ficar fora do backup.
 
+## Idioma da interface
+
+Toda informação exibida ao usuário deve estar em português do Brasil (PT-BR):
+menus, botões, rótulos, ajuda, placeholders, sugestões, alertas, erros e
+validações do servidor e do navegador. Termos técnicos consagrados podem
+permanecer. Novas mensagens precisam ser verificadas no navegador.
+
