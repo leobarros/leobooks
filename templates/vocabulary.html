@@ -46,9 +46,9 @@
 
     <form method="get" action="{{ url_for('main.vocabulary') }}" class="lb-toolbar" role="search">
       {% if selected_book %}<input type="hidden" name="book_id" value="{{ selected_book.id }}">{% endif %}
-      <div class="lb-input-icon">
+      <div class="lb-input-icon flex-grow-1">
         <i class="bi bi-search"></i>
-        <input class="form-control lb-input" type="search" name="q" value="{{ query_text }}"
+        <input class="form-control lb-input w-100" type="search" name="q" value="{{ query_text }}"
                placeholder="Buscar palavra, definição ou contexto" aria-label="Buscar no vocabulário">
       </div>
       <button type="submit" class="lb-btn lb-btn--ghost lb-btn--sm">Buscar</button>
