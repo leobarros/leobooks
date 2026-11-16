@@ -1,7 +1,7 @@
 {% if quick_note_form %}
-<div class="modal fade lb-modal" id="noteModal" tabindex="-1" aria-labelledby="noteModalTitle" aria-hidden="true"
+<div class="modal fade lb-modal lb-modal--note" id="noteModal" tabindex="-1" aria-labelledby="noteModalTitle" aria-hidden="true"
      data-note-modal>
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       {% if quick_books %}
         <form method="post" action="{{ url_for('notes.create') }}" enctype="multipart/form-data"
