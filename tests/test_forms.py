@@ -25,3 +25,18 @@ def test_ptbr_translation_covers_length_and_number_defaults():
         PTBRForm._em_portugues("Number must be between 0 and 100.")
         == "Informe um número entre 0 e 100."
     )
+
+
+def test_sidebar_quotes_rotate_and_are_rendered(auth_client):
+    from datetime import date
+
+    from helpers import SIDEBAR_QUOTES, sidebar_quote
+
+    assert len(SIDEBAR_QUOTES) >= 8
+    first = sidebar_quote(date(2026, 1, 1))
+    second = sidebar_quote(date(2026, 1, 2))
+    assert first["author"] != second["author"] or first["text"] != second["text"]
+    page = auth_client.get("/").get_data(as_text=True)
+    current = sidebar_quote()
+    assert current["text"] in page
+    assert current["author"] in page

@@ -350,6 +350,45 @@ def week_activity(notes) -> list[dict]:
     return week_activity_dates([note.created_at for note in notes])
 
 
+SIDEBAR_QUOTES = (
+    ("Um leitor vive mil vidas antes de morrer.", "George R. R. Martin"),
+    (
+        "A leitura de todos os bons livros é uma conversa com os melhores espíritos.",
+        "René Descartes",
+    ),
+    (
+        "A leitura é para a mente o que o exercício é para o corpo.",
+        "Joseph Addison",
+    ),
+    ("A leitura engrandece a alma.", "Voltaire"),
+    (
+        "Os livros são abelhas que levam o pólen de uma inteligência a outra.",
+        "James Russell Lowell",
+    ),
+    (
+        "Não há fragata como um livro para nos levar a terras distantes.",
+        "Emily Dickinson",
+    ),
+    ("Ler é sonhar pela mão de outro.", "Fernando Pessoa"),
+    ("Um livro é um sonho que você segura nas mãos.", "Neil Gaiman"),
+    (
+        "Sempre imaginei que o paraíso fosse uma espécie de biblioteca.",
+        "Jorge Luis Borges",
+    ),
+    (
+        "Ler é beber e comer. O espírito que não lê emagrece como o corpo que não come.",
+        "Victor Hugo",
+    ),
+)
+
+
+def sidebar_quote(day: date | None = None) -> dict[str, str]:
+    """Escolhe uma citação estável por dia para a lateral."""
+    chosen_day = day or date.today()
+    text, author = SIDEBAR_QUOTES[chosen_day.toordinal() % len(SIDEBAR_QUOTES)]
+    return {"text": text, "author": author}
+
+
 def register_template_helpers(app) -> None:
     app.jinja_env.filters.update(
         {

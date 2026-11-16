@@ -18,6 +18,7 @@ from helpers import (
     current_user,
     greeting_for_now,
     register_template_helpers,
+    sidebar_quote,
     weekday_long,
 )
 from models import BOOK_STATUSES, NOTE_TYPES, Book, Tag, db
@@ -92,6 +93,7 @@ def create_app(overrides: dict | None = None) -> Flask:
             "greeting": greeting_for_now(),
             "today": date.today(),
             "weekday": weekday_long(),
+            "sidebar_quote": sidebar_quote(),
             "app_name": "LeoBooks",
             "quick_note_form": None,
             "quick_vocabulary_form": None,

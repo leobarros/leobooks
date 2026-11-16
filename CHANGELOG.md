@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- A lateral agora alterna citações de diferentes autores, com uma frase
+  estável por dia.
 - Mensagens padrão de validação do WTForms e do navegador foram traduzidas
   para português do Brasil.
 - A criação de palavra agora abre em popup na própria página, com o mesmo
