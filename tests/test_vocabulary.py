@@ -253,3 +253,4 @@ def test_startup_art_has_brand_and_author():
     art = startup_art()
     assert "LeoBooks" in art
     assert "Criado por Leo Sales" in art
+    assert "▄" in art
