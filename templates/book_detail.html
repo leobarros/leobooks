@@ -188,7 +188,7 @@
         {% if chapter_count %}· {{ chapter_count }} {% if chapter_count == 1 %}capítulo{% else %}capítulos{% endif %}{% endif %}
       </p>
       <a class="lb-btn lb-btn--primary lb-btn--sm"
-         href="{{ url_for('main.vocabulary', book_id=book.id) }}#nova-palavra">
+         href="{{ url_for('main.vocabulary_new', book_id=book.id) }}">
         <i class="bi bi-plus-lg"></i> Nova palavra
       </a>
     </div>
@@ -229,7 +229,7 @@
         <h2 class="lb-empty__title">As palavras deste livro ainda estão esperando.</h2>
         <p>Quando uma palavra interromper a leitura, anote a definição e o capítulo em que ela apareceu.</p>
         <a class="lb-btn lb-btn--primary"
-           href="{{ url_for('main.vocabulary', book_id=book.id) }}#nova-palavra">
+           href="{{ url_for('main.vocabulary_new', book_id=book.id) }}">
           <i class="bi bi-plus-lg"></i> Adicionar primeira palavra
         </a>
       </div>

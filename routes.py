@@ -606,6 +606,75 @@ def review():
     )
 
 
+@main_bp.route("/vocabulary/new", methods=["GET", "POST"])
+@login_required
+def vocabulary_new():
+    user = current_user()
+    form = VocabularyForm()
+    books = (
+        Book.query.filter_by(user_id=user.id)
+        .order_by(*_book_usage_order())
+        .all()
+    )
+    form.book_id.choices = [("", "Sem livro")] + [
+        (book.id, f"{book.title} — {book.authors}") for book in books
+    ]
+    book_filter_id = (request.args.get("book_id") or "").strip()
+    selected_book = None
+    if book_filter_id:
+        selected_book = Book.query.filter_by(
+            id=book_filter_id, user_id=user.id
+        ).first_or_404()
+        if request.method == "GET" and not form.book_id.data:
+            form.book_id.data = selected_book.id
+
+    if request.method == "POST" and form.errors:
+        flash(_first_error(form), "danger")
+
+    if form.validate_on_submit():
+        word = " ".join((form.word.data or "").split()).strip()
+        key = strip_accents(word).casefold()
+        existing = VocabularyWord.query.filter_by(
+            user_id=user.id, word_key=key
+        ).first()
+        if existing is not None:
+            flash(f"A palavra “{existing.word}” já está no seu vocabulário.", "warning")
+            return redirect(url_for("main.vocabulary_new", book_id=form.book_id.data or None))
+        book = None
+        if form.book_id.data:
+            book = Book.query.filter_by(
+                id=form.book_id.data, user_id=user.id
+            ).first()
+        entry = VocabularyWord(
+            user_id=user.id,
+            book_id=book.id if book else None,
+            word=word,
+            word_key=key,
+            definition=(form.definition.data or "").strip(),
+            context=(form.context.data or "").strip() or None,
+            chapter=(form.chapter.data or "").strip() or None,
+            page_number=form.page_number.data,
+        )
+        db.session.add(entry)
+        db.session.commit()
+        audit(
+            "vocabulary.create",
+            word_id=entry.id,
+            book_id=entry.book_id,
+            has_context=bool(entry.context),
+        )
+        flash(f"“{entry.word}” guardada no vocabulário.", "success")
+        if entry.book_id:
+            return redirect(url_for("books.detail", book_id=entry.book_id, tab="vocabulary"))
+        return redirect(url_for("main.vocabulary"))
+
+    return render_template(
+        "vocabulary_new.html",
+        form=form,
+        selected_book=selected_book,
+    )
+
+
 @main_bp.route("/vocabulary", methods=["GET", "POST"])
 @login_required
 def vocabulary():

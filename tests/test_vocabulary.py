@@ -379,3 +379,30 @@ def test_vocabulary_markdown_export_and_import(app, auth_client, book):
         assert words["virtude"].definition == "Definição original."
         assert words["fortuna"].book_id == book["id"]
         assert words["exílio"].book_id is None
+
+
+def test_vocabulary_new_page_creates_word_for_selected_book(app, auth_client, book):
+    page = auth_client.get(f"/vocabulary/new?book_id={book['id']}")
+    assert page.status_code == 200
+    html = page.get_data(as_text=True)
+    assert "Guardar uma" in html
+    assert f'value="{book["id"]}" selected' in html or f'selected value="{book["id"]}"' in html
+
+    created = auth_client.post(
+        f"/vocabulary/new?book_id={book['id']}",
+        data={
+            "word": "prudência",
+            "definition": "Cuidado ao decidir.",
+            "context": "Uma palavra do capítulo.",
+            "chapter": "4",
+            "page_number": "48",
+            "book_id": book["id"],
+        },
+        follow_redirects=False,
+    )
+    assert created.status_code == 302
+    assert f"tab=vocabulary" in created.headers["Location"]
+    with app.app_context():
+        word = VocabularyWord.query.filter_by(word="prudência").one()
+        assert word.book_id == book["id"]
+        assert word.page_number == 48

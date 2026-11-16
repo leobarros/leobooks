@@ -23,71 +23,21 @@
       </p>
     {% endif %}
   </div>
-  <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.vocabulary_export') }}">
-    <i class="bi bi-download"></i> Exportar .md
-  </a>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="lb-btn lb-btn--primary"
+       href="{{ url_for('main.vocabulary_new', book_id=selected_book.id if selected_book else None) }}">
+      <i class="bi bi-plus-lg"></i> Nova palavra
+    </a>
+    <a class="lb-btn lb-btn--ghost" href="{{ url_for('main.vocabulary_export') }}">
+      <i class="bi bi-download"></i> Exportar .md
+    </a>
+  </div>
 </header>
 
 <div class="lb-settings__content">
-  <section class="lb-setting-card" id="nova-palavra">
-    <header class="lb-setting-card__head">
-      <span class="lb-setting-card__num">01</span>
-      <div>
-        <h2>{% if selected_book %}Anotar neste livro{% else %}Anotar uma palavra{% endif %}</h2>
-        <p>Busque no Wikcionário ou escreva a definição com suas palavras.</p>
-      </div>
-    </header>
-
-    <form method="post" action="{{ url_for('main.vocabulary') }}" data-vocab-form>
-      {{ form.hidden_tag() }}
-      <div class="lb-field">
-        <label class="lb-label" for="vocabWord">Palavra</label>
-        <div class="d-flex flex-wrap gap-2">
-          {{ form.word(class="form-control lb-input", id="vocabWord", placeholder="ex.: virtù", autocomplete="off", data_dict_word="") }}
-          <button type="button" class="lb-btn lb-btn--ghost lb-btn--sm" data-dict-lookup
-                  data-dict-url="{{ url_for('main.vocabulary_lookup') }}">
-            <i class="bi bi-book"></i> Buscar no Wikcionário
-          </button>
-        </div>
-      </div>
-
-      <div class="lb-field">
-        <span class="lb-label">Definição</span>
-        {{ form.definition(class="form-control lb-input", id="vocabDefinition", rows="4", placeholder="A definição que você quer guardar.") }}
-        <p class="lb-hint" data-dict-status>Consulta opcional. Você pode editar o texto antes de salvar.</p>
-      </div>
-
-      <div class="lb-fieldrow">
-        <div class="lb-field">
-          <label class="lb-label" for="vocabBook">Livro relacionado</label>
-          {{ form.book_id(class="form-select lb-select", id="vocabBook") }}
-        </div>
-        <div class="lb-field">
-          <label class="lb-label" for="vocabContext">Onde encontrou</label>
-          {{ form.context(class="form-control lb-input", id="vocabContext", rows="2", placeholder="Frase ou situação em que a palavra apareceu.") }}
-        </div>
-      </div>
-
-      <div class="lb-fieldrow">
-        <div class="lb-field">
-          <label class="lb-label" for="vocabChapter">Capítulo</label>
-          {{ form.chapter(class="form-control lb-input", id="vocabChapter", placeholder="ex.: 3", maxlength="100") }}
-        </div>
-        <div class="lb-field">
-          <label class="lb-label" for="vocabPage">Página</label>
-          {{ form.page_number(class="form-control lb-input", id="vocabPage", inputmode="numeric", placeholder="ex.: 42") }}
-        </div>
-      </div>
-
-      <button type="submit" class="lb-btn lb-btn--primary">
-        <i class="bi bi-bookmark-plus"></i> Guardar palavra
-      </button>
-    </form>
-  </section>
-
   <section class="lb-setting-card" id="palavras">
     <header class="lb-setting-card__head">
-      <span class="lb-setting-card__num">02</span>
+      <span class="lb-setting-card__num">01</span>
       <div>
         <h2>Suas palavras</h2>
         <p>Definições e contextos ficam no seu banco local.</p>
@@ -150,6 +100,10 @@
           <p class="lb-eyebrow">Nenhuma palavra ainda</p>
           <h2>{% if selected_book %}Nenhuma palavra deste livro ainda.{% else %}A primeira palavra está esperando.{% endif %}</h2>
           <p>{% if selected_book %}A primeira palavra deste livro pode começar agora.{% else %}Quando uma palavra interromper sua leitura, traga ela para cá.{% endif %}</p>
+          <a class="lb-btn lb-btn--primary"
+             href="{{ url_for('main.vocabulary_new', book_id=selected_book.id if selected_book else None) }}">
+            <i class="bi bi-plus-lg"></i> Adicionar primeira palavra
+          </a>
         </div>
       </div>
     {% endif %}
@@ -157,7 +111,7 @@
 
   <section class="lb-setting-card" id="importar">
     <header class="lb-setting-card__head">
-      <span class="lb-setting-card__num">03</span>
+      <span class="lb-setting-card__num">02</span>
       <div>
         <h2>Importar vocabulário</h2>
         <p>Traga palavras exportadas de outro LeoBooks. O livro é associado pelo título.</p>

@@ -262,7 +262,7 @@ Em **Ajuda**, o LeoBooks reúne três métodos curtos:
 
 ### Palavras que ficaram
 
-Em **Vocabulário**, guarde a palavra, a definição, o capítulo, a página e o contexto em que ela apareceu. A definição pode ser escrita à mão ou buscada no Wikcionário; você pode editá-la antes de salvar. A consulta envia apenas a palavra, e suas notas ficam locais.
+Em **Vocabulário**, o botão **Nova palavra** abre uma página dedicada para guardar a palavra, a definição, o capítulo, a página e o contexto em que ela apareceu. A definição pode ser escrita à mão ou buscada no Wikcionário; você pode editá-la antes de salvar. A consulta envia apenas a palavra, e suas notas ficam locais.
 
 Na página de um livro, a aba **Vocabulário** abre o caderno de palavras daquele livro, agrupado por capítulo e página. O item **Vocabulário** do menu continua mostrando o catálogo geral e permite filtrar por livro.
 
@@ -555,7 +555,7 @@ LEOBOOKS_IMAGE_TAG=1.0.8 docker compose push
 .venv/bin/pytest -q
 ```
 
-Estado atual: **129 testes passando** — rotas, CSRF, isolamento entre contas,
+Estado atual: **130 testes passando** — rotas, CSRF, isolamento entre contas,
 sanitização de Markdown, uploads, busca de capas, backup, tutorial, cache,
 ordenação por uso e exclusão de conta.
 
