@@ -243,6 +243,14 @@ class VocabularyForm(FlaskForm):
         "Onde encontrou",
         validators=[Optional(), Length(max=1000)],
     )
+    chapter = StringField(
+        "Capítulo",
+        validators=[Optional(), Length(max=100)],
+    )
+    page_number = IntegerField(
+        "Página",
+        validators=[Optional(), NumberRange(min=0, max=100000)],
+    )
     book_id = SelectField("Livro", choices=[], coerce=str, validators=[Optional()])
 
 

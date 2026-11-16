@@ -491,6 +491,8 @@ class VocabularyWord(db.Model):
     word_key = db.Column(db.String(100), nullable=False)
     definition = db.Column(db.Text)
     context = db.Column(db.Text)
+    chapter = db.Column(db.String(100))
+    page_number = db.Column(db.Integer)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
     updated_at = db.Column(
         db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
@@ -502,6 +504,15 @@ class VocabularyWord(db.Model):
         db.UniqueConstraint("user_id", "word_key", name="uq_vocabulary_user_word"),
         db.Index("idx_vocabulary_word", "word"),
     )
+
+    @property
+    def location_label(self) -> str:
+        parts = []
+        if self.chapter:
+            parts.append(f"Cap. {self.chapter}")
+        if self.page_number is not None:
+            parts.append(f"pág. {self.page_number}")
+        return " · ".join(parts)
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<VocabularyWord {self.word!r}>"

@@ -643,6 +643,8 @@ def vocabulary():
             word_key=key,
             definition=(form.definition.data or "").strip(),
             context=(form.context.data or "").strip() or None,
+            chapter=(form.chapter.data or "").strip() or None,
+            page_number=form.page_number.data,
         )
         db.session.add(entry)
         db.session.commit()

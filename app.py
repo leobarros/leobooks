@@ -235,6 +235,7 @@ def create_app(overrides: dict | None = None) -> Flask:
         _ensure_onboarding_column()
         _ensure_book_media_columns()
         _ensure_book_usage_columns()
+        _ensure_vocabulary_columns()
         _ensure_tag_uniqueness()
         _ensure_an_admin_exists()
 
@@ -338,7 +339,29 @@ def _ensure_book_usage_columns() -> None:
     db.session.commit()
 
 
+def _ensure_vocabulary_columns() -> None:
+    """Migração leve para o capítulo e a página do vocabulário."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "vocabulary_words" not in inspector.get_table_names():
+        return
+    columns = {
+        column["name"] for column in inspector.get_columns("vocabulary_words")
+    }
+    if "chapter" not in columns:
+        db.session.execute(
+            text("ALTER TABLE vocabulary_words ADD COLUMN chapter VARCHAR(100)")
+        )
+    if "page_number" not in columns:
+        db.session.execute(
+            text("ALTER TABLE vocabulary_words ADD COLUMN page_number INTEGER")
+        )
+    db.session.commit()
+
+
 def _ensure_tag_uniqueness() -> None:
+
     """Une variantes de tags por caixa e cria unicidade case-insensitive.
 
     Bancos antigos podem ter ``Humano`` e ``humano`` como tags diferentes. As

@@ -16,17 +16,22 @@ def test_vocabulary_create_search_and_delete(app, auth_client, book):
             "word": "virtù",
             "definition": "Força que se conquista com a própria ação.",
             "context": "O Príncipe, capítulo VI.",
+            "chapter": "VI",
+            "page_number": "42",
             "book_id": book["id"],
         },
         follow_redirects=True,
     )
     assert created.status_code == 200
     assert "virtù" in created.get_data(as_text=True)
+    assert "Cap. VI · pág. 42" in created.get_data(as_text=True)
 
     with app.app_context():
         entry = VocabularyWord.query.one()
         assert entry.book_id == book["id"]
         assert entry.definition.startswith("Força")
+        assert entry.chapter == "VI"
+        assert entry.page_number == 42
 
     searched = auth_client.get("/vocabulary?q=virtu").get_data(as_text=True)
     assert "virtù" in searched
@@ -169,3 +174,28 @@ def test_vocabulary_is_filtered_by_book_and_linked_from_book(app, auth_client, b
 
     detail = auth_client.get(f"/books/{book['id']}").get_data(as_text=True)
     assert f"/vocabulary?book_id={book['id']}" in detail
+
+
+def test_vocabulary_migration_adds_location_columns(app):
+    from sqlalchemy import inspect, text
+
+    from app import _ensure_vocabulary_columns
+
+    with app.app_context():
+        db.session.execute(text("DROP TABLE vocabulary_words"))
+        db.session.execute(
+            text(
+                "CREATE TABLE vocabulary_words ("
+                "id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, "
+                "book_id VARCHAR(36), word VARCHAR(80) NOT NULL, "
+                "word_key VARCHAR(100) NOT NULL, definition TEXT, context TEXT, "
+                "created_at DATETIME, updated_at DATETIME)"
+            )
+        )
+        db.session.commit()
+        _ensure_vocabulary_columns()
+        columns = {
+            column["name"]
+            for column in inspect(db.engine).get_columns("vocabulary_words")
+        }
+        assert {"chapter", "page_number"} <= columns

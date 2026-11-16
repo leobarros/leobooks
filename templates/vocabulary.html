@@ -61,7 +61,18 @@
         </div>
         <div class="lb-field">
           <label class="lb-label" for="vocabContext">Onde encontrou</label>
-          {{ form.context(class="form-control lb-input", id="vocabContext", rows="2", placeholder="Frase, capítulo ou situação.") }}
+          {{ form.context(class="form-control lb-input", id="vocabContext", rows="2", placeholder="Frase ou situação em que a palavra apareceu.") }}
+        </div>
+      </div>
+
+      <div class="lb-fieldrow">
+        <div class="lb-field">
+          <label class="lb-label" for="vocabChapter">Capítulo</label>
+          {{ form.chapter(class="form-control lb-input", id="vocabChapter", placeholder="ex.: 3", maxlength="100") }}
+        </div>
+        <div class="lb-field">
+          <label class="lb-label" for="vocabPage">Página</label>
+          {{ form.page_number(class="form-control lb-input", id="vocabPage", inputmode="numeric", placeholder="ex.: 42") }}
         </div>
       </div>
 
@@ -96,9 +107,11 @@
           <header class="lb-note__head">
             <span class="lb-note__type"><i class="bi bi-translate"></i> Palavra</span>
             <span class="lb-note__loc">
+              {% if entry.location_label %}{{ entry.location_label }}{% endif %}
+              {% if entry.location_label and entry.book %} · {% endif %}
               {% if entry.book %}
                 <a href="{{ url_for('books.detail', book_id=entry.book.id) }}">{{ entry.book.title }}</a>
-              {% else %}
+              {% elif not entry.location_label %}
                 Vocabulário
               {% endif %}
             </span>

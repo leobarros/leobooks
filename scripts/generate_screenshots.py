@@ -230,6 +230,8 @@ def seed() -> dict[str, str]:
                 "virtu",
                 "Força pessoal que se conquista pela ação e pelo caráter.",
                 "A fortuna decide metade das nossas ações; a outra metade cabe à virtù.",
+                "XXI",
+                74,
             ),
             (
                 "Torto Arado",
@@ -237,9 +239,11 @@ def seed() -> dict[str, str]:
                 "ressentimento",
                 "Mágoa antiga que permanece e orienta silenciosamente as relações.",
                 "O ressentimento atravessa as gerações das famílias da fazenda.",
+                "Cap. 2",
+                42,
             ),
         ]
-        for title, word, key, definition, context in vocabulary:
+        for title, word, key, definition, context, chapter, page_number in vocabulary:
             db.session.add(
                 VocabularyWord(
                     user_id=user.id,
@@ -248,6 +252,8 @@ def seed() -> dict[str, str]:
                     word_key=key,
                     definition=definition,
                     context=context,
+                    chapter=chapter,
+                    page_number=page_number,
                 )
             )
 
