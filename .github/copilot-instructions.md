@@ -210,3 +210,10 @@ Use `--rm`, remova containers/imagens temporários, volumes, redes e arquivos
 temporários, e preserve apenas o ambiente normal do LeoBooks. Confira com
 `docker ps -a` e `docker images`.
 
+## Voz manuscrita
+
+A fonte de leitura Newsreader em itálico (`var(--lb-reading)`) é parte da
+identidade do LeoBooks. Preserve-a em citações, resumos, insights, definições e
+contextos do vocabulário. Não troque a família nem remova o itálico sem
+validação explícita.
+

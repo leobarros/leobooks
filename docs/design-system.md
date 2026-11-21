@@ -111,6 +111,10 @@ flash de tema no primeiro paint.
   latin/latin-ext.
 - **Fraunces** nunca é usada em textos longos de leitura.
 - **Newsreader** é a voz do conteúdo; **Inter** é a voz dos controles.
+- **A voz manuscrita é parte da proposta do LeoBooks:** citações, resumos,
+  insights, definições e contextos do vocabulário usam `var(--lb-reading)` em
+  itálico. Não substitua essa voz por Inter, Fraunces ou outra família, nem
+  remova o itálico, sem validação explícita com o usuário.
 - Rótulos de seção usam caixa alta, letter-spacing e tamanho pequeno
   (`.lb-eyebrow`).
 - Títulos de página usam `clamp(2.85rem, 5.3vw, 4.5rem)` via `.lb-display`.
