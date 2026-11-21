@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- A revisão de citações passou a sortear uma nova citação, sem seguir a ordem
+  de criação e sem repetir imediatamente a atual.
 - Corrigido o alinhamento do botão **Editar** no vocabulário do livro, que
   agora fica no topo direito mesmo com definições longas.
 - Removido o endereço `leobooks.local` das imagens de citação compartilhadas.

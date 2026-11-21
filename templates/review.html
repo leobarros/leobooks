@@ -10,7 +10,7 @@
   </div>
   {% if total %}
     <span class="lb-review-count">
-      <b>{{ index + 1 }}</b><span>/ {{ total }}</span>
+      <b>{{ total }}</b><span>{% if total == 1 %}citação{% else %}citações{% endif %}</span>
     </span>
   {% endif %}
 </header>
@@ -43,7 +43,8 @@
     </div>
 
     <div class="lb-review__actions">
-      <a class="lb-btn lb-btn--primary" href="{{ url_for('main.review', seed=next_seed) }}">
+      <a class="lb-btn lb-btn--primary"
+         href="{{ url_for('main.review', exclude=note.id) }}">
         Próxima citação <i class="bi bi-arrow-right"></i>
       </a>
       <button type="button" class="lb-btn lb-btn--ghost"
@@ -62,9 +63,7 @@
     </div>
 
     <nav class="lb-review__nav" aria-label="Navegar pela revisão">
-      <a class="lb-review__navlink" href="{{ url_for('main.review') }}"><i class="bi bi-arrow-counterclockwise"></i> do dia</a>
-      <span class="lb-review__navdot" aria-hidden="true"></span>
-      <a class="lb-review__navlink" href="{{ url_for('main.review', seed=(index - 1) % total) }}"><i class="bi bi-arrow-left"></i> anterior</a>
+      <a class="lb-review__navlink" href="{{ url_for('main.review', exclude=note.id) }}"><i class="bi bi-shuffle"></i> sortear outra</a>
       <span class="lb-review__navdot" aria-hidden="true"></span>
       <a class="lb-review__navlink" href="{{ url_for('books.detail', book_id=note.book.id) }}">abrir livro <i class="bi bi-arrow-up-right"></i></a>
     </nav>

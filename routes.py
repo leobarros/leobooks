@@ -587,23 +587,16 @@ def review():
         pool_query = Note.query.filter_by(user_id=user.id)
         total = pool_query.count()
     if not total:
-        return render_template("review.html", note=None, total=0, index=0, next_seed=1)
+        return render_template("review.html", note=None, total=0)
 
-    seed = request.args.get("seed", type=int)
-    index = (date.today().toordinal() if seed is None else max(0, seed)) % total
-    note = (
-        pool_query.order_by(Note.created_at.desc())
-        .offset(index)
-        .limit(1)
-        .first()
-    )
-    return render_template(
-        "review.html",
-        note=note,
-        total=total,
-        index=index,
-        next_seed=index + 1,
-    )
+    exclude_id = (request.args.get("exclude") or "").strip()
+    query = pool_query
+    if exclude_id:
+        query = query.filter(Note.id != exclude_id)
+    note = query.order_by(func.random()).first()
+    if note is None:
+        note = pool_query.order_by(func.random()).first()
+    return render_template("review.html", note=note, total=total)
 
 
 @main_bp.route("/vocabulary/new", methods=["GET", "POST"])

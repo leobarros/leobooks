@@ -35,3 +35,20 @@ def test_shared_quote_image_does_not_show_site_address():
         encoding="utf-8"
     )
     assert "leobooks.local" not in source
+
+
+def test_review_random_next_excludes_current_quote(app, auth_client, book):
+    from models import Note
+
+    create_note(auth_client, book["id"], content="Primeira citação.")
+    create_note(auth_client, book["id"], content="Segunda citação.")
+    with app.app_context():
+        ids = [note.id for note in Note.query.order_by(Note.created_at.asc()).all()]
+        first_id, second_id = ids
+
+    page = auth_client.get(f"/review?exclude={first_id}").get_data(as_text=True)
+    assert "Segunda citação." in page
+    assert "Primeira citação." not in page
+
+    same_page = auth_client.get(f"/review?exclude={second_id}").get_data(as_text=True)
+    assert "Primeira citação." in same_page
