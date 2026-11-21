@@ -117,12 +117,14 @@ Fedora 42; quando possível, teste a instalação e o serviço, não apenas o bu
 Toda imagem ou container criado para teste deve ser **removido ao final da
 validação**, para não deixar sujeira nem consumir disco desnecessariamente.
 
-- Prefira containers descartáveis com `docker run --rm`.
-- Ao terminar, remova containers de teste com `docker rm -f`.
-- Remova também as imagens criadas exclusivamente para o teste com `docker rmi`.
-- Remova volumes, redes e arquivos temporários criados pelo teste.
-- Preserve somente o container e a imagem que fazem parte do ambiente normal
-  do LeoBooks.
+- Use um container efêmero (`docker run --rm`) para o teste.
+- Ao terminar, destrua o container com `docker stop`/`docker rm -f`.
+- A imagem normal do LeoBooks pode permanecer; remova imagens criadas
+  exclusivamente para o teste e imagens órfãs com `docker rmi`.
+- Remova redes e arquivos temporários criados pelo teste.
+- **Nunca remova o volume de dados** (`leobooks_leobooks_instance` ou
+  equivalente) sem autorização explícita.
+- Não deixe containers de teste rodando após a validação.
 - Antes de concluir, confira com `docker ps -a` e `docker images`.
 
 ## Idioma da interface

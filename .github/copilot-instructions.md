@@ -205,10 +205,10 @@ permanecer. Novas mensagens precisam ser verificadas no navegador.
 
 ## Testes com imagens Docker
 
-Containers e imagens criados para teste devem ser removidos após a validação.
-Use `--rm`, remova containers/imagens temporários, volumes, redes e arquivos
-temporários, e preserve apenas o ambiente normal do LeoBooks. Confira com
-`docker ps -a` e `docker images`.
+Containers criados para teste devem ser efêmeros (`docker run --rm`) e
+destruídos após a validação. A imagem normal pode permanecer; remova imagens
+criadas exclusivamente para teste e redes/arquivos temporários. Nunca remova
+o volume de dados sem autorização. Confira com `docker ps -a` e `docker images`.
 
 ## Voz manuscrita
 
