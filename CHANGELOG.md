@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- Resumos, insights e definições do vocabulário agora usam a mesma fonte de
+  leitura manuscrita das citações.
 - A revisão de citações passou a sortear uma nova citação, sem seguir a ordem
   de criação e sem repetir imediatamente a atual.
 - Corrigido o alinhamento do botão **Editar** no vocabulário do livro, que

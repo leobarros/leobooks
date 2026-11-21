@@ -1745,6 +1745,17 @@ a.lb-tag:hover {
 .lb-quote strong { font-style: normal; }
 .lb-quote em { font-style: normal; color: var(--lb-clay); }
 
+/* Resumos, insights e definições usam a mesma voz manuscrita das citações. */
+.lb-note--summary .lb-markdown,
+.lb-note--insight .lb-markdown,
+.lb-vocabulary-definition {
+  font-family: var(--lb-reading);
+  font-size: 1.17rem;
+  font-style: italic;
+  line-height: 1.62;
+  color: var(--lb-ink);
+}
+
 .lb-markdown {
   font-size: 0.9rem;
   line-height: 1.68;
