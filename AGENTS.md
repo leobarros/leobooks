@@ -24,6 +24,11 @@ A proposta deve dizer o que muda, por quê e quais telas/temas serão afetados.
 Depois da aprovação, valide tema claro e madrugada, desktop e mobile, capture
 antes/depois e rode os testes local + Docker.
 
+A fonte manuscrita de leitura (`Newsreader` em itálico, `var(--lb-reading)`)
+é parte da identidade e da proposta do LeoBooks. Preserve-a em citações,
+resumos, insights, definições e contextos do vocabulário; não a substitua por
+outra família nem remova o itálico sem validação explícita.
+
 ## Links, rotas e criação de telas
 
 Toda mudança em link, rota, `url_for`, `endpoint`, `action` de formulário,
