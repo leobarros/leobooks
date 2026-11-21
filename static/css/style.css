@@ -1755,6 +1755,13 @@ a.lb-tag:hover {
   line-height: 1.62;
   color: var(--lb-ink);
 }
+.lb-vocabulary-context {
+  font-family: var(--lb-reading);
+  font-size: 1.02rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--lb-ink-2);
+}
 
 .lb-markdown {
   font-size: 0.9rem;

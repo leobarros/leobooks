@@ -211,7 +211,7 @@
               </div>
               <p class="lb-vocabulary-definition mb-1 mt-2">{{ entry.definition|replace('\n', ' · ') }}</p>
               {% if entry.context %}
-                <p class="lb-hint mb-1">{{ entry.context }}</p>
+                <p class="lb-vocabulary-context mb-1">{{ entry.context }}</p>
               {% endif %}
               <span class="lb-panel__folio">
                 {% if entry.chapter %}{{ entry.chapter }}{% endif %}

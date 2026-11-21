@@ -73,7 +73,7 @@
             <h3 class="lb-section__title">{{ entry.word }}</h3>
             <p class="lb-vocabulary-definition">{{ entry.definition|replace('\n', ' · ') }}</p>
             {% if entry.context %}
-              <blockquote class="lb-note__quote">{{ entry.context }}</blockquote>
+              <blockquote class="lb-note__quote lb-vocabulary-context">{{ entry.context }}</blockquote>
             {% endif %}
             <footer class="d-flex flex-wrap align-items-center justify-content-between gap-2">
               <span class="lb-hint">Guardada em {{ entry.created_at|data_curta }}</span>
