@@ -203,3 +203,10 @@ menus, botões, rótulos, ajuda, placeholders, sugestões, alertas, erros e
 validações do servidor e do navegador. Termos técnicos consagrados podem
 permanecer. Novas mensagens precisam ser verificadas no navegador.
 
+## Testes com imagens Docker
+
+Containers e imagens criados para teste devem ser removidos após a validação.
+Use `--rm`, remova containers/imagens temporários, volumes, redes e arquivos
+temporários, e preserve apenas o ambiente normal do LeoBooks. Confira com
+`docker ps -a` e `docker images`.
+

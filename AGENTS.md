@@ -107,6 +107,19 @@ Quando a pausa for removida, mudanças em `packaging/`, `VERSION`, `app.py`,
 Os artefatos ficam em `dist/`. O `.deb` é validado em Debian 13 e o `.rpm` em
 Fedora 42; quando possível, teste a instalação e o serviço, não apenas o build.
 
+## Testes com imagens Docker
+
+Toda imagem ou container criado para teste deve ser **removido ao final da
+validação**, para não deixar sujeira nem consumir disco desnecessariamente.
+
+- Prefira containers descartáveis com `docker run --rm`.
+- Ao terminar, remova containers de teste com `docker rm -f`.
+- Remova também as imagens criadas exclusivamente para o teste com `docker rmi`.
+- Remova volumes, redes e arquivos temporários criados pelo teste.
+- Preserve somente o container e a imagem que fazem parte do ambiente normal
+  do LeoBooks.
+- Antes de concluir, confira com `docker ps -a` e `docker images`.
+
 ## Idioma da interface
 
 Toda informação que apareça para o usuário deve estar em **português do
