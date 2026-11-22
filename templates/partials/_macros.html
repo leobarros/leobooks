@@ -7,7 +7,7 @@
       <img src="{{ book.cover_url }}" alt="Capa de {{ book.title }}"
            loading="lazy" decoding="async" referrerpolicy="no-referrer">
     {% else %}
-      <img src="{{ url_for('books.cover', book_id=book.id) }}"
+      <img src="{{ url_for('books.cover', book_id=book.id, v=(book.updated_at or book.created_at)|string) }}"
            alt="Capa desenhada para {{ book.title }}" loading="lazy" decoding="async">
     {% endif %}
   </figure>

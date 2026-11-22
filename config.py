@@ -93,7 +93,7 @@ class Config:
     # --- Uploads -----------------------------------------------------------
     MAX_CONTENT_LENGTH = 8 * 1024 * 1024  # 8 MB; menos pico de memória no upload
     # Assets locais (CSS, JS, fontes, ícones) podem ser reutilizados pelo WebKit.
-    SEND_FILE_MAX_AGE_DEFAULT = 3600
+    SEND_FILE_MAX_AGE_DEFAULT = 86400
     UPLOAD_FOLDER = Path(
         os.environ.get("LEOBOOKS_UPLOADS", str(INSTANCE_DIR / "uploads"))
     )

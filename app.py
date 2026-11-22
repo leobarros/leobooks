@@ -74,6 +74,19 @@ def create_app(overrides: dict | None = None) -> Flask:
     csrf.init_app(app)
     register_template_helpers(app)
 
+    # --- Cache ------------------------------------------------------------
+    def _static_version(filename: str) -> str:
+        try:
+            stat = (Path(app.static_folder) / filename).stat()
+        except OSError:
+            return "dev"
+        return f"{stat.st_mtime_ns:x}-{stat.st_size:x}"
+
+    @app.url_defaults
+    def _add_static_version(endpoint, values):
+        if endpoint == "static" and "filename" in values:
+            values.setdefault("v", _static_version(str(values["filename"])))
+
     # --- Blueprints --------------------------------------------------------
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -167,6 +180,23 @@ def create_app(overrides: dict | None = None) -> Flask:
             response.headers.setdefault(
                 "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
             )
+        return response
+
+    @app.after_request
+    def _cache_headers(response):
+        endpoint = request.endpoint
+        if endpoint == "static":
+            response.headers["Cache-Control"] = "public, max-age=86400, immutable"
+        elif endpoint in {"books.cover_image", "notes.note_image"}:
+            response.headers["Cache-Control"] = "private, max-age=604800, immutable"
+        elif endpoint == "books.cover":
+            response.headers["Cache-Control"] = "private, max-age=86400, immutable"
+        elif response.mimetype == "application/json":
+            response.headers["Cache-Control"] = "no-store"
+        elif response.mimetype == "text/html":
+            response.headers["Cache-Control"] = "private, no-cache, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
         return response
 
     @app.after_request

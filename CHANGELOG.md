@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- HTML revalida a cada navegação; estáticos usam URLs versionadas e cache de
+  um dia; capas e fotos têm cache privado de sete dias.
 - Resumos, insights, definições e contextos do vocabulário agora usam a mesma
   fonte de leitura manuscrita das citações.
 - A revisão de citações passou a sortear uma nova citação, sem seguir a ordem

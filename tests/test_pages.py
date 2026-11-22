@@ -126,7 +126,17 @@ def test_create_app_creates_configured_data_dir(tmp_path):
 def test_static_assets_are_cacheable(client):
     response = client.get("/static/css/style.css")
     assert response.status_code == 200
-    assert "max-age=3600" in response.headers["Cache-Control"]
+    cache = response.headers["Cache-Control"]
+    assert "max-age=86400" in cache
+    assert "immutable" in cache
+
+
+def test_html_revalidates_and_static_urls_are_versioned(client):
+    response = client.get("/login")
+    assert "no-cache" in response.headers["Cache-Control"]
+    html = response.get_data(as_text=True)
+    assert "/static/css/style.css?v=" in html
+    assert "/static/js/theme-init.js?v=" in html
 
 
 def test_help_page_explains_three_methods(auth_client):
@@ -135,3 +145,12 @@ def test_help_page_explains_three_methods(auth_client):
     assert "Três notas" in page
     assert "Três tempos" in page
     assert 'href="/help"' in auth_client.get("/").get_data(as_text=True)
+
+
+def test_generated_cover_uses_private_cache(auth_client, book):
+    response = auth_client.get(f"/books/{book['id']}/cover.svg")
+    assert response.status_code == 200
+    cache = response.headers["Cache-Control"]
+    assert "private" in cache
+    assert "max-age=86400" in cache
+    assert "immutable" in cache
